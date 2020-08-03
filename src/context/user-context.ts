@@ -1,3 +1,7 @@
 import { createContext } from "react";
 
-export const UserContext = createContext<firebase.User | null>(null);
+export interface User extends firebase.User {
+    id: string;
+}
+
+export const UserContext = createContext<User | null>(null);

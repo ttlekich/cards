@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import Form from "./form";
 import RequiredFieldError from "./required-field-error";
-import { auth } from "../firebase/config";
+import { auth, createUserDocument } from "../firebase/config";
 
 type Inputs = {
     email: string;
@@ -17,11 +17,15 @@ const RegisterForm = () => {
         try {
             // Actually creates a user.
             // TODO - display error in form.
+            // TODO - loading states.
             const { user } = await auth.createUserWithEmailAndPassword(
                 email,
                 password
             );
             // Save user to a document.
+            if (user) {
+                await createUserDocument(user);
+            }
         } catch (error) {
             console.error(error);
         }

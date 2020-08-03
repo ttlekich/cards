@@ -9,8 +9,8 @@ import PrivateRoute from "./components/private-route";
 import Login from "./pages/login";
 import Navigation from "./components/navigation";
 import styled, { createGlobalStyle } from "styled-components";
-import { auth } from "./firebase/config";
-import { UserContext } from "./context/user-context";
+import { auth, createUserDocument } from "./firebase/config";
+import { UserContext, User } from "./context/user-context";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -36,12 +36,23 @@ const Wrapper = styled.div`
 `;
 
 const App = () => {
-    const [user, setUser] = useState<firebase.User | null>(null);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            setUser(user);
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const userRef = await createUserDocument(user);
+                userRef.onSnapshot((snapShot) => {
+                    setUser({
+                        id: snapShot.id,
+                        ...user,
+                    });
+                });
+            } else {
+                setUser(user);
+            }
         });
+
         return () => {
             unsubscribe();
         };
