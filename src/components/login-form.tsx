@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import RequiredFieldError from "./required-field-error";
 import Form from "./form";
 import { auth } from "../firebase/config";
-import { useHistory } from "react-router-dom";
+import Cookies from "js-cookie";
 
 type Inputs = {
     email: string;
@@ -12,12 +12,13 @@ type Inputs = {
 
 const LoginForm = () => {
     const { register, handleSubmit, errors, reset } = useForm<Inputs>();
-    let history = useHistory();
     const onSubmit = async (data: Inputs) => {
         const { email, password } = data;
         // TODO - loading/error states.
-        await auth.signInWithEmailAndPassword(email, password);
-        history.push("/lobby");
+        const token = await auth.signInWithEmailAndPassword(email, password);
+        Cookies.set("user", JSON.stringify(token.user), {
+            sameSite: "strict",
+        });
         reset();
     };
 

@@ -11,6 +11,8 @@ import Navigation from "./components/navigation";
 import styled, { createGlobalStyle } from "styled-components";
 import { auth, createUserDocument } from "./firebase/config";
 import { UserContext, User } from "./context/user-context";
+import Lobby from "./pages/lobby";
+import Cookies from "js-cookie";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -39,6 +41,14 @@ const App = () => {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
+        const userCookie = Cookies.get("user");
+        if (userCookie) {
+            const user = JSON.parse(userCookie) as User;
+            setUser(user);
+        }
+    }, []);
+
+    useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const userRef = await createUserDocument(user);
@@ -47,34 +57,45 @@ const App = () => {
                         id: snapShot.id,
                         ...user,
                     });
+                    Cookies.set("user", JSON.stringify(user), {
+                        sameSite: "strict",
+                    });
                 });
             } else {
                 setUser(user);
             }
         });
-
         return () => {
             unsubscribe();
         };
-    }, [user]);
+    }, []);
 
     return (
         <Wrapper>
             <GlobalStyle></GlobalStyle>
-            <Router>
-                <UserContext.Provider value={user}>
+            <UserContext.Provider value={user}>
+                <Router>
                     <Navigation></Navigation>
                     <Switch>
-                        <Route exact path="/">
+                        <Route exact path="/login">
+                            {user ? (
+                                <Redirect to="/lobby"></Redirect>
+                            ) : (
+                                <Login></Login>
+                            )}
+                        </Route>
+                        <PrivateRoute path="/lobby" to="/login">
+                            <Lobby></Lobby>
+                        </PrivateRoute>
+                        <PrivateRoute path="/game/:gameId" to="/login">
+                            <div>Game</div>
+                        </PrivateRoute>
+                        <Route path="/">
                             <Redirect to="/lobby"></Redirect>
                         </Route>
-                        <Route exact path="/login">
-                            <Login></Login>
-                        </Route>
-                        <PrivateRoute path="/lobby" to="/login"></PrivateRoute>
                     </Switch>
-                </UserContext.Provider>
-            </Router>
+                </Router>
+            </UserContext.Provider>
         </Wrapper>
     );
 };

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Route, Redirect } from "react-router-dom";
+import { UserContext } from "../context/user-context";
 
 type Props = {
     children?: React.ReactNode;
@@ -7,15 +8,14 @@ type Props = {
     to: string;
 };
 
-const IS_AUTHENTICATED = true;
-
 const PrivateRoute: React.FC<Props> = (props: Props) => {
     const { children } = props;
+    const user = useContext(UserContext);
     return (
         <Route
             path={props.path}
             render={({ location }) =>
-                IS_AUTHENTICATED ? (
+                user ? (
                     children
                 ) : (
                     <Redirect

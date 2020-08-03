@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import AuthButton from "./auth-button";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { UserContext } from "../context/user-context";
 
 const Header = styled.div`
     display: flex;
@@ -28,20 +29,25 @@ const Option = styled.div`
     padding: 10px 15px;
 `;
 
-const Navigation = () => (
-    <Header>
-        <Option>
-            <Link to="/">Cards</Link>
-        </Option>
-        <Options>
+const Navigation = () => {
+    const user = useContext(UserContext);
+    return (
+        <Header>
             <Option>
-                <Link to="/lobby">Lobby</Link>
+                <Link to="/">Cards</Link>
             </Option>
-            <Option>
-                <AuthButton></AuthButton>
-            </Option>
-        </Options>
-    </Header>
-);
+            <Options>
+                {user && (
+                    <Option>
+                        <Link to="/lobby">Lobby</Link>
+                    </Option>
+                )}
+                <Option>
+                    <AuthButton></AuthButton>
+                </Option>
+            </Options>
+        </Header>
+    );
+};
 
 export default Navigation;
