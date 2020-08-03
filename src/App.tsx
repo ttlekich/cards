@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     BrowserRouter as Router,
     Switch,
@@ -9,6 +9,8 @@ import PrivateRoute from "./components/private-route";
 import Login from "./pages/login";
 import Navigation from "./components/navigation";
 import styled, { createGlobalStyle } from "styled-components";
+import { auth } from "./firebase/config";
+import { UserContext } from "./context/user-context";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -34,20 +36,33 @@ const Wrapper = styled.div`
 `;
 
 const App = () => {
+    const [user, setUser] = useState<firebase.User | null>(null);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            setUser(user);
+        });
+        return () => {
+            unsubscribe();
+        };
+    }, [user]);
+
     return (
         <Wrapper>
             <GlobalStyle></GlobalStyle>
             <Router>
-                <Navigation></Navigation>
-                <Switch>
-                    <Route exact path="/">
-                        <Redirect to="/lobby"></Redirect>
-                    </Route>
-                    <Route exact path="/login">
-                        <Login></Login>
-                    </Route>
-                    <PrivateRoute path="/lobby" to="/login"></PrivateRoute>
-                </Switch>
+                <UserContext.Provider value={user}>
+                    <Navigation></Navigation>
+                    <Switch>
+                        <Route exact path="/">
+                            <Redirect to="/lobby"></Redirect>
+                        </Route>
+                        <Route exact path="/login">
+                            <Login></Login>
+                        </Route>
+                        <PrivateRoute path="/lobby" to="/login"></PrivateRoute>
+                    </Switch>
+                </UserContext.Provider>
             </Router>
         </Wrapper>
     );

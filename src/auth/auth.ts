@@ -1,11 +1,28 @@
+import { auth } from "../firebase/config";
+
 export const Auth = {
-    isAuthenticated: false,
-    authenticate(cb: () => void) {
-        Auth.isAuthenticated = true;
-        setTimeout(cb, 100); // fake async
+    _isAuthenticated: false,
+    isAuthenticated() {
+        return this._isAuthenticated;
     },
-    signout(cb: () => void) {
-        Auth.isAuthenticated = false;
-        setTimeout(cb, 100);
+    listen() {
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                this._isAuthenticated = true;
+            } else {
+                this._isAuthenticated = false;
+            }
+        });
+    },
+    signOut() {
+        auth.signOut()
+            .then(() => {
+                console.log("Sign out succesful.");
+            })
+            .catch((error) => {
+                console.error("Error signing out.", error);
+            });
     },
 };
+
+Auth.listen();

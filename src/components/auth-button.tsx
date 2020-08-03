@@ -1,15 +1,22 @@
-import React from "react";
-import { useHistory, Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useHistory } from "react-router-dom";
 import { Auth } from "../auth/auth";
+import { auth } from "../firebase/config";
+import { UserContext } from "../context/user-context";
+
+type Props = {
+    user: firebase.User;
+};
 
 const AuthButton = () => {
     let history = useHistory();
+    const user = useContext(UserContext);
 
-    return Auth.isAuthenticated ? (
+    return user ? (
         <div
             onClick={() => {
-                Auth.signout(() => history.push("/login"));
-                console.log(Auth.isAuthenticated);
+                auth.signOut();
+                history.push("/login");
             }}
         >
             Log Out
