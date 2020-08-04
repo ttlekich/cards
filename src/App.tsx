@@ -13,6 +13,7 @@ import { auth, createUserDocument } from "./firebase/config";
 import { UserContext, User } from "./context/user-context";
 import Lobby from "./pages/lobby";
 import Cookies from "js-cookie";
+import Game from "./pages/game";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -88,7 +89,7 @@ const App = () => {
                             <Lobby></Lobby>
                         </PrivateRoute>
                         <PrivateRoute path="/game/:gameId" to="/login">
-                            <div>Game</div>
+                            <Game></Game>
                         </PrivateRoute>
                         <Route path="/">
                             <Redirect to="/lobby"></Redirect>

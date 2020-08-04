@@ -12,7 +12,7 @@ const NewGameForm = () => {
     const { register, handleSubmit, errors, reset } = useForm<Inputs>();
     let history = useHistory();
     const onSubmit = async (data: Inputs) => {
-        history.push(`/game/${data.gameName}`);
+        history.push(`/game/${data.gameName.toLocaleLowerCase()}`);
         reset();
     };
 

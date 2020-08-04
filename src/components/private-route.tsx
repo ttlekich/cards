@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Route, Redirect } from "react-router-dom";
-import { UserContext } from "../context/user-context";
+import Cookies from "js-cookie";
 
 type Props = {
     children?: React.ReactNode;
@@ -10,7 +10,7 @@ type Props = {
 
 const PrivateRoute: React.FC<Props> = (props: Props) => {
     const { children } = props;
-    const user = useContext(UserContext);
+    const user = Cookies.get("user");
     return (
         <Route
             path={props.path}
