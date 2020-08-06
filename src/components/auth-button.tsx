@@ -1,23 +1,24 @@
-import React, { useContext } from "react";
-import { Link, useHistory } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
 import { auth } from "../firebase/config";
-import { UserContext } from "../context/user-context";
 import Cookies from "js-cookie";
+import { RootState } from "../redux/root.reducer";
+import { connect, ConnectedProps } from "react-redux";
 
-type Props = {
-    user: firebase.User;
-};
+const mapState = (state: RootState) => ({ user: state.user });
+const connector = connect(mapState, {});
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromRedux;
 
-const AuthButton = () => {
-    let history = useHistory();
-    const user = useContext(UserContext);
-
+const AuthButton = (props: Props) => {
+    const { user } = props.user;
     return user ? (
         <div
             onClick={() => {
                 auth.signOut();
-                history.push("/login");
-                Cookies.remove("user");
+                Cookies.remove("user", {
+                    sameSite: "strict",
+                });
             }}
         >
             Log Out
@@ -27,4 +28,4 @@ const AuthButton = () => {
     );
 };
 
-export default AuthButton;
+export default connector(AuthButton);

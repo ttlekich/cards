@@ -4,6 +4,7 @@ import RequiredFieldError from "./required-field-error";
 import Form from "./form";
 import { auth } from "../firebase/config";
 import Cookies from "js-cookie";
+import { useHistory } from "react-router-dom";
 
 type Inputs = {
     email: string;
@@ -12,6 +13,7 @@ type Inputs = {
 
 const LoginForm = () => {
     const { register, handleSubmit, errors, reset } = useForm<Inputs>();
+    let history = useHistory();
     const onSubmit = async (data: Inputs) => {
         const { email, password } = data;
         // TODO - loading/error states.
@@ -20,6 +22,7 @@ const LoginForm = () => {
             sameSite: "strict",
         });
         reset();
+        history.push("/lobby");
     };
 
     return (

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { connect, ConnectedProps } from "react-redux";
 import {
     BrowserRouter as Router,
     Switch,
@@ -10,10 +11,13 @@ import Login from "./pages/login";
 import Navigation from "./components/navigation";
 import styled, { createGlobalStyle } from "styled-components";
 import { auth, createUserDocument } from "./firebase/config";
-import { UserContext, User } from "./context/user-context";
 import Lobby from "./pages/lobby";
 import Cookies from "js-cookie";
 import Game from "./pages/game";
+import { UserAction } from "./redux/user/user.actions";
+import { User } from "./redux/user/user.types";
+import { RootState } from "./redux/root.reducer";
+import { Dispatch } from "redux";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -38,8 +42,16 @@ const Wrapper = styled.div`
     text-align: center;
 `;
 
-const App = () => {
-    const [user, setUser] = useState<User | null>(null);
+const mapState = (state: RootState) => ({ user: state.user });
+const mapDispatch = (dispatch: Dispatch<UserAction>) => ({
+    setUser: (user: User | null) => dispatch(UserAction.setUser(user)),
+});
+const connector = connect(mapState, mapDispatch);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromRedux;
+
+const App = (props: Props) => {
+    const { setUser } = props;
 
     useEffect(() => {
         const userCookie = Cookies.get("user");
@@ -47,7 +59,7 @@ const App = () => {
             const user = JSON.parse(userCookie) as User;
             setUser(user);
         }
-    }, []);
+    }, [setUser]);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -69,36 +81,30 @@ const App = () => {
         return () => {
             unsubscribe();
         };
-    }, []);
+    }, [setUser]);
 
     return (
         <Wrapper>
             <GlobalStyle></GlobalStyle>
-            <UserContext.Provider value={user}>
-                <Router>
-                    <Navigation></Navigation>
-                    <Switch>
-                        <Route exact path="/login">
-                            {user ? (
-                                <Redirect to="/lobby"></Redirect>
-                            ) : (
-                                <Login></Login>
-                            )}
-                        </Route>
-                        <PrivateRoute path="/lobby" to="/login">
-                            <Lobby></Lobby>
-                        </PrivateRoute>
-                        <PrivateRoute path="/game/:gameId" to="/login">
-                            <Game></Game>
-                        </PrivateRoute>
-                        <Route path="/">
-                            <Redirect to="/lobby"></Redirect>
-                        </Route>
-                    </Switch>
-                </Router>
-            </UserContext.Provider>
+            <Router>
+                <Navigation></Navigation>
+                <Switch>
+                    <Route exact path="/login">
+                        <Login></Login>
+                    </Route>
+                    <PrivateRoute path="/lobby" to="/login">
+                        <Lobby></Lobby>
+                    </PrivateRoute>
+                    <PrivateRoute path="/game/:gameId" to="/login">
+                        <Game></Game>
+                    </PrivateRoute>
+                    <Route path="/">
+                        <Redirect to="/lobby"></Redirect>
+                    </Route>
+                </Switch>
+            </Router>
         </Wrapper>
     );
 };
 
-export default App;
+export default connector(App);

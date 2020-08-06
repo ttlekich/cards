@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import Form from "./form";
 import RequiredFieldError from "./required-field-error";
 import { auth, createUserDocument } from "../firebase/config";
+import { useHistory } from "react-router-dom";
 
 type Inputs = {
     email: string;
@@ -12,6 +13,7 @@ type Inputs = {
 
 const RegisterForm = () => {
     const { register, handleSubmit, errors, reset, watch } = useForm<Inputs>();
+    let history = useHistory();
     const onSubmit = async (data: Inputs) => {
         const { email, password } = data;
         try {
@@ -25,6 +27,7 @@ const RegisterForm = () => {
             // Save user to a document.
             if (user) {
                 await createUserDocument(user);
+                history.push("/lobby");
             }
         } catch (error) {
             console.error(error);

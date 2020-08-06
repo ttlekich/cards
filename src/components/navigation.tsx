@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
+import React from "react";
 import AuthButton from "./auth-button";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { UserContext } from "../context/user-context";
+import { RootState } from "../redux/root.reducer";
+import { connect, ConnectedProps } from "react-redux";
 
 const Header = styled.div`
     display: flex;
@@ -29,8 +30,13 @@ const Option = styled.div`
     padding: 10px 15px;
 `;
 
-const Navigation = () => {
-    const user = useContext(UserContext);
+const mapState = (state: RootState) => ({ user: state.user });
+const connector = connect(mapState, {});
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromRedux;
+
+const Navigation = (props: Props) => {
+    const { user } = props.user;
     return (
         <Header>
             <Option>
@@ -50,4 +56,4 @@ const Navigation = () => {
     );
 };
 
-export default Navigation;
+export default connector(Navigation);
