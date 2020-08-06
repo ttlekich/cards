@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { connect, ConnectedProps } from "react-redux";
+import { RootState } from "../redux/root.reducer";
 
 const Wrapper = styled.div`
     display: flex;
@@ -10,8 +12,37 @@ const Wrapper = styled.div`
     min-height: 200px;
 `;
 
-const PlayerContainer = () => {
-    return <Wrapper>Player</Wrapper>;
+const Cards = styled.div`
+    width: 75%;
+`;
+
+const Controls = styled.div`
+    width: 25%;
+`;
+
+const mapState = (state: RootState) => ({ user: state.user });
+const connector = connect(mapState, {});
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromRedux;
+
+const PlayerContainer = (props: Props) => {
+    const user = props.user;
+    const [localReady, setLocalReady] = useState(false);
+
+    const handleClick = (_: React.SyntheticEvent) => {
+        setLocalReady(!localReady);
+    };
+
+    return (
+        <Wrapper>
+            <Cards>You Cards</Cards>
+            <Controls>
+                <button onClick={handleClick}>
+                    {localReady ? "Cancel" : "Ready"}
+                </button>
+            </Controls>
+        </Wrapper>
+    );
 };
 
-export default PlayerContainer;
+export default connector(PlayerContainer);
