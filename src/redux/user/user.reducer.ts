@@ -1,4 +1,4 @@
-import { SET_USER, User } from "./user.types";
+import { USER_SET, User } from "./user.types";
 import { UserAction } from "./user.actions";
 
 interface UserState {
@@ -10,7 +10,7 @@ const INITIAL_STATE: UserState = {
 
 const userReducer = (state = INITIAL_STATE, action: UserAction) => {
     switch (action.type) {
-        case SET_USER:
+        case USER_SET:
             return {
                 ...state,
                 user: action.payload,

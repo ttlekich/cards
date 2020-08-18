@@ -1,10 +1,10 @@
-import { SET_USER, User } from "./user.types";
+import { USER_SET, User } from "./user.types";
 
 export type UserAction = ReturnType<typeof setUser>;
 
 const setUser = (user: User | null) => {
     return {
-        type: SET_USER,
+        type: USER_SET,
         payload: user,
     };
 };

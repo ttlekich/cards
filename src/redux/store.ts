@@ -1,10 +1,13 @@
 import logger from "redux-logger";
 import { applyMiddleware, createStore } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
+import createSagaMiddleware from "redux-saga";
 
 import rootReducer from "./root.reducer";
 
-const middlewares = [logger];
+const sagaMiddleware = createSagaMiddleware();
+
+const middlewares = [logger, sagaMiddleware];
 
 // TODO -- use dev tools only in dev
 
