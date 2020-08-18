@@ -10,7 +10,6 @@ import PrivateRoute from "./components/private-route";
 import Login from "./pages/login";
 import Navigation from "./components/navigation";
 import styled, { createGlobalStyle } from "styled-components";
-import { auth, createUserDocument } from "./firebase/config";
 import Lobby from "./pages/lobby";
 import Cookies from "js-cookie";
 import Game from "./pages/game";
@@ -18,6 +17,7 @@ import { UserAction } from "./redux/user/user.actions";
 import { User } from "./redux/user/user.types";
 import { RootState } from "./redux/root.reducer";
 import { Dispatch } from "redux";
+import { AppAction } from "./redux/app/app.actions";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -43,45 +43,24 @@ const Wrapper = styled.div`
 `;
 
 const mapState = (state: RootState) => ({ user: state.user });
-const mapDispatch = (dispatch: Dispatch<UserAction>) => ({
-    setUser: (user: User | null) => dispatch(UserAction.setUser(user)),
+const mapDispatch = (dispatch: Dispatch<UserAction | AppAction>) => ({
+    userSet: (user: User | null) => dispatch(UserAction.userSet(user)),
+    appLoaded: () => dispatch(AppAction.appLoaded()),
 });
 const connector = connect(mapState, mapDispatch);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromRedux;
 
 const App = (props: Props) => {
-    const { setUser } = props;
+    const { userSet } = props;
 
     useEffect(() => {
         const userCookie = Cookies.get("user");
         if (userCookie) {
             const user = JSON.parse(userCookie) as User;
-            setUser(user);
+            userSet(user);
         }
-    }, [setUser]);
-
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const userRef = await createUserDocument(user);
-                userRef.onSnapshot((snapShot) => {
-                    setUser({
-                        id: snapShot.id,
-                        ...user,
-                    });
-                    Cookies.set("user", JSON.stringify(user), {
-                        sameSite: "strict",
-                    });
-                });
-            } else {
-                setUser(user);
-            }
-        });
-        return () => {
-            unsubscribe();
-        };
-    }, [setUser]);
+    }, [userSet]);
 
     return (
         <Wrapper>
