@@ -2,25 +2,39 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import RequiredFieldError from "./required-field-error";
 import Form from "./form";
-import { auth } from "../firebase/config";
-import Cookies from "js-cookie";
 import { useHistory } from "react-router-dom";
+import { Dispatch } from "redux";
+import { connect, ConnectedProps } from "react-redux";
+import { UserAction, UserInfo } from "../redux/user/user.types";
+import { userLogin } from "../redux/user/user.actions";
 
 type Inputs = {
     email: string;
     password: string;
 };
 
-const LoginForm = () => {
+const mapDispatch = (dispatch: Dispatch<UserAction>) => ({
+    userLogin: (userInfo: UserInfo) => dispatch(userLogin(userInfo)),
+});
+const connector = connect(null, mapDispatch);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = PropsFromRedux;
+
+const LoginForm = (props: Props) => {
     const { register, handleSubmit, errors, reset } = useForm<Inputs>();
+    const { userLogin } = props;
     let history = useHistory();
     const onSubmit = async (data: Inputs) => {
         const { email, password } = data;
         // TODO - loading/error states.
-        const token = await auth.signInWithEmailAndPassword(email, password);
-        Cookies.set("user", JSON.stringify(token.user), {
-            sameSite: "strict",
+        userLogin({
+            email,
+            password,
         });
+        // const token = await auth.signInWithEmailAndPassword(email, password);
+        // Cookies.set("user", JSON.stringify(token.user), {
+        //     sameSite: "strict",
+        // });
         reset();
         history.push("/lobby");
     };
@@ -57,4 +71,4 @@ const LoginForm = () => {
     );
 };
 
-export default LoginForm;
+export default connector(LoginForm);

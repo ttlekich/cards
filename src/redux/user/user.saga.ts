@@ -1,12 +1,32 @@
-import { take, call, put, all } from "redux-saga/effects";
+import { take, call, put, all, takeLatest } from "redux-saga/effects";
 import { eventChannel, EventChannel } from "redux-saga";
 import { auth, createUserDocument } from "../../firebase/config";
-import { UserAction } from "./user.actions";
 import Cookies from "js-cookie";
+import { USER_LOGIN, UserLoginAction, UserInfo } from "./user.types";
+import { userSet } from "./user.actions";
 
-// export function* watchUserLogin() {
-//     yield takeEvery("REFRESH_QUAKES", handleLoadQuakes);
-// }
+export function* watchUserLogin() {
+    yield takeLatest(USER_LOGIN, loginUser);
+}
+
+function* loginUser(action: UserLoginAction) {
+    const token: firebase.auth.UserCredential = yield call(
+        signInWithEmailAndPassword,
+        action.payload
+    );
+    if (token.user) {
+        const user = { ...token.user, id: "" };
+        Cookies.set("user", JSON.stringify(user), {
+            sameSite: "strict",
+        });
+        yield put(userSet(user));
+    }
+}
+
+const signInWithEmailAndPassword = async (userInfo: UserInfo) => {
+    const { email, password } = userInfo;
+    return await auth.signInWithEmailAndPassword(email, password);
+};
 
 // export function* watchUserRegister() {}
 
@@ -22,7 +42,7 @@ export function* watchFirebaseAuth() {
         );
         userRef.onSnapshot((snapShot) => {
             put(
-                UserAction.userSet({
+                userSet({
                     id: snapShot.id,
                     ...user,
                 })
@@ -32,7 +52,7 @@ export function* watchFirebaseAuth() {
             });
         });
     } else {
-        put(UserAction.userSet(null));
+        put(userSet(null));
     }
 }
 
@@ -49,5 +69,5 @@ function getFirebaseAuthChannel() {
 }
 
 export default function* userSaga() {
-    yield all([watchFirebaseAuth()]);
+    yield all([watchFirebaseAuth(), watchUserLogin()]);
 }

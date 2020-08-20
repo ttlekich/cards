@@ -13,11 +13,11 @@ import styled, { createGlobalStyle } from "styled-components";
 import Lobby from "./pages/lobby";
 import Cookies from "js-cookie";
 import Game from "./pages/game";
-import { UserAction } from "./redux/user/user.actions";
-import { User } from "./redux/user/user.types";
+import { User, UserAction } from "./redux/user/user.types";
 import { RootState } from "./redux/root.reducer";
 import { Dispatch } from "redux";
 import { AppAction } from "./redux/app/app.actions";
+import { userSet } from "./redux/user/user.actions";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -44,7 +44,7 @@ const Wrapper = styled.div`
 
 const mapState = (state: RootState) => ({ user: state.user });
 const mapDispatch = (dispatch: Dispatch<UserAction | AppAction>) => ({
-    userSet: (user: User | null) => dispatch(UserAction.userSet(user)),
+    userSet: (user: User | null) => dispatch(userSet(user)),
     appLoaded: () => dispatch(AppAction.appLoaded()),
 });
 const connector = connect(mapState, mapDispatch);

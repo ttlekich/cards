@@ -1,14 +1,22 @@
-import { USER_SET, User } from "./user.types";
+import {
+    USER_SET,
+    User,
+    USER_LOGIN,
+    UserInfo,
+    UserLoginAction,
+    UserSetAction,
+} from "./user.types";
 
-export type UserAction = ReturnType<typeof userSet>;
-
-const userSet = (user: User | null) => {
+export const userSet = (user: User | null): UserSetAction => {
     return {
         type: USER_SET,
         payload: user,
     };
 };
 
-export const UserAction = {
-    userSet,
+export const userLogin = (userInfo: UserInfo): UserLoginAction => {
+    return {
+        type: USER_LOGIN,
+        payload: userInfo,
+    };
 };

@@ -1,5 +1,4 @@
-import { USER_SET, User } from "./user.types";
-import { UserAction } from "./user.actions";
+import { USER_SET, User, UserAction } from "./user.types";
 
 interface UserState {
     user: User | null;
