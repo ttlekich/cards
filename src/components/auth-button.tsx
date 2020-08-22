@@ -1,24 +1,28 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { auth } from "../firebase/config";
 import Cookies from "js-cookie";
 import { RootState } from "../redux/root.reducer";
 import { connect, ConnectedProps } from "react-redux";
+import { UserAction, UserLogoutPayload } from "../redux/user/user.types";
+import { Dispatch } from "redux";
+import { userLogout } from "../redux/user/user.actions";
 
 const mapState = (state: RootState) => ({ user: state.user });
-const connector = connect(mapState, {});
+const mapDispatch = (dispatch: Dispatch<UserAction>) => ({
+    userLogout: (payload: UserLogoutPayload) => dispatch(userLogout(payload)),
+});
+const connector = connect(mapState, mapDispatch);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromRedux;
 
 const AuthButton = (props: Props) => {
     const { user } = props.user;
+    const history = useHistory();
     return user ? (
         <div
             onClick={() => {
-                auth.signOut();
-                Cookies.remove("user", {
-                    sameSite: "strict",
-                });
+                props.userLogout({ history });
             }}
         >
             Log Out

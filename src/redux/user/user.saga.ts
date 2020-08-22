@@ -2,7 +2,13 @@ import { take, call, put, all, takeLatest } from "redux-saga/effects";
 import { eventChannel, EventChannel } from "redux-saga";
 import { auth, createUserDocument } from "../../firebase/config";
 import Cookies from "js-cookie";
-import { USER_LOGIN, UserLoginAction, UserInfo } from "./user.types";
+import {
+    USER_LOGIN,
+    UserLoginAction,
+    UserLoginPayload,
+    UserLogoutAction,
+    USER_LOGOUT,
+} from "./user.types";
 import { userSet } from "./user.actions";
 
 export function* watchUserLogin() {
@@ -10,22 +16,34 @@ export function* watchUserLogin() {
 }
 
 function* loginUser(action: UserLoginAction) {
-    const token: firebase.auth.UserCredential = yield call(
-        signInWithEmailAndPassword,
+    const { payload } = action;
+    const { history } = payload;
+    const token: firebase.auth.UserCredential = yield signInWithEmailAndPassword(
         action.payload
     );
-    if (token.user) {
-        const user = { ...token.user, id: "" };
-        Cookies.set("user", JSON.stringify(user), {
-            sameSite: "strict",
-        });
-        yield put(userSet(user));
-    }
+    Cookies.set("user", JSON.stringify(token.user), {
+        sameSite: "strict",
+    });
+    history.push("/lobby");
 }
 
-const signInWithEmailAndPassword = async (userInfo: UserInfo) => {
+const signInWithEmailAndPassword = async (userInfo: UserLoginPayload) => {
     const { email, password } = userInfo;
     return await auth.signInWithEmailAndPassword(email, password);
+};
+
+export function* watchUserLogout() {
+    yield takeLatest(USER_LOGOUT, logoutUser);
+}
+
+const logoutUser = (action: UserLogoutAction) => {
+    const { payload } = action;
+    const { history } = payload;
+    auth.signOut();
+    Cookies.remove("user", {
+        sameSite: "strict",
+    });
+    history.push("/login");
 };
 
 // export function* watchUserRegister() {}
@@ -69,5 +87,5 @@ function getFirebaseAuthChannel() {
 }
 
 export default function* userSaga() {
-    yield all([watchFirebaseAuth(), watchUserLogin()]);
+    yield all([watchFirebaseAuth(), watchUserLogin(), watchUserLogout()]);
 }

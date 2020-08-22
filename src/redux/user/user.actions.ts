@@ -2,9 +2,12 @@ import {
     USER_SET,
     User,
     USER_LOGIN,
-    UserInfo,
     UserLoginAction,
     UserSetAction,
+    UserLoginPayload,
+    UserLogoutAction,
+    USER_LOGOUT,
+    UserLogoutPayload,
 } from "./user.types";
 
 export const userSet = (user: User | null): UserSetAction => {
@@ -14,9 +17,16 @@ export const userSet = (user: User | null): UserSetAction => {
     };
 };
 
-export const userLogin = (userInfo: UserInfo): UserLoginAction => {
+export const userLogin = (userInfo: UserLoginPayload): UserLoginAction => {
     return {
         type: USER_LOGIN,
         payload: userInfo,
+    };
+};
+
+export const userLogout = (payload: UserLogoutPayload): UserLogoutAction => {
+    return {
+        type: USER_LOGOUT,
+        payload,
     };
 };
