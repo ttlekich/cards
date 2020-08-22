@@ -5,7 +5,7 @@ import Form from "./form";
 import { useHistory } from "react-router-dom";
 import { Dispatch } from "redux";
 import { connect, ConnectedProps } from "react-redux";
-import { UserAction, UserInfo } from "../redux/user/user.types";
+import { UserAction, UserLoginPayload } from "../redux/user/user.types";
 import { userLogin } from "../redux/user/user.actions";
 
 type Inputs = {
@@ -14,7 +14,7 @@ type Inputs = {
 };
 
 const mapDispatch = (dispatch: Dispatch<UserAction>) => ({
-    userLogin: (userInfo: UserInfo) => dispatch(userLogin(userInfo)),
+    userLogin: (payload: UserLoginPayload) => dispatch(userLogin(payload)),
 });
 const connector = connect(null, mapDispatch);
 type PropsFromRedux = ConnectedProps<typeof connector>;
@@ -26,17 +26,12 @@ const LoginForm = (props: Props) => {
     let history = useHistory();
     const onSubmit = async (data: Inputs) => {
         const { email, password } = data;
-        // TODO - loading/error states.
         userLogin({
             email,
             password,
+            history,
         });
-        // const token = await auth.signInWithEmailAndPassword(email, password);
-        // Cookies.set("user", JSON.stringify(token.user), {
-        //     sameSite: "strict",
-        // });
         reset();
-        history.push("/lobby");
     };
 
     return (
