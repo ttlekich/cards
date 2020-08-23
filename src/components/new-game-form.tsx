@@ -7,6 +7,7 @@ import { RootState } from "../redux/root.reducer";
 import { connect, ConnectedProps } from "react-redux";
 import { GameAction } from "../redux/game/game.actions";
 import { Dispatch } from "redux";
+import { NewGamePayload } from "../redux/game/game.types";
 
 type Inputs = {
     gameName: string;
@@ -14,7 +15,7 @@ type Inputs = {
 
 const mapState = (state: RootState) => ({ game: state.game });
 const mapDispatch = (dispatch: Dispatch<GameAction>) => ({
-    newGame: (name: string) => dispatch(GameAction.newGame(name)),
+    newGame: (payload: NewGamePayload) => dispatch(GameAction.newGame(payload)),
 });
 const connector = connect(mapState, mapDispatch);
 type PropsFromRedux = ConnectedProps<typeof connector>;
@@ -25,9 +26,8 @@ const NewGameForm = (props: Props) => {
     const { register, handleSubmit, errors, reset } = useForm<Inputs>();
     let history = useHistory();
     const onSubmit = async (data: Inputs) => {
-        history.push(`/game/${data.gameName.toLowerCase()}`);
         reset();
-        newGame(data.gameName.toLowerCase());
+        newGame({ name: data.gameName.toLowerCase(), history });
     };
 
     return (

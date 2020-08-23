@@ -1,7 +1,5 @@
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
-import { auth } from "../firebase/config";
-import Cookies from "js-cookie";
 import { RootState } from "../redux/root.reducer";
 import { connect, ConnectedProps } from "react-redux";
 import { UserAction, UserLogoutPayload } from "../redux/user/user.types";

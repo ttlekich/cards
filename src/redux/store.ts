@@ -10,8 +10,6 @@ const sagaMiddleware = createSagaMiddleware();
 
 const middlewares = [logger, sagaMiddleware];
 
-// TODO -- use dev tools only in dev
-
 const store = createStore(
     rootReducer,
     composeWithDevTools(applyMiddleware(...middlewares))

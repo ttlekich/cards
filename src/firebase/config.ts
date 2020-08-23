@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
 };
 
 export const createUserDocument = async (user: firebase.User) => {
-    const userRef = firestore.doc(`users/${user.uid}`);
+    const userRef = db.doc(`users/${user.uid}`);
     const snapShot = await userRef.get();
     if (!snapShot.exists) {
         const { email } = user;
@@ -33,7 +33,7 @@ export const createUserDocument = async (user: firebase.User) => {
 firebase.initializeApp(FIREBASE_CONFIG);
 
 export const auth = firebase.auth();
-export const firestore = firebase.firestore();
+export const db = firebase.firestore();
 
 // Google Auth Utility
 // const provider = new firebase.auth.GoogleAuthProvider();
