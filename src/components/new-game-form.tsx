@@ -5,9 +5,9 @@ import RequiredFieldError from "./required-field-error";
 import { useHistory } from "react-router-dom";
 import { RootState } from "../redux/root.reducer";
 import { connect, ConnectedProps } from "react-redux";
-import { GameAction } from "../redux/game/game.actions";
+import { newGame } from "../redux/game/game.actions";
 import { Dispatch } from "redux";
-import { NewGamePayload } from "../redux/game/game.types";
+import { NewGamePayload, GameAction } from "../redux/game/game.types";
 
 type Inputs = {
     gameName: string;
@@ -15,7 +15,7 @@ type Inputs = {
 
 const mapState = (state: RootState) => ({ game: state.game });
 const mapDispatch = (dispatch: Dispatch<GameAction>) => ({
-    newGame: (payload: NewGamePayload) => dispatch(GameAction.newGame(payload)),
+    newGame: (payload: NewGamePayload) => dispatch(newGame(payload)),
 });
 const connector = connect(mapState, mapDispatch);
 type PropsFromRedux = ConnectedProps<typeof connector>;
@@ -27,7 +27,10 @@ const NewGameForm = (props: Props) => {
     let history = useHistory();
     const onSubmit = async (data: Inputs) => {
         reset();
-        newGame({ name: data.gameName.toLowerCase(), history });
+        newGame({
+            game: { name: data.gameName.toLowerCase() },
+            meta: { history },
+        });
     };
 
     return (

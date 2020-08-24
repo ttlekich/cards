@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, Dispatch } from "react";
 import styled from "styled-components";
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../redux/root.reducer";
+import { GameUpdatePayload, GameAction } from "../redux/game/game.types";
+import { gameUpdate } from "../redux/game/game.actions";
 
 const Wrapper = styled.div`
     display: flex;
@@ -20,17 +22,23 @@ const Controls = styled.div`
     width: 25%;
 `;
 
-const mapState = (state: RootState) => ({ user: state.user });
-const connector = connect(mapState, {});
+const mapState = (state: RootState) => ({ user: state.user, game: state.game });
+const mapDispatch = (dispatch: Dispatch<GameAction>) => ({
+    gameUpdate: (payload: GameUpdatePayload) => dispatch(gameUpdate(payload)),
+});
+const connector = connect(mapState, mapDispatch);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromRedux;
 
 const PlayerContainer = (props: Props) => {
-    const user = props.user;
-    const [localReady, setLocalReady] = useState(false);
+    const [localReady] = useState(props.game.isReady);
 
     const handleClick = (_: React.SyntheticEvent) => {
-        setLocalReady(!localReady);
+        props.gameUpdate({
+            game: {
+                isReady: true,
+            },
+        });
     };
 
     return (

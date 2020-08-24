@@ -1,6 +1,5 @@
 import { UserGameAction } from "./user-game.actions";
-import { GameAction } from "../game/game.actions";
-import { NEW_GAME } from "../game/game.types";
+import { NEW_GAME, GameAction } from "../game/game.types";
 
 const INITIAL_STATE = {
     name: "",

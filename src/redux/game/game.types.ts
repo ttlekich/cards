@@ -3,6 +3,7 @@ import * as t from "io-ts";
 
 export const Game = t.type({
     name: t.string,
+    isReady: t.boolean,
 });
 
 export type Game = t.TypeOf<typeof Game>;
@@ -13,8 +14,10 @@ export type NewGameAction = {
     payload: NewGamePayload;
 };
 export type NewGamePayload = {
-    history: History;
-    name: string;
+    game: Partial<Game> & { name: string };
+    meta: {
+        history: History;
+    };
 };
 
 export const GAME_UPDATE = "game/update";
@@ -23,7 +26,19 @@ export type GameUpdateAction = {
     payload: GameUpdatePayload;
 };
 export type GameUpdatePayload = {
-    game: Game;
+    game: Partial<Game>;
 };
 
-export type GameAction = NewGameAction;
+export const GAME_STATE_UPDATE = "game/state_update";
+export type GameStateUpdateAction = {
+    type: typeof GAME_STATE_UPDATE;
+    payload: GameStateUpdatePayload;
+};
+export type GameStateUpdatePayload = {
+    game: Partial<Game>;
+};
+
+export type GameAction =
+    | NewGameAction
+    | GameUpdateAction
+    | GameStateUpdateAction;
