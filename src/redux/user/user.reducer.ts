@@ -1,4 +1,5 @@
 import { USER_SET, User, UserAction } from "./user.types";
+import produce, { Draft } from "immer";
 
 interface UserState {
     user: User | null;
@@ -7,16 +8,14 @@ const INITIAL_STATE: UserState = {
     user: null,
 };
 
-const userReducer = (state = INITIAL_STATE, action: UserAction) => {
+const userReducer = produce((draft: Draft<UserState>, action: UserAction) => {
     switch (action.type) {
         case USER_SET:
-            return {
-                ...state,
-                user: action.payload,
-            };
+            draft.user = action.payload;
+            return draft;
         default:
-            return state;
+            return draft;
     }
-};
+}, INITIAL_STATE);
 
 export default userReducer;

@@ -1,4 +1,12 @@
-import { all, takeEvery, call, put, take, select } from "redux-saga/effects";
+import {
+    all,
+    takeEvery,
+    call,
+    put,
+    take,
+    select,
+    cancelled,
+} from "redux-saga/effects";
 import {
     NEW_GAME,
     NewGameAction,
@@ -24,9 +32,9 @@ function* gameSetup(action: NewGameAction) {
     const { payload } = action;
     const { name } = payload.game;
     const { history } = payload.meta;
+    history.push(`/game/${name.toLowerCase()}`);
     yield call(updateGameDocument, action);
     yield call(subscribeToGameDocument, name);
-    history.push(`/game/${name.toLowerCase()}`);
 }
 
 function* updateGameDocument(action: GameAction) {
@@ -43,13 +51,22 @@ function* updateGameDocument(action: GameAction) {
 
 function* subscribeToGameDocument(name: string) {
     const channel = yield call(getGameChannel, name);
-    const game = yield take(channel);
-    console.log(game);
-    const decodedGame = Game.decode(game);
-    if (isLeft(decodedGame)) {
-        console.log("ERROR");
-    } else {
-        yield put(gameStateUpdate({ game: decodedGame.right }));
+    while (true) {
+        try {
+            const game = yield take(channel);
+            const decodedGame = Game.decode(game);
+            if (isLeft(decodedGame)) {
+                console.log("ERROR");
+            } else {
+                console.log(decodedGame.right);
+                yield put(gameStateUpdate({ game: decodedGame.right }));
+            }
+        } finally {
+            if (yield cancelled()) {
+                channel.close();
+                console.log(`Game Channel Closed ${name}`);
+            }
+        }
     }
 }
 
