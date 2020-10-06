@@ -39,9 +39,17 @@ export const App = () => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const users = await effects.api.getUsers();
-            if (E.isRight(users)) {
-                console.log("users", users.right);
+            // const users = await effects.api.getUsers();
+            // if (E.isRight(users)) {
+            //     console.log("users", users.right);
+            // }
+
+            const token = await effects.api.loginUser({
+                email: "ttlekich@gmail.com",
+                password: "",
+            });
+            if (E.isRight(token)) {
+                console.log("token", token.right);
             }
         };
         fetchUsers();
