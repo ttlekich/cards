@@ -1,12 +1,27 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
+import page from "page";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/function";
 import { User, Users } from "../entities/user";
 import Cookies from "js-cookie";
+
+type IParams = {
+    [param: string]: string;
+} | void;
+
+export const router = {
+    initialize(routes: { [url: string]: (params: IParams) => void }) {
+        Object.keys(routes).forEach((url) => {
+            page(url, ({ params }) => routes[url](params));
+        });
+        page.start();
+    },
+    open: (url: string) => page.show(url),
+};
 
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDZbJPyeWwtR4kBpSUrBDOPEx496q8smBc",
@@ -18,7 +33,18 @@ const FIREBASE_CONFIG = {
     appId: "1:276641378807:web:a362d952f27a201ebf7ef2",
 };
 
-// We use IIFE to hide the private "app" variable
+export const cookies = (() => {
+    const CARDS_USER_LOAD = "CARDS_USER_LOAD";
+    const CARDS_USER_SAVE = "CARDS_USER_SAVE";
+    return {
+        loadUser: () => Cookies.get(CARDS_USER_LOAD),
+        saveUser: (user: User) =>
+            Cookies.set(CARDS_USER_SAVE, JSON.stringify(user), {
+                sameSite: "strict",
+            }),
+    };
+})();
+
 export const api = (() => {
     let app: O.Option<firebase.app.App> = O.none;
     let db: O.Option<firebase.firestore.Firestore> = O.none;
@@ -72,17 +98,14 @@ export const api = (() => {
                     )
                 ),
                 TE.map((token) => {
-                    Cookies.set("user", JSON.stringify(token.user), {
-                        sameSite: "strict",
-                    });
-                    return token.user;
-                }),
-                TE.map((rawUser) => {
                     return pipe(
-                        User.decode(rawUser),
+                        User.decode(token.user),
                         E.bimap(
                             (err) => new Error(`${err}`),
-                            (user) => user
+                            (user) => {
+                                cookies.saveUser(user);
+                                return user;
+                            }
                         )
                     );
                 })

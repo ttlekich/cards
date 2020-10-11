@@ -1,23 +1,18 @@
-import { Action } from "overmind";
+import { Operator } from "overmind";
+// import * as E from "fp-ts/lib/Either";
+// import { User } from "../entities/user";
+import * as o from "./operators";
+import { Page } from "../types";
 
-export const noArgAction: Action = (context, value) => {
-    return value; // this becomes "void"
-};
+export const showHomePage: Operator = o.setPage(Page.HOME);
 
-export const argAction: Action<string> = (context, value) => {
-    console.log(value);
-};
+export const showLoginPage: Operator = o.setPage(Page.LOGIN);
 
-export const noArgWithReturnTypeAction: Action<void, string> = (
-    context,
-    value
-) => {
-    return "foo";
-};
-
-export const argWithReturnTypeAction: Action<string, string> = (
-    context,
-    value
-) => {
-    return value + "!!!";
-};
+// export const showUsersPage: AsyncAction = async ({ state, effects }) => {
+//     state.isLoadingUsers = true;
+//     state.users = E.fold(
+//         (e) => [] as User[],
+//         (users: User[]) => users
+//     )(await effects.api.getUsers());
+//     state.isLoadingUsers = false;
+// };

@@ -1,15 +1,13 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-// import PrivateRoute from "./components/private-route";
 // import Login from "./pages/login";
 // import Navigation from "./components/navigation";
 import styled, { createGlobalStyle } from "styled-components";
 // import Lobby from "./pages/lobby";
-// import Cookies from "js-cookie";
 // import Game from "./pages/game";
 // import { User } from "./entities/user";
 import { useOvermind } from "./overmind";
 import * as E from "fp-ts/lib/Either";
+import { Page } from "./types";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -35,7 +33,7 @@ const Wrapper = styled.div`
 `;
 
 export const App = () => {
-    const { effects } = useOvermind();
+    const { state, effects } = useOvermind();
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -63,10 +61,9 @@ export const App = () => {
     return (
         <Wrapper>
             <GlobalStyle></GlobalStyle>
-            <Router>
-                <div>{"Hello"}</div>
-                {/* <Navigation></Navigation>
-                <Switch>
+            {state.currentPage === Page.HOME ? <h1>Home</h1> : null}
+            {state.currentPage === Page.LOGIN ? <h1>Login</h1> : null}
+            {/* <Navigation></Navigation> <Switch>
                     <Route exact path="/login">
                         <Login></Login>
                     </Route>
@@ -80,7 +77,6 @@ export const App = () => {
                         <Redirect to="/lobby"></Redirect>
                     </Route>
                 </Switch> */}
-            </Router>
         </Wrapper>
     );
 };
