@@ -1,13 +1,9 @@
-import React, { useEffect } from "react";
-// import Login from "./pages/login";
-// import Navigation from "./components/navigation";
+import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-// import Lobby from "./pages/lobby";
-// import Game from "./pages/game";
-// import { User } from "./entities/user";
 import { useOvermind } from "./overmind";
-import * as E from "fp-ts/lib/Either";
-import { Page } from "./types";
+import * as O from "fp-ts/lib/Option";
+import { UnauthenticatedApp } from "./apps/unauthenticated-app";
+import { AuthenticatedApp } from "./apps/authenticated-app";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -33,50 +29,16 @@ const Wrapper = styled.div`
 `;
 
 export const App = () => {
-    const { state, effects } = useOvermind();
-
-    useEffect(() => {
-        const fetchUsers = async () => {
-            // const users = await effects.api.getUsers();
-            // if (E.isRight(users)) {
-            //     console.log("users", users.right);
-            // }
-
-            const token = await effects.api.loginUser({
-                email: "ttlekich@gmail.com",
-                password: "",
-            });
-            if (E.isRight(token)) {
-                console.log("token", token.right);
-            }
-        };
-        fetchUsers();
-        // const userCookie = Cookies.get("user");
-        // if (userCookie) {
-        //     // TODO io-ts
-        //     const user = JSON.parse(userCookie) as User;
-        // }
-    }, [effects.api]);
-
+    const { state } = useOvermind();
+    console.log(state);
     return (
         <Wrapper>
             <GlobalStyle></GlobalStyle>
-            {state.currentPage === Page.HOME ? <h1>Home</h1> : null}
-            {state.currentPage === Page.LOGIN ? <h1>Login</h1> : null}
-            {/* <Navigation></Navigation> <Switch>
-                    <Route exact path="/login">
-                        <Login></Login>
-                    </Route>
-                    <PrivateRoute path="/lobby" to="/login">
-                        <Lobby></Lobby>
-                    </PrivateRoute>
-                    <PrivateRoute path="/game/:gameId" to="/login">
-                        <Game></Game>
-                    </PrivateRoute>
-                    <Route path="/">
-                        <Redirect to="/lobby"></Redirect>
-                    </Route>
-                </Switch> */}
+            {O.isSome(state.user) ? (
+                <AuthenticatedApp />
+            ) : (
+                <UnauthenticatedApp />
+            )}
         </Wrapper>
     );
 };

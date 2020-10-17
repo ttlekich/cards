@@ -6,7 +6,7 @@ import {
     createEffectsHook,
 } from "overmind-react";
 import { state } from "./state";
-import { onInitialize } from "./onInitialize";
+import { onInitialize } from "./on-initialize";
 import * as actions from "./actions";
 import * as effects from "./effects";
 

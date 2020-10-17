@@ -34,14 +34,37 @@ const FIREBASE_CONFIG = {
 };
 
 export const cookies = (() => {
-    const CARDS_USER_LOAD = "CARDS_USER_LOAD";
-    const CARDS_USER_SAVE = "CARDS_USER_SAVE";
+    const CARDS_USER = "CARDS_USER";
     return {
-        loadUser: () => Cookies.get(CARDS_USER_LOAD),
-        saveUser: (user: User) =>
-            Cookies.set(CARDS_USER_SAVE, JSON.stringify(user), {
+        loadUser: () => {
+            return O.fromEither(
+                E.flatten(
+                    pipe(
+                        Cookies.get(CARDS_USER),
+                        O.fromNullable,
+                        O.map(JSON.parse),
+                        E.fromOption(() => new Error("No User Found")),
+                        E.map((user) =>
+                            pipe(
+                                User.decode(user),
+                                E.bimap(
+                                    (err) => new Error(`${err}`),
+                                    (user) => {
+                                        cookies.saveUser(user);
+                                        return user;
+                                    }
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        },
+        saveUser: (user: User) => {
+            Cookies.set(CARDS_USER, JSON.stringify({ email: user.email }), {
                 sameSite: "strict",
-            }),
+            });
+        },
     };
 })();
 
@@ -85,31 +108,37 @@ export const api = (() => {
             email: string;
             password: string;
         }) {
-            return await pipe(
-                auth,
-                E.fromOption<Error>(
-                    () => new Error(`Firebase Auth is not Configured.`)
-                ),
-                TE.fromEither,
-                TE.chain((auth) =>
-                    TE.tryCatch(
-                        () => auth.signInWithEmailAndPassword(email, password),
-                        (err) => new Error(`${err}`)
-                    )
-                ),
-                TE.map((token) => {
-                    return pipe(
-                        User.decode(token.user),
-                        E.bimap(
-                            (err) => new Error(`${err}`),
-                            (user) => {
-                                cookies.saveUser(user);
-                                return user;
-                            }
+            return E.flatten(
+                await pipe(
+                    auth,
+                    E.fromOption<Error>(
+                        () => new Error(`Firebase Auth is not Configured.`)
+                    ),
+                    TE.fromEither,
+                    TE.chain((auth) =>
+                        TE.tryCatch(
+                            () =>
+                                auth.signInWithEmailAndPassword(
+                                    email,
+                                    password
+                                ),
+                            (err) => new Error(`${err}`)
                         )
-                    );
-                })
-            )();
+                    ),
+                    TE.map((token) => {
+                        return pipe(
+                            User.decode(token.user),
+                            E.bimap(
+                                (err) => new Error(`${err}`),
+                                (user) => {
+                                    cookies.saveUser(user);
+                                    return user;
+                                }
+                            )
+                        );
+                    })
+                )()
+            );
         },
 
         async getUsers(): Promise<E.Either<Error, User[]>> {
