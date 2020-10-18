@@ -72,12 +72,30 @@ export const api = (() => {
     let app: O.Option<firebase.app.App> = O.none;
     let db: O.Option<firebase.firestore.Firestore> = O.none;
     let auth: O.Option<firebase.auth.Auth> = O.none;
+    // let game: O.Option<firebase.firestore.DocumentReference> = O.none;
 
     return {
         initialize() {
             app = O.fromNullable(firebase.initializeApp(FIREBASE_CONFIG));
             db = O.fromNullable(firebase.firestore());
             auth = O.fromNullable(firebase.auth());
+        },
+
+        async joinGame(name: string) {
+            const game = db.collection("game").doc();
+            game = O.some(firebase.database().ref("game/" + name));
+            console.log(game);
+            // const doc = db.collection("cities").doc("SF");
+
+            // const observer = doc.onSnapshot(
+            //     (docSnapshot) => {
+            //         console.log(`Received doc snapshot: ${docSnapshot}`);
+            //         // ...
+            //     },
+            //     (err) => {
+            //         console.log(`Encountered error: ${err}`);
+            //     }
+            // );
         },
 
         async logoutUser() {

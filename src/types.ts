@@ -1,5 +1,4 @@
 export enum Page {
-    HOME = "home",
+    HOME = "",
     LOGIN = "login",
-    LOBBY = "lobby",
 }

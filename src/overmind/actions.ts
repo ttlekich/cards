@@ -8,8 +8,6 @@ export const showHomePage: Operator = o.setPage(Page.HOME);
 
 export const showLoginPage: Operator = o.setPage(Page.LOGIN);
 
-export const showLobbyPage: Operator = o.setPage(Page.LOBBY);
-
 export const loginUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
     { email, password }

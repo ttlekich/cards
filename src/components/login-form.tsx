@@ -18,7 +18,7 @@ export const LoginForm = () => {
         reset();
         const { email, password } = data;
         await actions.loginUser({ email, password });
-        actions.showLobbyPage();
+        actions.showHomePage();
     };
 
     return (
