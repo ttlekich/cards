@@ -69,39 +69,54 @@ export const cookies = (() => {
     };
 })();
 
+const maybe = <A, B>(whenNone: () => B, whenSome: (a: A) => B) => (
+    fa: O.Option<A>
+): B => {
+    switch (fa._tag) {
+        case "None":
+            return whenNone();
+        case "Some":
+            return whenSome(fa.value);
+    }
+};
+
 export const api = (() => {
     let app: O.Option<firebase.app.App> = O.none;
     let db: O.Option<firebase.firestore.Firestore> = O.none;
     let auth: O.Option<firebase.auth.Auth> = O.none;
     let leaveGame: () => void = () => {};
+    let gamesRef: O.Option<firebase.firestore.CollectionReference<
+        firebase.firestore.DocumentData
+    >> = O.none;
 
     return {
         initialize() {
             app = O.fromNullable(firebase.initializeApp(FIREBASE_CONFIG));
             db = O.fromNullable(firebase.firestore());
             auth = O.fromNullable(firebase.auth());
+            gamesRef = pipe(
+                db,
+                O.map((db) => db.collection("game"))
+            );
         },
 
         leaveGame,
 
-        joinGame(name: string) {
-            pipe(
-                db,
-                O.map((db) => db.collection("game").doc(name)),
-                O.map((doc) => {
-                    console.log(doc);
-                    leaveGame = doc.onSnapshot(
-                        (gameSnapshot) => {
-                            console.log(gameSnapshot);
-                            // updateGame(gameSnapshot);
-                        },
-                        (err) => {
-                            console.log("error", err);
-                        }
-                    );
-                    return O.none;
-                })
-            );
+        async joinGame(id: string) {
+            if (O.isSome(gamesRef)) {
+                const gameDoc = gamesRef.value.doc(id);
+                const gameSnapshot = TE.tryCatch(
+                    () => gameDoc.get(),
+                    (err) => new Error(`${err}`)
+                );
+                if () {
+                }
+                const leaveGame = gameDoc.onSnapshot(
+                    (snapshot) => console.log(snapshot),
+                    (err) => console.log(err)
+                );
+                return leaveGame;
+            }
         },
 
         async logoutUser() {
