@@ -1,6 +1,7 @@
 import * as O from "fp-ts/lib/Option";
 import { User } from "../entities/user";
 import { Page } from "../types";
+import { Game } from "../entities/game";
 
 type State = {
     user: O.Option<User>;
@@ -8,6 +9,7 @@ type State = {
     isLoadingUsers: boolean;
     currentPage: Page;
     users: User[];
+    game: O.Option<Game>;
 };
 
 export const state: State = {
@@ -16,4 +18,5 @@ export const state: State = {
     isLoadingUsers: false,
     user: O.none,
     users: [],
+    game: O.none,
 };

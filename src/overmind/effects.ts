@@ -8,6 +8,7 @@ import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/function";
 import { User, Users } from "../entities/user";
 import Cookies from "js-cookie";
+import { updateGame } from "./actions";
 
 type IParams = {
     [param: string]: string;
@@ -72,7 +73,7 @@ export const api = (() => {
     let app: O.Option<firebase.app.App> = O.none;
     let db: O.Option<firebase.firestore.Firestore> = O.none;
     let auth: O.Option<firebase.auth.Auth> = O.none;
-    // let game: O.Option<firebase.firestore.DocumentReference> = O.none;
+    let leaveGame: () => void = () => {};
 
     return {
         initialize() {
@@ -81,21 +82,26 @@ export const api = (() => {
             auth = O.fromNullable(firebase.auth());
         },
 
-        async joinGame(name: string) {
-            const game = db.collection("game").doc();
-            game = O.some(firebase.database().ref("game/" + name));
-            console.log(game);
-            // const doc = db.collection("cities").doc("SF");
+        leaveGame,
 
-            // const observer = doc.onSnapshot(
-            //     (docSnapshot) => {
-            //         console.log(`Received doc snapshot: ${docSnapshot}`);
-            //         // ...
-            //     },
-            //     (err) => {
-            //         console.log(`Encountered error: ${err}`);
-            //     }
-            // );
+        joinGame(name: string) {
+            pipe(
+                db,
+                O.map((db) => db.collection("game").doc(name)),
+                O.map((doc) => {
+                    console.log(doc);
+                    leaveGame = doc.onSnapshot(
+                        (gameSnapshot) => {
+                            console.log(gameSnapshot);
+                            // updateGame(gameSnapshot);
+                        },
+                        (err) => {
+                            console.log("error", err);
+                        }
+                    );
+                    return O.none;
+                })
+            );
         },
 
         async logoutUser() {

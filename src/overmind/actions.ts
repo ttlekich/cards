@@ -3,6 +3,7 @@ import * as o from "./operators";
 import * as O from "fp-ts/lib/Option";
 import { Page } from "../types";
 import { UserLoginInput } from "../entities/user";
+import { Game } from "../entities/game";
 
 export const showHomePage: Operator = o.setPage(Page.HOME);
 
@@ -16,6 +17,17 @@ export const loginUser: Action<UserLoginInput, Promise<void>> = async (
 };
 
 export const redirect = (page: Page) => o.setPage(page);
+
+export const updateGame: Action<O.Option<Game>, void> = (
+    { state },
+    game: O.Option<Game>
+) => {
+    state.game = game;
+};
+
+export const joinGame: Action<string, void> = ({ effects }, name) => {
+    effects.api.joinGame(name);
+};
 
 // export const showUsersPage: AsyncAction = async ({ state, effects }) => {
 //     state.isLoadingUsers = true;

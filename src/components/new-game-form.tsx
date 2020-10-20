@@ -2,14 +2,17 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import Form from "./form";
 import RequiredFieldError from "./required-field-error";
+import { useOvermind } from "../overmind";
 
 type Inputs = {
     gameName: string;
 };
 
 export const NewGameForm = () => {
+    const { actions } = useOvermind();
     const { register, handleSubmit, errors, reset } = useForm<Inputs>();
-    const onSubmit = async (data: Inputs) => {
+    const onSubmit = async ({ gameName }: Inputs) => {
+        actions.joinGame(gameName);
         reset();
     };
 
