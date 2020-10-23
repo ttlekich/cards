@@ -1,9 +1,9 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { useOvermind } from "./overmind";
-import * as O from "fp-ts/lib/Option";
 import { UnauthenticatedApp } from "./apps/unauthenticated-app";
 import { AuthenticatedApp } from "./apps/authenticated-app";
+import { Page } from "./types";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -29,16 +29,11 @@ const Wrapper = styled.div`
 `;
 
 export const App = () => {
-    const { state } = useOvermind();
-    console.log(state);
+    const { state, actions } = useOvermind();
     return (
         <Wrapper>
             <GlobalStyle></GlobalStyle>
-            {O.isSome(state.user) ? (
-                <AuthenticatedApp />
-            ) : (
-                <UnauthenticatedApp />
-            )}
+            {state.user ? <AuthenticatedApp /> : <UnauthenticatedApp />}
         </Wrapper>
     );
 };

@@ -4,10 +4,8 @@ import { LoginPage } from "../pages/login-page";
 import { Page } from "../types";
 
 export const UnauthenticatedApp = () => {
-    const { state, actions } = useOvermind();
-    if (state.currentPage !== Page.LOGIN) {
-        actions.showLoginPage();
-    }
+    const { state } = useOvermind();
+    console.log("Unauth");
     return (
         <>{state.currentPage === Page.LOGIN ? <LoginPage></LoginPage> : null}</>
     );

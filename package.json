@@ -13,7 +13,7 @@
         "@types/redux-saga": "^0.10.5",
         "concurrently": "^5.3.0",
         "firebase": "^7.22.0",
-        "fp-ts": "^2.8.3",
+        "fp-ts": "^2.8.4",
         "immer": "^7.0.7",
         "io-ts": "^2.2.10",
         "js-cookie": "^2.2.1",

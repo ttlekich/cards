@@ -1,22 +1,21 @@
-import * as O from "fp-ts/lib/Option";
 import { User } from "../entities/user";
 import { Page } from "../types";
 import { Game } from "../entities/game";
 
 type State = {
-    user: O.Option<User>;
+    user: User | undefined;
     isLoadingUser: boolean;
     isLoadingUsers: boolean;
     currentPage: Page;
     users: User[];
-    game: O.Option<Game>;
+    game: Game | undefined;
 };
 
 export const state: State = {
     currentPage: Page.HOME,
     isLoadingUser: false,
     isLoadingUsers: false,
-    user: O.none,
+    user: undefined,
     users: [],
-    game: O.none,
+    game: undefined,
 };

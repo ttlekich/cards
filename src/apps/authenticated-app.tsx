@@ -4,10 +4,8 @@ import { Page } from "../types";
 import { LobbyPage } from "../pages/lobby-page";
 
 export const AuthenticatedApp = () => {
-    const { state, actions } = useOvermind();
-    if (state.currentPage === Page.LOGIN) {
-        actions.showHomePage();
-    }
+    const { state } = useOvermind();
+    console.log("Authen");
     return (
         <>{state.currentPage === Page.HOME ? <LobbyPage></LobbyPage> : null}</>
     );

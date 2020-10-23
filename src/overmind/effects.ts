@@ -2,13 +2,9 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
 import page from "page";
-import * as TE from "fp-ts/lib/TaskEither";
+import { User } from "../entities/user";
 import * as E from "fp-ts/lib/Either";
-import * as O from "fp-ts/lib/Option";
-import { pipe } from "fp-ts/lib/function";
-import { User, Users } from "../entities/user";
 import Cookies from "js-cookie";
-import { updateGame } from "./actions";
 
 type IParams = {
     [param: string]: string;
@@ -38,28 +34,17 @@ export const cookies = (() => {
     const CARDS_USER = "CARDS_USER";
     return {
         loadUser: () => {
-            return O.fromEither(
-                E.flatten(
-                    pipe(
-                        Cookies.get(CARDS_USER),
-                        O.fromNullable,
-                        O.map(JSON.parse),
-                        E.fromOption(() => new Error("No User Found")),
-                        E.map((user) =>
-                            pipe(
-                                User.decode(user),
-                                E.bimap(
-                                    (err) => new Error(`${err}`),
-                                    (user) => {
-                                        cookies.saveUser(user);
-                                        return user;
-                                    }
-                                )
-                            )
-                        )
-                    )
-                )
-            );
+            const userCookie = Cookies.get(CARDS_USER);
+            const user = User.decode(userCookie);
+            if (E.isLeft(user)) {
+                return undefined;
+            }
+            return user.right;
+        },
+        removeUser: () => {
+            Cookies.remove(CARDS_USER, {
+                sameSite: "strict",
+            });
         },
         saveUser: (user: User) => {
             Cookies.set(CARDS_USER, JSON.stringify({ email: user.email }), {
@@ -69,75 +54,38 @@ export const cookies = (() => {
     };
 })();
 
-const maybe = <A, B>(whenNone: () => B, whenSome: (a: A) => B) => (
-    fa: O.Option<A>
-): B => {
-    switch (fa._tag) {
-        case "None":
-            return whenNone();
-        case "Some":
-            return whenSome(fa.value);
-    }
-};
-
 export const api = (() => {
-    let app: O.Option<firebase.app.App> = O.none;
-    let db: O.Option<firebase.firestore.Firestore> = O.none;
-    let auth: O.Option<firebase.auth.Auth> = O.none;
+    let app: firebase.app.App;
+    let db: firebase.firestore.Firestore;
+    let auth: firebase.auth.Auth;
     let leaveGame: () => void = () => {};
-    let gamesRef: O.Option<firebase.firestore.CollectionReference<
-        firebase.firestore.DocumentData
-    >> = O.none;
+    let gamesRef: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
 
     return {
         initialize() {
-            app = O.fromNullable(firebase.initializeApp(FIREBASE_CONFIG));
-            db = O.fromNullable(firebase.firestore());
-            auth = O.fromNullable(firebase.auth());
-            gamesRef = pipe(
-                db,
-                O.map((db) => db.collection("game"))
-            );
+            app = firebase.initializeApp(FIREBASE_CONFIG);
+            db = firebase.firestore();
+            auth = firebase.auth();
+            gamesRef = db.collection("game");
         },
 
         leaveGame,
 
         async joinGame(id: string) {
-            if (O.isSome(gamesRef)) {
-                const gameDoc = gamesRef.value.doc(id);
-                const gameSnapshot = TE.tryCatch(
-                    () => gameDoc.get(),
-                    (err) => new Error(`${err}`)
+            if (gamesRef) {
+                const gameDoc = gamesRef.doc(id);
+                leaveGame = gameDoc.onSnapshot(
+                    () => {}, // next
+                    () => {} // error
                 );
-                if () {
-                }
-                const leaveGame = gameDoc.onSnapshot(
-                    (snapshot) => console.log(snapshot),
-                    (err) => console.log(err)
-                );
-                return leaveGame;
             }
         },
 
         async logoutUser() {
-            return await pipe(
-                auth,
-                E.fromOption<Error>(
-                    () => new Error(`Firebase Auth is not Configured.`)
-                ),
-                TE.fromEither,
-                TE.chain((auth) =>
-                    TE.tryCatch(
-                        () => {
-                            Cookies.remove("user", {
-                                sameSite: "strict",
-                            });
-                            return auth.signOut();
-                        },
-                        (err) => new Error(`${err}`)
-                    )
-                )
-            )();
+            if (auth) {
+                cookies.removeUser();
+                await auth.signOut();
+            }
         },
 
         async loginUser({
@@ -147,67 +95,16 @@ export const api = (() => {
             email: string;
             password: string;
         }) {
-            return E.flatten(
-                await pipe(
-                    auth,
-                    E.fromOption<Error>(
-                        () => new Error(`Firebase Auth is not Configured.`)
-                    ),
-                    TE.fromEither,
-                    TE.chain((auth) =>
-                        TE.tryCatch(
-                            () =>
-                                auth.signInWithEmailAndPassword(
-                                    email,
-                                    password
-                                ),
-                            (err) => new Error(`${err}`)
-                        )
-                    ),
-                    TE.map((token) => {
-                        return pipe(
-                            User.decode(token.user),
-                            E.bimap(
-                                (err) => new Error(`${err}`),
-                                (user) => {
-                                    cookies.saveUser(user);
-                                    return user;
-                                }
-                            )
-                        );
-                    })
-                )()
+            const token = await auth.signInWithEmailAndPassword(
+                email,
+                password
             );
-        },
-
-        async getUsers(): Promise<E.Either<Error, User[]>> {
-            return E.flatten(
-                await pipe(
-                    db,
-                    E.fromOption<Error>(
-                        () => new Error(`Firebase App is not Configured.`)
-                    ),
-                    TE.fromEither,
-                    TE.chain((db) =>
-                        TE.tryCatch(
-                            () => db.collection("user").get(),
-                            (err) => new Error(`${err}`)
-                        )
-                    ),
-                    TE.map((snapshot) =>
-                        snapshot.docs.map((doc) => doc.data())
-                    ),
-                    TE.map((rawUsers) => {
-                        return pipe(
-                            Users.decode(rawUsers),
-                            E.bimap(
-                                (err) => new Error(`${err}`),
-                                (user) => user
-                            )
-                        );
-                    })
-                )()
-            );
+            const user = User.decode(token.user);
+            if (E.isLeft(user)) {
+                return undefined;
+            }
+            cookies.saveUser(user.right);
+            return user.right;
         },
     };
 })();
