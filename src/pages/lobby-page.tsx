@@ -10,10 +10,14 @@ const Wrapper = styled.div`
 `;
 
 export const LobbyPage = () => {
+    const { actions } = useOvermind();
+    const onSubmit = () => {
+        actions.showHomePage();
+    };
     return (
         <Wrapper>
             Lobby
-            <NewGameForm></NewGameForm>
+            <NewGameForm onSubmit={onSubmit}></NewGameForm>
         </Wrapper>
     );
 };

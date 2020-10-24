@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { LoginForm } from "../components/login-form";
+import { useOvermind } from "../overmind";
 
 const Wrapper = styled.div`
     display: flex;
@@ -9,9 +10,13 @@ const Wrapper = styled.div`
 `;
 
 export const LoginPage = () => {
+    const { actions } = useOvermind();
+    const onSubmit = () => {
+        actions.showHomePage();
+    };
     return (
         <Wrapper>
-            <LoginForm></LoginForm>
+            <LoginForm onSubmit={onSubmit}></LoginForm>
         </Wrapper>
     );
 };

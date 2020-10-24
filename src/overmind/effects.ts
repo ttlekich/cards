@@ -5,6 +5,7 @@ import page from "page";
 import { User } from "../entities/user";
 import * as E from "fp-ts/lib/Either";
 import Cookies from "js-cookie";
+import { DocumentSnapshot } from "../types";
 
 type IParams = {
     [param: string]: string;
@@ -35,7 +36,9 @@ export const cookies = (() => {
     return {
         loadUser: () => {
             const userCookie = Cookies.get(CARDS_USER);
-            const user = User.decode(userCookie);
+            const user = User.decode(
+                userCookie ? JSON.parse(userCookie) : userCookie
+            );
             if (E.isLeft(user)) {
                 return undefined;
             }
@@ -54,19 +57,25 @@ export const cookies = (() => {
     };
 })();
 
+export type FirebaseInitializeOptions = {
+    onGameSnapshot: (snapshot: DocumentSnapshot) => void;
+};
+
 export const api = (() => {
     let app: firebase.app.App;
     let db: firebase.firestore.Firestore;
     let auth: firebase.auth.Auth;
     let leaveGame: () => void = () => {};
     let gamesRef: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
+    let onGameSnapshot: (snapshot: DocumentSnapshot) => void;
 
     return {
-        initialize() {
+        initialize(options: FirebaseInitializeOptions) {
             app = firebase.initializeApp(FIREBASE_CONFIG);
             db = firebase.firestore();
             auth = firebase.auth();
             gamesRef = db.collection("game");
+            onGameSnapshot = options.onGameSnapshot;
         },
 
         leaveGame,
@@ -74,10 +83,9 @@ export const api = (() => {
         async joinGame(id: string) {
             if (gamesRef) {
                 const gameDoc = gamesRef.doc(id);
-                leaveGame = gameDoc.onSnapshot(
-                    () => {}, // next
-                    () => {} // error
-                );
+                leaveGame = gameDoc.onSnapshot(onGameSnapshot, (error) => {
+                    console.error(error);
+                });
             }
         },
 

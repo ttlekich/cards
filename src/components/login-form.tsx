@@ -4,12 +4,16 @@ import RequiredFieldError from "./required-field-error";
 import Form from "./form";
 import { useOvermind } from "../overmind";
 
+type Props = {
+    onSubmit: () => void;
+};
+
 type Inputs = {
     email: string;
     password: string;
 };
 
-export const LoginForm = () => {
+export const LoginForm = (props: Props) => {
     const { register, handleSubmit, errors, reset } = useForm<Inputs>();
 
     const { actions } = useOvermind();
@@ -18,7 +22,7 @@ export const LoginForm = () => {
         reset();
         const { email, password } = data;
         await actions.loginUser({ email, password });
-        actions.showHomePage();
+        props.onSubmit();
     };
 
     return (
