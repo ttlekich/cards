@@ -1,8 +1,10 @@
-export enum Page {
-    HOME = "",
-    LOGIN = "login",
-    GAME = "game",
-}
+export const HOME = "";
+export const LOGIN = "login";
+export const GAME = "game";
+
+export type IParams = {
+    [param: string]: string;
+} | void;
 
 export type DocumentData = firebase.firestore.CollectionReference<
     firebase.firestore.DocumentData

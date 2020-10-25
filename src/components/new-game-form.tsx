@@ -8,12 +8,17 @@ type Inputs = {
     gameName: string;
 };
 
-export const NewGameForm = () => {
+type Props = {
+    onSubmit: (gameId: string) => void;
+};
+
+export const NewGameForm = (props: Props) => {
     const { actions } = useOvermind();
     const { register, handleSubmit, errors, reset } = useForm<Inputs>();
     const onSubmit = async ({ gameName }: Inputs) => {
         actions.joinGame(gameName);
         reset();
+        props.onSubmit(gameName);
     };
 
     return (

@@ -1,13 +1,13 @@
 import { Operator, Action } from "overmind";
 import * as o from "./operators";
-import { Page, DocumentSnapshot } from "../types";
+import { DocumentSnapshot, GAME, HOME, IParams, LOGIN } from "../types";
 import { UserLoginInput } from "../entities/user";
 
-export const showHomePage: Operator = o.setPage(Page.HOME);
+export const showHomePage: Operator = o.setPage(HOME);
 
-export const showLoginPage: Operator = o.setPage(Page.LOGIN);
+export const showLoginPage: Operator = o.setPage(LOGIN);
 
-export const showGamePage: Operator = o.setPage(Page.GAME);
+export const showGamePage: Operator<IParams> = o.setPage(GAME);
 
 export const loginUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
@@ -17,10 +17,7 @@ export const loginUser: Action<UserLoginInput, Promise<void>> = async (
     state.user = user;
 };
 
-export const updateGame: Action<DocumentSnapshot, void> = (
-    context,
-    snapshot
-) => {
+export const updateGame: Action<DocumentSnapshot, void> = (_, snapshot) => {
     o.updateGame(snapshot);
 };
 

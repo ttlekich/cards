@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { NewGameForm } from "../components/new-game-form";
+import { useOvermind } from "../overmind";
 
 const Wrapper = styled.div`
     display: flex;
@@ -11,8 +12,8 @@ const Wrapper = styled.div`
 
 export const LobbyPage = () => {
     const { actions } = useOvermind();
-    const onSubmit = () => {
-        actions.showHomePage();
+    const onSubmit = (gameId: string) => {
+        actions.showGamePage({ gameId });
     };
     return (
         <Wrapper>

@@ -5,16 +5,21 @@ import page from "page";
 import { User } from "../entities/user";
 import * as E from "fp-ts/lib/Either";
 import Cookies from "js-cookie";
-import { DocumentSnapshot } from "../types";
-
-type IParams = {
-    [param: string]: string;
-} | void;
+import { DocumentSnapshot, IParams } from "../types";
+import queryString from "query-string";
 
 export const router = {
     initialize(routes: { [url: string]: (params: IParams) => void }) {
         Object.keys(routes).forEach((url) => {
-            page(url, ({ params }) => routes[url](params));
+            page(url, ({ params, querystring }) => {
+                const payload = Object.assign(
+                    {},
+                    params,
+                    queryString.parse(querystring)
+                );
+
+                routes[url](payload);
+            });
         });
         page.start();
     },

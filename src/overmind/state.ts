@@ -1,21 +1,15 @@
 import { User } from "../entities/user";
-import { Page } from "../types";
 import { Game } from "../entities/game";
+import { HOME } from "../types";
 
 type State = {
+    currentPage: string;
     user: User | undefined;
-    isLoadingUser: boolean;
-    isLoadingUsers: boolean;
-    currentPage: Page;
-    users: User[];
     game: Game | undefined;
 };
 
 export const state: State = {
-    currentPage: Page.HOME,
-    isLoadingUser: false,
-    isLoadingUsers: false,
+    currentPage: HOME,
     user: undefined,
-    users: [],
     game: undefined,
 };

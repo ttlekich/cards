@@ -1,9 +1,10 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { useOvermind } from "./overmind";
-import { Page } from "./types";
 import { LoginPage } from "./pages/login-page";
 import { LobbyPage } from "./pages/lobby-page";
+import { GAME, HOME, LOGIN } from "./types";
+import { GamePage } from "./pages/game-page";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -30,10 +31,10 @@ const Wrapper = styled.div`
 
 export const App = () => {
     const { state, actions } = useOvermind();
-    if (!state.user && state.currentPage !== Page.LOGIN) {
+    if (!state.user && state.currentPage !== LOGIN) {
         actions.showLoginPage();
     }
-    if (state.user && state.currentPage === Page.LOGIN) {
+    if (state.user && state.currentPage === LOGIN) {
         actions.showHomePage();
     }
     return (
@@ -41,13 +42,14 @@ export const App = () => {
             <GlobalStyle></GlobalStyle>
             {state.user ? (
                 <>
-                    {state.currentPage === Page.HOME ? (
+                    {state.currentPage === HOME ? (
                         <LobbyPage></LobbyPage>
                     ) : null}
+                    {state.currentPage === GAME ? <GamePage></GamePage> : null}
                 </>
             ) : (
                 <>
-                    {state.currentPage === Page.LOGIN ? (
+                    {state.currentPage === LOGIN ? (
                         <LoginPage></LoginPage>
                     ) : null}
                 </>
