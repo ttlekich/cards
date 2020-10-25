@@ -1,30 +1,10 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
-import page from "page";
 import { User } from "../entities/user";
 import * as E from "fp-ts/lib/Either";
 import Cookies from "js-cookie";
-import { DocumentSnapshot, IParams } from "../types";
-import queryString from "query-string";
-
-export const router = {
-    initialize(routes: { [url: string]: (params: IParams) => void }) {
-        Object.keys(routes).forEach((url) => {
-            page(url, ({ params, querystring }) => {
-                const payload = Object.assign(
-                    {},
-                    params,
-                    queryString.parse(querystring)
-                );
-
-                routes[url](payload);
-            });
-        });
-        page.start();
-    },
-    open: (url: string) => page.show(url),
-};
+import { DocumentSnapshot } from "../types";
 
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDZbJPyeWwtR4kBpSUrBDOPEx496q8smBc",

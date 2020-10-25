@@ -19,7 +19,6 @@
         "js-cookie": "^2.2.1",
         "overmind": "^25.0.2",
         "overmind-react": "^26.0.2",
-        "page": "^1.11.6",
         "query-string": "^6.13.6",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",

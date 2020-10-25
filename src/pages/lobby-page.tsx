@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { NewGameForm } from "../components/new-game-form";
-import { useOvermind } from "../overmind";
+import { withRouter } from "react-router-dom";
 
 const Wrapper = styled.div`
     display: flex;
@@ -10,10 +10,9 @@ const Wrapper = styled.div`
     width: 100%;
 `;
 
-export const LobbyPage = () => {
-    const { actions } = useOvermind();
+export const LobbyPage = withRouter((props) => {
     const onSubmit = (gameId: string) => {
-        actions.showGamePage({ gameId });
+        props.history.push(`/game/${gameId}`);
     };
     return (
         <Wrapper>
@@ -21,4 +20,4 @@ export const LobbyPage = () => {
             <NewGameForm onSubmit={onSubmit}></NewGameForm>
         </Wrapper>
     );
-};
+});

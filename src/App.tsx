@@ -1,10 +1,11 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { useOvermind } from "./overmind";
 import { LoginPage } from "./pages/login-page";
 import { LobbyPage } from "./pages/lobby-page";
-import { GAME, HOME, LOGIN } from "./types";
 import { GamePage } from "./pages/game-page";
+import { BrowserRouter as Router, Switch } from "react-router-dom";
+import { PrivateRoute } from "./components/private-route";
+import { Redirect, Route } from "react-router";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -30,30 +31,28 @@ const Wrapper = styled.div`
 `;
 
 export const App = () => {
-    const { state, actions } = useOvermind();
-    if (!state.user && state.currentPage !== LOGIN) {
-        actions.showLoginPage();
-    }
-    if (state.user && state.currentPage === LOGIN) {
-        actions.showHomePage();
-    }
     return (
         <Wrapper>
             <GlobalStyle></GlobalStyle>
-            {state.user ? (
-                <>
-                    {state.currentPage === HOME ? (
-                        <LobbyPage></LobbyPage>
-                    ) : null}
-                    {state.currentPage === GAME ? <GamePage></GamePage> : null}
-                </>
-            ) : (
-                <>
-                    {state.currentPage === LOGIN ? (
+            <Router>
+                <Switch>
+                    <Route path="/login">
                         <LoginPage></LoginPage>
-                    ) : null}
-                </>
-            )}
+                    </Route>
+                    <PrivateRoute path="/lobby">
+                        <LobbyPage></LobbyPage>
+                    </PrivateRoute>
+                    <PrivateRoute path="/game/:id">
+                        <GamePage></GamePage>
+                    </PrivateRoute>
+                    <PrivateRoute path="/game">
+                        <Redirect to="/lobby"></Redirect>
+                    </PrivateRoute>
+                    <PrivateRoute path="/">
+                        <LobbyPage></LobbyPage>
+                    </PrivateRoute>
+                </Switch>
+            </Router>
         </Wrapper>
     );
 };

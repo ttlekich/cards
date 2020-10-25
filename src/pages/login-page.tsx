@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { LoginForm } from "../components/login-form";
-import { useOvermind } from "../overmind";
+import { withRouter } from "react-router-dom";
 
 const Wrapper = styled.div`
     display: flex;
@@ -9,14 +9,13 @@ const Wrapper = styled.div`
     width: 100%;
 `;
 
-export const LoginPage = () => {
-    const { actions } = useOvermind();
+export const LoginPage = withRouter((props) => {
     const onSubmit = () => {
-        actions.showHomePage();
+        props.history.push("/");
     };
     return (
         <Wrapper>
             <LoginForm onSubmit={onSubmit}></LoginForm>
         </Wrapper>
     );
-};
+});

@@ -1,5 +1,4 @@
 import { OnInitialize } from "overmind";
-import { GAME, HOME, LOGIN } from "../types";
 
 export const onInitialize: OnInitialize = async ({
     state,
