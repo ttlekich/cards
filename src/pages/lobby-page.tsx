@@ -8,6 +8,7 @@ const Wrapper = styled.div`
     flex-direction: column;
     justify-content: space-evenly;
     width: 100%;
+    max-width: 600px;
 `;
 
 export const LobbyPage = withRouter((props) => {

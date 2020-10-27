@@ -3,8 +3,10 @@ import "firebase/firestore";
 import "firebase/auth";
 import { User } from "../entities/user";
 import * as E from "fp-ts/lib/Either";
+import * as R from "ramda";
 import Cookies from "js-cookie";
 import { DocumentSnapshot } from "../types";
+import { Game } from "../entities/game";
 
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDZbJPyeWwtR4kBpSUrBDOPEx496q8smBc",
@@ -50,8 +52,8 @@ export const api = (() => {
     let app: firebase.app.App;
     let db: firebase.firestore.Firestore;
     let auth: firebase.auth.Auth;
-    let leaveGame: () => void = () => {};
-    let gamesRef: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
+    let unsibscribe: () => void = () => {};
+    let gamesCollection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
     let onGameSnapshot: (snapshot: DocumentSnapshot) => void;
 
     return {
@@ -59,17 +61,62 @@ export const api = (() => {
             app = firebase.initializeApp(FIREBASE_CONFIG);
             db = firebase.firestore();
             auth = firebase.auth();
-            gamesRef = db.collection("game");
+            gamesCollection = db.collection("game");
             onGameSnapshot = options.onGameSnapshot;
         },
 
-        leaveGame,
+        async leaveGame(id: string | undefined, user: User | undefined) {
+            const gameRef = gamesCollection.doc(id);
+            const gameDoc = await gameRef.get();
+            if (gameDoc.exists && user) {
+                const gameStateEither = Game.decode(gameDoc.data());
+                if (E.isLeft(gameStateEither)) {
+                    console.error("Invalid Game State");
+                } else {
+                    const gameState = gameStateEither.right;
+                    await gameRef.set({
+                        ...gameState,
+                        users: R.reject(
+                            (u: User) => u.email === user.email,
+                            gameState.users
+                        ),
+                    });
+                }
+            }
+            unsibscribe();
+        },
 
-        async joinGame(id: string) {
-            if (gamesRef) {
-                const gameDoc = gamesRef.doc(id);
-                leaveGame = gameDoc.onSnapshot(onGameSnapshot, (error) => {
-                    console.error(error);
+        async joinGame(id: string, user: User) {
+            if (gamesCollection) {
+                const gameRef = gamesCollection.doc(id);
+                const gameDoc = await gameRef.get();
+                if (gameDoc.exists) {
+                    const gameStateEither = Game.decode(gameDoc.data());
+                    if (E.isLeft(gameStateEither)) {
+                        console.error("Invalid Game State");
+                    } else {
+                        const gameState = gameStateEither.right;
+                        await gameRef.set({
+                            ...gameState,
+                            users: R.uniq([
+                                ...gameState.users,
+                                { email: user.email },
+                            ]),
+                        });
+                    }
+                } else {
+                    await gameRef.set({
+                        id: gameDoc.id,
+                        users: R.uniq([
+                            {
+                                email: user.email,
+                            },
+                        ]),
+                    });
+                    console.log("Created New Game");
+                }
+                unsibscribe = gameRef.onSnapshot(onGameSnapshot, (error) => {
+                    console.error(`Invalid Game Snapshot ${error}`);
                 });
             }
         },

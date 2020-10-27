@@ -12,7 +12,7 @@ export const setUser: <T>(user: User) => Operator<T> = (user) =>
 export const updateGame: (
     snapshot: DocumentSnapshot
 ) => Operator<DocumentSnapshot, void> = (snapshot) => {
-    const game = Game.decode(snapshot);
+    const game = Game.decode(snapshot.data());
     if (E.isLeft(game)) {
         return mutate(function updateGame() {});
     }
