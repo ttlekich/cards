@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useRouteMatch } from "react-router";
 import styled from "styled-components";
 import { Player } from "../components/player";
+import { newDeck } from "../crazy-eights/deck";
 import { useOvermind } from "../overmind";
 
 const Wrapper = styled.div`
@@ -32,6 +33,8 @@ export const GamePage = () => {
     const joinGame = actions.joinGame;
 
     useEffect(() => {
+        const deck = newDeck();
+        console.log(deck);
         joinGame(gameId);
         return () => {
             console.log("left game");
