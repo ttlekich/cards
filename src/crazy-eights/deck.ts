@@ -52,6 +52,9 @@ export type Card = t.TypeOf<typeof Card>;
 export const Deck = t.array(Card);
 export type Deck = t.TypeOf<typeof Deck>;
 
+export const Hand = Deck;
+export type Hand = Deck;
+
 export const card = (suit: Suit) => (rank: Rank) => {
     return {
         suit,

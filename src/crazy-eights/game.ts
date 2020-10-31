@@ -1,7 +1,9 @@
 import { Game } from "../entities/game";
-import { Deck, newDeck } from "./deck";
+import { Deck, Hand, newDeck } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
+import { reduceI } from "../util/reduce";
+import { UserGameRecord } from "../entities/user-game";
 
 export const initializeDeck = (game: Game): Game => {
     const deck = newDeck();
@@ -22,21 +24,26 @@ const _deal = (deck: Deck) => (nCards: number) => (
 
 export const deal = (roundOf: number) => (game: Game): Game => {
     if (!game.deck) {
-        const nPlayers = game.users.length;
+        const nPlayers = R.keys(game.userGameRecord).length;
         const nCards = roundOf;
         const [hands, newDeck] = _deal(game.deck)(nCards)(nPlayers);
-        const users = R.zipWith(
-            (user, hand) => ({
-                ...user,
-                hand,
+        const userIds = R.keys(game.userGameRecord);
+        const userHands = R.zipObj(userIds, hands);
+        const userGameRecord = R.reduce(
+            (userGameRecord, userId) => ({
+                ...userGameRecord,
+                [userId]: {
+                    ...userGameRecord[userId],
+                    hand: userHands[userId],
+                },
             }),
-            game.users,
-            hands
+            game.userGameRecord,
+            userIds
         );
         return {
             ...game,
             deck: newDeck,
-            users,
+            userGameRecord,
         };
     }
     return game;

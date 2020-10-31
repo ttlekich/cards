@@ -3,6 +3,7 @@ import * as E from "fp-ts/lib/Either";
 import { DocumentSnapshot } from "../types";
 import { UserLoginInput } from "../entities/user";
 import { Game } from "../entities/game";
+import { createEffectsHook } from "overmind-react";
 
 export const loginUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
@@ -10,6 +11,15 @@ export const loginUser: Action<UserLoginInput, Promise<void>> = async (
 ) => {
     await effects.api.loginUser({ email, password });
     state.user = { email: email };
+};
+
+export const setUserIsReady: Action<void, Promise<void>> = async ({
+    state,
+    effects,
+}) => {
+    if (state.game && state.user) {
+        await effects.api.setUserIsReady(state.game, state.user);
+    }
 };
 
 export const updateGame: Action<DocumentSnapshot, void> = (

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Player } from "../components/player";
 import { newDeck } from "../crazy-eights/deck";
 import { useOvermind } from "../overmind";
+import * as R from "ramda";
 
 const Wrapper = styled.div`
     display: flex;
@@ -46,16 +47,21 @@ export const GamePage = () => {
             <h1>Game</h1>
             {state.game ? (
                 <PlayerCount>
-                    Player Count: {state.game.users.length}
+                    Player Count: {R.keys(state.game.userGameRecord).length}
                 </PlayerCount>
             ) : (
                 <span>Loading...</span>
             )}
             {state.game ? (
                 <Players>
-                    {state.game.users.map((player) => (
-                        <Player key={player.email} player={player}></Player>
-                    ))}
+                    {R.values(
+                        R.mapObjIndexed(
+                            (userGame, id, _) => (
+                                <Player key={id} player={userGame}></Player>
+                            ),
+                            state.game.userGameRecord
+                        )
+                    )}
                 </Players>
             ) : (
                 <span>Loading...</span>

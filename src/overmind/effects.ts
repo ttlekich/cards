@@ -7,6 +7,9 @@ import * as R from "ramda";
 import Cookies from "js-cookie";
 import { DocumentSnapshot } from "../types";
 import { Game } from "../entities/game";
+import { setUserIsReady } from "./actions";
+import { State } from "fp-ts/lib/State";
+import userEvent from "@testing-library/user-event";
 
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDZbJPyeWwtR4kBpSUrBDOPEx496q8smBc",
@@ -74,22 +77,59 @@ export const api = (() => {
                     console.error("Invalid Game State");
                 } else {
                     const gameState = gameStateEither.right;
+                    const {
+                        [user.email]: a,
+                        ...rest
+                    } = gameState.userGameRecord;
                     await gameRef.set({
                         ...gameState,
-                        users: R.reject(
-                            (u: User) => u.email === user.email,
-                            gameState.users
-                        ),
+                        userGameRecord: rest,
                     });
                 }
             }
             unsubscribe();
         },
 
+        async setUserIsReady(game: Game, user: User) {
+            const gameRef = gamesCollection.doc(game.id);
+            const gameDoc = await gameRef.get();
+            if (gameDoc.exists && user) {
+                const gameStateEither = Game.decode(gameDoc.data());
+                if (E.isLeft(gameStateEither)) {
+                    console.error("Invalid Game State");
+                } else {
+                    const gameState = gameStateEither.right;
+                    const existingUserGame =
+                        gameState.userGameRecord[user.email];
+                    if (!existingUserGame) {
+                        console.error("UserGame does not exisit for user.");
+                    } else {
+                        const newUserGame = {
+                            ...existingUserGame,
+                            isReady: true,
+                        };
+                        const newGameState: Game = {
+                            ...gameState,
+                            userGameRecord: {
+                                ...gameState.userGameRecord,
+                                [user.email]: newUserGame,
+                            },
+                        };
+                        await gameRef.set(newGameState);
+                    }
+                }
+            }
+        },
+
         async joinGame(id: string, user: User) {
             if (gamesCollection) {
                 const gameRef = gamesCollection.doc(id);
                 const gameDoc = await gameRef.get();
+                const userGame = {
+                    email: user.email,
+                    hand: [],
+                    isReady: false,
+                };
                 if (gameDoc.exists) {
                     const gameStateEither = Game.decode(gameDoc.data());
                     if (E.isLeft(gameStateEither)) {
@@ -98,10 +138,10 @@ export const api = (() => {
                         const gameState = gameStateEither.right;
                         const updatedGameState: Game = {
                             ...gameState,
-                            users: R.uniq([
-                                ...gameState.users,
-                                { email: user.email },
-                            ]),
+                            userGameRecord: {
+                                ...gameState.userGameRecord,
+                                [`${user.email}`]: userGame,
+                            },
                         };
                         await gameRef.set(updatedGameState);
                     }
@@ -109,11 +149,9 @@ export const api = (() => {
                     const newGame: Game = {
                         id: gameDoc.id,
                         deck: [],
-                        users: R.uniq([
-                            {
-                                email: user.email,
-                            },
-                        ]),
+                        userGameRecord: {
+                            [`${user.email}`]: userGame,
+                        },
                     };
                     await gameRef.set(newGame);
                 }

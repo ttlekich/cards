@@ -1,10 +1,10 @@
 import * as t from "io-ts";
 import { Deck } from "../crazy-eights/deck";
-import { User } from "./user";
+import { UserGame, UserGameRecord } from "./user-game";
 
 export const Game = t.type({
     id: t.string,
-    users: t.array(User),
+    userGameRecord: UserGameRecord,
     deck: Deck,
 });
 
