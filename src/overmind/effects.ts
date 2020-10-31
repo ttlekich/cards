@@ -52,7 +52,7 @@ export const api = (() => {
     let app: firebase.app.App;
     let db: firebase.firestore.Firestore;
     let auth: firebase.auth.Auth;
-    let unsibscribe: () => void = () => {};
+    let unsubscribe: () => void = () => {};
     let gamesCollection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
     let onGameSnapshot: (snapshot: DocumentSnapshot) => void;
 
@@ -65,7 +65,7 @@ export const api = (() => {
             onGameSnapshot = options.onGameSnapshot;
         },
 
-        async leaveGame(id: string | undefined, user: User | undefined) {
+        async leaveGame(id: string, user: User | undefined) {
             const gameRef = gamesCollection.doc(id);
             const gameDoc = await gameRef.get();
             if (gameDoc.exists && user) {
@@ -83,7 +83,7 @@ export const api = (() => {
                     });
                 }
             }
-            unsibscribe();
+            unsubscribe();
         },
 
         async joinGame(id: string, user: User) {
@@ -96,26 +96,28 @@ export const api = (() => {
                         console.error("Invalid Game State");
                     } else {
                         const gameState = gameStateEither.right;
-                        await gameRef.set({
+                        const updatedGameState: Game = {
                             ...gameState,
                             users: R.uniq([
                                 ...gameState.users,
                                 { email: user.email },
                             ]),
-                        });
+                        };
+                        await gameRef.set(updatedGameState);
                     }
                 } else {
-                    await gameRef.set({
+                    const newGame: Game = {
                         id: gameDoc.id,
+                        deck: [],
                         users: R.uniq([
                             {
                                 email: user.email,
                             },
                         ]),
-                    });
-                    console.log("Created New Game");
+                    };
+                    await gameRef.set(newGame);
                 }
-                unsibscribe = gameRef.onSnapshot(onGameSnapshot, (error) => {
+                unsubscribe = gameRef.onSnapshot(onGameSnapshot, (error) => {
                     console.error(`Invalid Game Snapshot ${error}`);
                 });
             }

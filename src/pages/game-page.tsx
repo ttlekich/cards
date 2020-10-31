@@ -37,7 +37,6 @@ export const GamePage = () => {
         console.log(deck);
         joinGame(gameId);
         return () => {
-            console.log("left game");
             leaveGame();
         };
     }, [leaveGame, joinGame, gameId]);
@@ -55,7 +54,7 @@ export const GamePage = () => {
             {state.game ? (
                 <Players>
                     {state.game.users.map((player) => (
-                        <Player player={player}></Player>
+                        <Player key={player.email} player={player}></Player>
                     ))}
                 </Players>
             ) : (

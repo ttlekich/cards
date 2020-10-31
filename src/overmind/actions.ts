@@ -32,6 +32,8 @@ export const joinGame: Action<string | undefined, void> = (
 };
 
 export const leaveGame: Action<void, void> = ({ state, effects }) => {
-    effects.api.leaveGame(state.game?.id, state.user);
-    state.game = undefined;
+    if (state.game) {
+        effects.api.leaveGame(state.game.id, state.user);
+        state.game = undefined;
+    }
 };
