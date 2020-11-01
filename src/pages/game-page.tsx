@@ -42,6 +42,13 @@ export const GamePage = () => {
         };
     }, [leaveGame, joinGame, gameId]);
 
+    const players = R.sortBy(
+        R.prop("playerNumber"),
+        R.values(state.game ? state.game.userGameRecord : {})
+    );
+
+    console.log(players);
+
     return (
         <Wrapper>
             <h1>Game</h1>
@@ -54,13 +61,11 @@ export const GamePage = () => {
             )}
             {state.game ? (
                 <Players>
-                    {R.values(
-                        R.mapObjIndexed(
-                            (userGame, id, _) => (
-                                <Player key={id} player={userGame}></Player>
-                            ),
-                            state.game.userGameRecord
-                        )
+                    {R.map(
+                        (player) => (
+                            <Player key={player.email} player={player}></Player>
+                        ),
+                        players
                     )}
                 </Players>
             ) : (

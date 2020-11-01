@@ -30,7 +30,7 @@ export const Player = (props: Props) => {
                     primary={props.player.isReady}
                     onClick={handleOnClickReady}
                 >
-                    {props.player.isReady ? "Ready" : "I'm Ready"}
+                    {props.player.isReady ? "Ready" : "Not Ready"}
                 </Button>
             )}
         </div>

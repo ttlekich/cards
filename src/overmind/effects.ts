@@ -10,6 +10,8 @@ import { Game } from "../entities/game";
 import { setUserIsReady } from "./actions";
 import { State } from "fp-ts/lib/State";
 import userEvent from "@testing-library/user-event";
+import { UserGame } from "../entities/user-game";
+import { nextPlayerNumber } from "../util/player-management";
 
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDZbJPyeWwtR4kBpSUrBDOPEx496q8smBc",
@@ -125,10 +127,11 @@ export const api = (() => {
             if (gamesCollection) {
                 const gameRef = gamesCollection.doc(id);
                 const gameDoc = await gameRef.get();
-                const userGame = {
+                const userGame: UserGame = {
                     email: user.email,
                     hand: [],
                     isReady: false,
+                    playerNumber: 1,
                 };
                 if (gameDoc.exists) {
                     const gameStateEither = Game.decode(gameDoc.data());
@@ -136,14 +139,28 @@ export const api = (() => {
                         console.error("Invalid Game State");
                     } else {
                         const gameState = gameStateEither.right;
-                        const updatedGameState: Game = {
-                            ...gameState,
-                            userGameRecord: {
-                                ...gameState.userGameRecord,
-                                [`${user.email}`]: userGame,
-                            },
-                        };
-                        await gameRef.set(updatedGameState);
+                        if (user.email in gameState.userGameRecord) {
+                            console.log("already in game");
+                        } else {
+                            const playerNumber = nextPlayerNumber(
+                                gameState.userGameRecord
+                            );
+                            if (!playerNumber) {
+                                console.error("Game is full");
+                                return null;
+                            }
+                            const updatedGameState: Game = {
+                                ...gameState,
+                                userGameRecord: {
+                                    ...gameState.userGameRecord,
+                                    [`${user.email}`]: {
+                                        ...userGame,
+                                        playerNumber,
+                                    },
+                                },
+                            };
+                            await gameRef.set(updatedGameState);
+                        }
                     }
                 } else {
                     const newGame: Game = {
