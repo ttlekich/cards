@@ -2,8 +2,6 @@ import { Game } from "../entities/game";
 import { Deck, Hand, newDeck } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
-import { reduceI } from "../util/reduce";
-import { UserGameRecord } from "../entities/user-game";
 
 export const initializeDeck = (game: Game): Game => {
     const deck = newDeck();
@@ -18,12 +16,12 @@ const _deal = (deck: Deck) => (nCards: number) => (
 ): [Deck[], Deck] => {
     const [oldDeck, newDeck] = R.splitAt(nCards * nPlayers, deck);
     const shuffledOldDeck = shuffle(oldDeck);
-    const hands = R.splitEvery(nPlayers, shuffledOldDeck);
+    const hands = R.splitEvery(nCards, shuffledOldDeck);
     return [hands, newDeck];
 };
 
 export const deal = (roundOf: number) => (game: Game): Game => {
-    if (!game.deck) {
+    if (game.deck) {
         const nPlayers = R.keys(game.userGameRecord).length;
         const nCards = roundOf;
         const [hands, newDeck] = _deal(game.deck)(nCards)(nPlayers);
@@ -47,4 +45,16 @@ export const deal = (roundOf: number) => (game: Game): Game => {
         };
     }
     return game;
+};
+
+export const reveal = (game: Game): Game => {
+    const { deck, discard } = game;
+    const head = R.head(deck);
+    const newDiscard = head ? [head, ...discard] : discard;
+    const newDeck = R.tail(deck);
+    return {
+        ...game,
+        deck: newDeck,
+        discard: newDiscard,
+    };
 };

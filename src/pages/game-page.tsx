@@ -5,23 +5,21 @@ import { Player } from "../components/player";
 import { newDeck } from "../crazy-eights/deck";
 import { useOvermind } from "../overmind";
 import * as R from "ramda";
+import { Button } from "../components/button";
+import { DrawPile } from "../components/draw-pile";
 
 const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
     width: 100%;
-`;
-
-const PlayerCount = styled.div`
-    display: flex;
-    justify-content: center;
-    width: 100%;
+    gap: 1rem;
 `;
 
 const Players = styled.div`
     display: flex;
     flex-direction: column;
+    gap: 1rem;
 `;
 
 export const GamePage = () => {
@@ -47,18 +45,24 @@ export const GamePage = () => {
         R.values(state.game ? state.game.userGameRecord : {})
     );
 
-    console.log(players);
+    const playerOne = R.head(players);
+
+    const handleStartGame = (event: React.SyntheticEvent) => {
+        event.preventDefault();
+        actions.startGame();
+    };
+
+    const canStart =
+        state.game &&
+        state.user &&
+        // only player 1 can start
+        state.user.email === playerOne?.email &&
+        !state.game.isPlaying;
 
     return (
         <Wrapper>
-            <h1>Game</h1>
-            {state.game ? (
-                <PlayerCount>
-                    Player Count: {R.keys(state.game.userGameRecord).length}
-                </PlayerCount>
-            ) : (
-                <span>Loading...</span>
-            )}
+            <div>{"Crazy 8s"}</div>
+            <DrawPile></DrawPile>
             {state.game ? (
                 <Players>
                     {R.map(
@@ -71,6 +75,11 @@ export const GamePage = () => {
             ) : (
                 <span>Loading...</span>
             )}
+            {canStart ? (
+                <Button primary={false} onClick={handleStartGame}>
+                    Start
+                </Button>
+            ) : null}
         </Wrapper>
     );
 };

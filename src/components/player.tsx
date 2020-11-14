@@ -1,38 +1,61 @@
 import React from "react";
 import { UserGame } from "../entities/user-game";
 import { useOvermind } from "../overmind";
-import { Button } from "./button";
+import styled from "styled-components";
+import { Card } from "./card";
 
 type Props = {
     player: UserGame;
 };
 
+const Wrapper = styled.div``;
+
+const PlayerInfo = styled.div`
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+`;
+
+const Hand = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem;
+`;
+
+const Field = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
 export const Player = (props: Props) => {
     const { state, actions } = useOvermind();
-    const handleOnClickReady = (event: React.SyntheticEvent) => {
-        event.preventDefault();
-        actions.setUserIsReady();
-    };
-    const userGame =
-        state.game && state.user
-            ? state.game.userGameRecord[state.user.email]
-            : undefined;
-    const isReady = Boolean(userGame?.isReady);
+    const { player } = props;
+    const userGame = props.player;
+    const isPlaying = state.game?.isPlaying;
+    const isPlayer = state.user?.email === player.email;
     return (
-        <div>
-            {props.player.email}
-            {state.user?.email === props.player.email ? (
-                <Button primary={isReady} onClick={handleOnClickReady}>
-                    {isReady ? "Waiting..." : "I'm Ready"}
-                </Button>
-            ) : (
-                <Button
-                    primary={props.player.isReady}
-                    onClick={handleOnClickReady}
-                >
-                    {props.player.isReady ? "Ready" : "Not Ready"}
-                </Button>
-            )}
-        </div>
+        <Wrapper>
+            <PlayerInfo>
+                <Field>{userGame?.playerNumber}</Field>
+                <Field>{props.player.email}</Field>
+            </PlayerInfo>
+            <Hand>
+                {isPlaying && (
+                    <>
+                        {props.player.hand.map((card) => (
+                            <Card
+                                face={isPlayer ? "FRONT" : "BACK"}
+                                key={card.rank + card.suit}
+                                card={card}
+                            ></Card>
+                        ))}
+                    </>
+                )}
+            </Hand>
+        </Wrapper>
     );
 };

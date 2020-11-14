@@ -6,6 +6,9 @@ export const Game = t.type({
     id: t.string,
     userGameRecord: UserGameRecord,
     deck: Deck,
+    discard: Deck,
+    isPlaying: t.boolean,
+    // currentPlayer
 });
 
 export type Game = t.TypeOf<typeof Game>;

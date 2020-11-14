@@ -7,9 +7,6 @@ import * as R from "ramda";
 import Cookies from "js-cookie";
 import { DocumentSnapshot } from "../types";
 import { Game } from "../entities/game";
-import { setUserIsReady } from "./actions";
-import { State } from "fp-ts/lib/State";
-import userEvent from "@testing-library/user-event";
 import { UserGame } from "../entities/user-game";
 import { nextPlayerNumber } from "../util/player-management";
 
@@ -70,7 +67,7 @@ export const api = (() => {
             onGameSnapshot = options.onGameSnapshot;
         },
 
-        async leaveGame(id: string, user: User | undefined) {
+        async leaveGame(id: string, user: User) {
             const gameRef = gamesCollection.doc(id);
             const gameDoc = await gameRef.get();
             if (gameDoc.exists && user) {
@@ -80,16 +77,36 @@ export const api = (() => {
                 } else {
                     const gameState = gameStateEither.right;
                     const {
-                        [user.email]: a,
+                        [user.email]: _,
                         ...rest
                     } = gameState.userGameRecord;
-                    await gameRef.set({
-                        ...gameState,
-                        userGameRecord: rest,
-                    });
+                    if (R.isEmpty(rest)) {
+                        await gameRef.delete();
+                    } else {
+                        await gameRef.set({
+                            ...gameState,
+                            userGameRecord: rest,
+                        });
+                    }
                 }
             }
             unsubscribe();
+        },
+
+        async updateGame(game: Game) {
+            console.log(game);
+            const gameRef = gamesCollection.doc(game.id);
+            const gameDoc = await gameRef.get();
+            if (gameDoc.exists) {
+                const gameStateEither = Game.decode(gameDoc.data());
+                if (E.isLeft(gameStateEither)) {
+                    console.error("Invalid Game State");
+                } else {
+                    await gameRef.set(game);
+                }
+            } else {
+                console.error("Game does not exist");
+            }
         },
 
         async setUserIsReady(game: Game, user: User) {
@@ -166,6 +183,8 @@ export const api = (() => {
                     const newGame: Game = {
                         id: gameDoc.id,
                         deck: [],
+                        discard: [],
+                        isPlaying: false,
                         userGameRecord: {
                             [`${user.email}`]: userGame,
                         },
