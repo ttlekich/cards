@@ -61,7 +61,7 @@ export const card = (suit: Suit) => (rank: Rank) => {
         rank,
     };
 };
-export const newDeck = () => {
+export const newDeck = (): Deck => {
     const unshuffled: Deck = R.chain(
         (suit) =>
             R.map(

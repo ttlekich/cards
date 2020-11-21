@@ -3,6 +3,7 @@ import { UserGame } from "../entities/user-game";
 import { useOvermind } from "../overmind";
 import styled from "styled-components";
 import { Card } from "./card";
+import { PLAYING } from "../entities/game-mode";
 
 type Props = {
     player: UserGame;
@@ -32,10 +33,9 @@ const Field = styled.div`
 `;
 
 export const Player = (props: Props) => {
-    const { state, actions } = useOvermind();
+    const { state } = useOvermind();
     const { player } = props;
     const userGame = props.player;
-    const isPlaying = state.game?.isPlaying;
     const isPlayer = state.user?.email === player.email;
     return (
         <Wrapper>
@@ -44,7 +44,7 @@ export const Player = (props: Props) => {
                 <Field>{props.player.email}</Field>
             </PlayerInfo>
             <Hand>
-                {isPlaying && (
+                {props.player.mode === PLAYING ? (
                     <>
                         {props.player.hand.map((card) => (
                             <Card
@@ -54,7 +54,7 @@ export const Player = (props: Props) => {
                             ></Card>
                         ))}
                     </>
-                )}
+                ) : null}
             </Hand>
         </Wrapper>
     );

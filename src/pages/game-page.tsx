@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useRouteMatch } from "react-router";
+import { useHistory, useRouteMatch } from "react-router";
 import styled from "styled-components";
 import { Player } from "../components/player";
 import { useOvermind } from "../overmind";
@@ -27,15 +27,12 @@ export const GamePage = () => {
     });
     const gameId = match?.params.id;
     const { state, actions } = useOvermind();
-    const leaveGame = actions.leaveGame;
     const joinGame = actions.joinGame;
+    const history = useHistory();
 
     useEffect(() => {
         joinGame(gameId);
-        return () => {
-            leaveGame();
-        };
-    }, [leaveGame, joinGame, gameId]);
+    }, [joinGame, gameId]);
 
     const players = R.sortBy(
         R.prop("playerNumber"),
@@ -49,6 +46,12 @@ export const GamePage = () => {
         actions.startGame();
     };
 
+    const handleDeleteGame = (event: React.SyntheticEvent) => {
+        event.preventDefault();
+        actions.deleteGame();
+        history.push("/lobby");
+    };
+
     const canStart =
         state.game &&
         state.user &&
@@ -57,6 +60,7 @@ export const GamePage = () => {
 
     return (
         <Wrapper>
+            <button onClick={handleDeleteGame}>Delete Game</button>
             <div>{"Crazy 8s"}</div>
             <DrawPile></DrawPile>
             {state.game ? (

@@ -9,8 +9,8 @@ export const loginUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
     { email, password }
 ) => {
-    await effects.api.loginUser({ email, password });
-    state.user = { email: email };
+    const user = await effects.api.loginUser({ email, password });
+    state.user = user;
 };
 
 export const setUserIsReady: Action<void, Promise<void>> = async ({
@@ -39,7 +39,9 @@ export const updateGame: Action<DocumentSnapshot, void> = (
     { state },
     snapshot
 ) => {
-    const game = Game.decode(snapshot.data());
+    console.log(snapshot);
+    const game = Game.decode(snapshot);
+    console.log(game);
     if (!E.isLeft(game)) {
         state.game = game.right;
     }
@@ -51,6 +53,12 @@ export const joinGame: Action<string | undefined, void> = (
 ) => {
     if (state.user && name) {
         effects.api.joinGame(name, state.user);
+    }
+};
+
+export const deleteGame: Action<void, void> = ({ effects, state }) => {
+    if (state.game) {
+        effects.api.deleteGame(state.game.id);
     }
 };
 

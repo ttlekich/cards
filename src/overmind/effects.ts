@@ -5,6 +5,8 @@ import { User } from "../entities/user";
 import * as E from "fp-ts/lib/Either";
 import Cookies from "js-cookie";
 import { DocumentSnapshot } from "../types";
+import { createAssignment } from "typescript";
+import { Game, NOT_PLAYING } from "../entities/game";
 
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDZbJPyeWwtR4kBpSUrBDOPEx496q8smBc",
@@ -35,7 +37,7 @@ export const cookies = (() => {
             });
         },
         saveUser: (user: User) => {
-            Cookies.set(CARDS_USER, JSON.stringify({ email: user.email }), {
+            Cookies.set(CARDS_USER, JSON.stringify(user), {
                 sameSite: "strict",
             });
         },
@@ -64,13 +66,40 @@ export const api = (() => {
             return db.ref(`game/${id}`);
         },
 
+        async deleteGame(id: string) {
+            const gameRef = this.getGameRef(id);
+            console.log("delted game");
+            await gameRef.remove();
+        },
+
+        async createGame(game: Game) {
+            const gameRef = this.getGameRef(game.id);
+            console.log(game);
+            await gameRef.update(game);
+        },
+
         async joinGame(id: string, user: User) {
             const gameRef = this.getGameRef(id);
             gameRef.on("value", (snapshot) => {
-                console.log(snapshot.val());
-                onGameSnapshot(snapshot.val());
+                const value = snapshot.val();
+                if (value) {
+                    onGameSnapshot(value);
+                } else {
+                    const game: Game = {
+                        mode: NOT_PLAYING,
+                        id,
+                        userGameRecord: {
+                            [user.uid]: {
+                                userUID: user.uid,
+                                email: user.email,
+                                playerNumber: 1,
+                                hand: null,
+                            },
+                        },
+                    };
+                    this.createGame(game);
+                }
             });
-            gameRef.onDisconnect().set(null);
         },
 
         async logoutUser() {

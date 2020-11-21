@@ -9,7 +9,6 @@ type Props = {
 
 export const PrivateRoute = ({ children, ...rest }: Props) => {
     const { state } = useOvermind();
-    console.log(state.user);
     return (
         <Route
             {...rest}
