@@ -18,7 +18,7 @@ export const setUserIsReady: Action<void, Promise<void>> = async ({
     effects,
 }) => {
     if (state.game && state.user) {
-        await effects.api.setUserIsReady(state.game, state.user);
+        // await effects.api.setUserIsReady(state.game, state.user);
     }
 };
 
@@ -31,7 +31,7 @@ export const startGame: Action<void, void> = ({ effects, state }) => {
         game = initializeDeck(game);
         game = deal(8)(game);
         game = reveal(game);
-        effects.api.updateGame(game);
+        // effects.api.updateGame(game);
     }
 };
 
@@ -56,7 +56,7 @@ export const joinGame: Action<string | undefined, void> = (
 
 export const leaveGame: Action<void, void> = ({ state, effects }) => {
     if (state.game && state.user) {
-        effects.api.leaveGame(state.game.id, state.user);
+        // effects.api.leaveGame(state.game.id, state.user);
         state.game = undefined;
     }
 };

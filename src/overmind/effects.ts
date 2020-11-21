@@ -1,14 +1,10 @@
 import firebase from "firebase/app";
-import "firebase/firestore";
 import "firebase/auth";
+import "firebase/database";
 import { User } from "../entities/user";
 import * as E from "fp-ts/lib/Either";
-import * as R from "ramda";
 import Cookies from "js-cookie";
 import { DocumentSnapshot } from "../types";
-import { Game } from "../entities/game";
-import { UserGame } from "../entities/user-game";
-import { nextPlayerNumber } from "../util/player-management";
 
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDZbJPyeWwtR4kBpSUrBDOPEx496q8smBc",
@@ -52,149 +48,29 @@ export type FirebaseInitializeOptions = {
 
 export const api = (() => {
     let app: firebase.app.App;
-    let db: firebase.firestore.Firestore;
+    let db: firebase.database.Database;
     let auth: firebase.auth.Auth;
-    let unsubscribe: () => void = () => {};
-    let gamesCollection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
     let onGameSnapshot: (snapshot: DocumentSnapshot) => void;
 
     return {
         initialize(options: FirebaseInitializeOptions) {
             app = firebase.initializeApp(FIREBASE_CONFIG);
-            db = firebase.firestore();
+            db = firebase.database(app);
             auth = firebase.auth();
-            gamesCollection = db.collection("game");
             onGameSnapshot = options.onGameSnapshot;
         },
 
-        async leaveGame(id: string, user: User) {
-            const gameRef = gamesCollection.doc(id);
-            const gameDoc = await gameRef.get();
-            if (gameDoc.exists && user) {
-                const gameStateEither = Game.decode(gameDoc.data());
-                if (E.isLeft(gameStateEither)) {
-                    console.error("Invalid Game State");
-                } else {
-                    const gameState = gameStateEither.right;
-                    const {
-                        [user.email]: _,
-                        ...rest
-                    } = gameState.userGameRecord;
-                    if (R.isEmpty(rest)) {
-                        await gameRef.delete();
-                    } else {
-                        await gameRef.set({
-                            ...gameState,
-                            userGameRecord: rest,
-                        });
-                    }
-                }
-            }
-            unsubscribe();
-        },
-
-        async updateGame(game: Game) {
-            console.log(game);
-            const gameRef = gamesCollection.doc(game.id);
-            const gameDoc = await gameRef.get();
-            if (gameDoc.exists) {
-                const gameStateEither = Game.decode(gameDoc.data());
-                if (E.isLeft(gameStateEither)) {
-                    console.error("Invalid Game State");
-                } else {
-                    await gameRef.set(game);
-                }
-            } else {
-                console.error("Game does not exist");
-            }
-        },
-
-        async setUserIsReady(game: Game, user: User) {
-            const gameRef = gamesCollection.doc(game.id);
-            const gameDoc = await gameRef.get();
-            if (gameDoc.exists && user) {
-                const gameStateEither = Game.decode(gameDoc.data());
-                if (E.isLeft(gameStateEither)) {
-                    console.error("Invalid Game State");
-                } else {
-                    const gameState = gameStateEither.right;
-                    const existingUserGame =
-                        gameState.userGameRecord[user.email];
-                    if (!existingUserGame) {
-                        console.error("UserGame does not exisit for user.");
-                    } else {
-                        const newUserGame = {
-                            ...existingUserGame,
-                            isReady: true,
-                        };
-                        const newGameState: Game = {
-                            ...gameState,
-                            userGameRecord: {
-                                ...gameState.userGameRecord,
-                                [user.email]: newUserGame,
-                            },
-                        };
-                        await gameRef.set(newGameState);
-                    }
-                }
-            }
+        getGameRef(id: string) {
+            return db.ref(`game/${id}`);
         },
 
         async joinGame(id: string, user: User) {
-            if (gamesCollection) {
-                const gameRef = gamesCollection.doc(id);
-                const gameDoc = await gameRef.get();
-                const userGame: UserGame = {
-                    email: user.email,
-                    hand: [],
-                    isReady: false,
-                    playerNumber: 1,
-                };
-                if (gameDoc.exists) {
-                    const gameStateEither = Game.decode(gameDoc.data());
-                    if (E.isLeft(gameStateEither)) {
-                        console.error("Invalid Game State");
-                    } else {
-                        const gameState = gameStateEither.right;
-                        if (user.email in gameState.userGameRecord) {
-                            console.log("already in game");
-                        } else {
-                            const playerNumber = nextPlayerNumber(
-                                gameState.userGameRecord
-                            );
-                            if (!playerNumber) {
-                                console.error("Game is full");
-                                return null;
-                            }
-                            const updatedGameState: Game = {
-                                ...gameState,
-                                userGameRecord: {
-                                    ...gameState.userGameRecord,
-                                    [`${user.email}`]: {
-                                        ...userGame,
-                                        playerNumber,
-                                    },
-                                },
-                            };
-                            await gameRef.set(updatedGameState);
-                        }
-                    }
-                } else {
-                    const newGame: Game = {
-                        id: gameDoc.id,
-                        deck: [],
-                        discard: [],
-                        isPlaying: false,
-                        userGameRecord: {
-                            [`${user.email}`]: userGame,
-                        },
-                    };
-                    await gameRef.set(newGame);
-                }
-                unsubscribe = gameRef.onSnapshot(onGameSnapshot, (error) => {
-                    console.error(`Invalid Game Snapshot ${error}`);
-                });
-            }
+            const gameRef = this.getGameRef(id);
+            gameRef.on("value", (snapshot) => {
+                console.log(snapshot.val());
+                onGameSnapshot(snapshot.val());
+            });
+            gameRef.onDisconnect().set(null);
         },
 
         async logoutUser() {
