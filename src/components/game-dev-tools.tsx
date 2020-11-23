@@ -2,6 +2,7 @@ import React from "react";
 import { useOvermind } from "../overmind";
 import styled from "styled-components";
 import * as R from "ramda";
+import { PLAYING } from "../entities/game-mode";
 
 const PlayerCount = styled.div`
     display: flex;
@@ -14,7 +15,7 @@ export const GameDevTools = () => {
     return (
         <>
             {state.game ? (
-                <div>Playing? {String(state.game.isPlaying)}</div>
+                <div>Playing? {String(state.game.mode === PLAYING)}</div>
             ) : null}
             {state.game ? (
                 <PlayerCount>

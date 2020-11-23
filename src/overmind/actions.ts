@@ -1,9 +1,11 @@
 import { Action } from "overmind";
-import * as E from "fp-ts/lib/Either";
-import { DocumentSnapshot } from "../types";
 import { UserLoginInput } from "../entities/user";
 import { Game } from "../entities/game";
-import { deal, initializeDeck, reveal } from "../crazy-eights/game";
+import * as Crazy8s from "../crazy-eights/game";
+import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
+import { Card } from "../crazy-eights/deck";
+
+// GAME
 
 export const loginUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
@@ -13,38 +15,23 @@ export const loginUser: Action<UserLoginInput, Promise<void>> = async (
     state.user = user;
 };
 
-export const setUserIsReady: Action<void, Promise<void>> = async ({
-    state,
-    effects,
-}) => {
-    if (state.game && state.user) {
-        // await effects.api.setUserIsReady(state.game, state.user);
-    }
+export const logoutUser: Action<void, void> = ({ state, effects }) => {
+    state.user = undefined;
+    state.game = undefined;
+    effects.api.logoutUser();
 };
+
+// GAME
 
 export const startGame: Action<void, void> = ({ effects, state }) => {
-    if (state.game) {
-        let game = {
-            ...state.game,
-            isPlaying: true,
-        };
-        game = initializeDeck(game);
-        game = deal(8)(game);
-        game = reveal(game);
-        // effects.api.updateGame(game);
+    if (state.game && state.game.mode === NOT_PLAYING) {
+        const game = Crazy8s.initialize(state.game);
+        effects.api.updateGame(game);
     }
 };
 
-export const updateGame: Action<DocumentSnapshot, void> = (
-    { state },
-    snapshot
-) => {
-    console.log(snapshot);
-    const game = Game.decode(snapshot);
-    console.log(game);
-    if (!E.isLeft(game)) {
-        state.game = game.right;
-    }
+export const updateGame: Action<Game, void> = ({ state }, game) => {
+    state.game = game;
 };
 
 export const joinGame: Action<string | undefined, void> = (
@@ -64,7 +51,14 @@ export const deleteGame: Action<void, void> = ({ effects, state }) => {
 
 export const leaveGame: Action<void, void> = ({ state, effects }) => {
     if (state.game && state.user) {
-        // effects.api.leaveGame(state.game.id, state.user);
+        effects.api.leaveGame(state.game.id);
         state.game = undefined;
+    }
+};
+
+export const playCard: Action<Card, void> = ({ state, effects }, card) => {
+    if (state.game && state.game.mode === PLAYING && state.user) {
+        const game = Crazy8s.playCard(state.game, state.user, card);
+        effects.api.updateGame(game);
     }
 };

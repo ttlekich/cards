@@ -4,9 +4,10 @@ import "firebase/database";
 import { User } from "../entities/user";
 import * as E from "fp-ts/lib/Either";
 import Cookies from "js-cookie";
-import { DocumentSnapshot } from "../types";
-import { createAssignment } from "typescript";
-import { Game, NOT_PLAYING } from "../entities/game";
+import { Game, GameNotPlaying } from "../entities/game";
+import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
+import * as R from "ramda";
+import { nextPlayerNumber } from "../util/player-management";
 
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDZbJPyeWwtR4kBpSUrBDOPEx496q8smBc",
@@ -45,14 +46,14 @@ export const cookies = (() => {
 })();
 
 export type FirebaseInitializeOptions = {
-    onGameSnapshot: (snapshot: DocumentSnapshot) => void;
+    onGameSnapshot: (game: Game) => void;
 };
 
 export const api = (() => {
     let app: firebase.app.App;
     let db: firebase.database.Database;
     let auth: firebase.auth.Auth;
-    let onGameSnapshot: (snapshot: DocumentSnapshot) => void;
+    let onGameSnapshot: (game: Game) => void;
 
     return {
         initialize(options: FirebaseInitializeOptions) {
@@ -68,38 +69,93 @@ export const api = (() => {
 
         async deleteGame(id: string) {
             const gameRef = this.getGameRef(id);
-            console.log("delted game");
-            await gameRef.remove();
+            await Promise.all([await gameRef.off(), await gameRef.remove()]);
         },
 
-        async createGame(game: Game) {
+        async leaveGame(id: string) {
+            const gameRef = this.getGameRef(id);
+            await gameRef.off();
+        },
+
+        async updateGame(game: Game) {
             const gameRef = this.getGameRef(game.id);
-            console.log(game);
             await gameRef.update(game);
+        },
+
+        joinOccupiedGame(game: Game, user: User) {
+            switch (game.mode) {
+                case PLAYING:
+                    console.error("GAME ALREADY IN PROGRESS");
+                    return;
+                case NOT_PLAYING:
+                    const playerNumber = nextPlayerNumber(game.userGameRecord);
+                    if (game.userGameRecord[user.uid]) {
+                        return;
+                    }
+                    if (playerNumber) {
+                        const newGame: GameNotPlaying = {
+                            ...game,
+                            userGameRecord: {
+                                ...game.userGameRecord,
+                                [user.uid]: {
+                                    mode: NOT_PLAYING,
+                                    userUID: user.uid,
+                                    email: user.email,
+                                    playerNumber,
+                                },
+                            },
+                        };
+                        this.updateGame(newGame);
+                        return;
+                    } else {
+                        console.error("GAME IS FULL");
+                        return;
+                    }
+            }
+        },
+
+        joinEmptyGame(id: string, user: User) {
+            const game: GameNotPlaying = {
+                mode: NOT_PLAYING,
+                id,
+                userGameRecord: {
+                    [user.uid]: {
+                        mode: NOT_PLAYING,
+                        userUID: user.uid,
+                        email: user.email,
+                        playerNumber: 1,
+                    },
+                },
+            };
+            this.updateGame(game);
+        },
+
+        subscribe(gameRef: firebase.database.Reference) {
+            gameRef.on("value", (snapshot) => {
+                const value = snapshot.val();
+                const game = Game.decode(value);
+                if (!value || E.isLeft(game)) {
+                    gameRef.off();
+                } else {
+                    onGameSnapshot(game.right);
+                }
+            });
         },
 
         async joinGame(id: string, user: User) {
             const gameRef = this.getGameRef(id);
-            gameRef.on("value", (snapshot) => {
-                const value = snapshot.val();
-                if (value) {
-                    onGameSnapshot(value);
-                } else {
-                    const game: Game = {
-                        mode: NOT_PLAYING,
-                        id,
-                        userGameRecord: {
-                            [user.uid]: {
-                                userUID: user.uid,
-                                email: user.email,
-                                playerNumber: 1,
-                                hand: null,
-                            },
-                        },
-                    };
-                    this.createGame(game);
+            const value = await gameRef.once("value");
+            if (value.val()) {
+                const game = Game.decode(value.val());
+                if (E.isLeft(game)) {
+                    console.error("INVALID GAME STATE");
+                    return;
                 }
-            });
+                this.joinOccupiedGame(game.right, user);
+            } else {
+                this.joinEmptyGame(id, user);
+            }
+            this.subscribe(gameRef);
         },
 
         async logoutUser() {

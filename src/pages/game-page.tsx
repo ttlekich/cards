@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { useHistory, useRouteMatch } from "react-router";
 import styled from "styled-components";
-import { Player } from "../components/player";
+import { PlayerHUD } from "../components/player-hud";
 import { useOvermind } from "../overmind";
 import * as R from "ramda";
 import { Button } from "../components/button";
 import { DrawPile } from "../components/draw-pile";
+import { PLAYING } from "../entities/game-mode";
+import { Navigation } from "../components/navigation";
 
 const Wrapper = styled.div`
     display: flex;
@@ -41,33 +43,18 @@ export const GamePage = () => {
 
     const playerOne = R.head(players);
 
-    const handleStartGame = (event: React.SyntheticEvent) => {
-        event.preventDefault();
-        actions.startGame();
-    };
-
-    const handleDeleteGame = (event: React.SyntheticEvent) => {
-        event.preventDefault();
-        actions.deleteGame();
-        history.push("/lobby");
-    };
-
-    const canStart =
-        state.game &&
-        state.user &&
-        state.user.email === playerOne?.email &&
-        !state.game.isPlaying;
-
     return (
         <Wrapper>
-            <button onClick={handleDeleteGame}>Delete Game</button>
-            <div>{"Crazy 8s"}</div>
+            <Navigation></Navigation>
             <DrawPile></DrawPile>
             {state.game ? (
                 <Players>
                     {R.map(
                         (player) => (
-                            <Player key={player.email} player={player}></Player>
+                            <PlayerHUD
+                                key={player.email}
+                                player={player}
+                            ></PlayerHUD>
                         ),
                         players
                     )}
@@ -75,11 +62,6 @@ export const GamePage = () => {
             ) : (
                 <span>Loading...</span>
             )}
-            {canStart ? (
-                <Button primary={false} onClick={handleStartGame}>
-                    Start
-                </Button>
-            ) : null}
         </Wrapper>
     );
 };

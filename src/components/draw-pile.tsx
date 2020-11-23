@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useOvermind } from "../overmind";
 import { Card } from "./card";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
+import * as R from "ramda";
 
 const Wrapper = styled.div`
     display: flex;
@@ -24,7 +25,8 @@ export const DrawPile = () => {
     if (!state.game) return <></>;
     switch (state.game.mode) {
         case PLAYING:
-            const lastPlayed = state.game.discard[0];
+            const lastPlayed = R.last(state.game.discard);
+            console.log(lastPlayed);
             return (
                 <>
                     {state.game && (
@@ -34,11 +36,13 @@ export const DrawPile = () => {
                                 <Card
                                     card={{ suit: "S", rank: "A" }}
                                     face={"BACK"}
+                                    isSelected={false}
                                 ></Card>
                                 {lastPlayed && (
                                     <Card
                                         card={lastPlayed}
                                         face={"FRONT"}
+                                        isSelected={false}
                                     ></Card>
                                 )}
                             </PileWrapper>

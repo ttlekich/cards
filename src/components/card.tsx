@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Card as CardType } from "../crazy-eights/deck";
 
 type WrapperProps = {
     color: "red" | "black";
+    isSelected: boolean;
 };
 
 const BackWrapper = styled.div`
@@ -26,13 +27,10 @@ const FrontWrapper = styled.div<WrapperProps>`
     height: 80px;
     background-color: #fff;
     border-radius: 5px;
-    border: 1px solid black;
+    border: ${(props) => `2px solid ${props.isSelected ? "red" : "black"}`};
     padding: 0.25rem;
     color: ${(props) => props.color};
     cursor: pointer;
-    :hover {
-        border: 1px solid blue;
-    }
 `;
 
 const CardTop = styled.div`
@@ -51,16 +49,18 @@ const CardBottom = styled.div`
 `;
 
 const CardRank = styled.div`
-    font-size: 16px;
+    font-size: 1rem;
 `;
 
 const CardSuit = styled.div`
-    .font-size: 8px;
+    font-size: 1.5rem;
 `;
 
 type Props = {
     card: CardType;
     face: "FRONT" | "BACK";
+    isSelected: boolean;
+    onClick?: () => void;
 };
 
 export const Card = (props: Props) => {
@@ -77,7 +77,11 @@ export const Card = (props: Props) => {
     switch (props.face) {
         case "FRONT":
             return (
-                <FrontWrapper color={suitDetails.color}>
+                <FrontWrapper
+                    isSelected={props.isSelected}
+                    color={suitDetails.color}
+                    onClick={props.onClick}
+                >
                     <CardTop>
                         <CardRank>{rank}</CardRank>
                         <CardSuit>{suitDetails.symbol}</CardSuit>

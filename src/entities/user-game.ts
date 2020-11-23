@@ -32,6 +32,6 @@ export type UserGameRecordNotPlaying = t.TypeOf<
 
 export const UserGameRecord = t.union([
     UserGameRecordNotPlaying,
-    UserGamePlaying,
+    UserGameRecordPlaying,
 ]);
 export type UserGameRecord = t.TypeOf<typeof UserGameRecord>;
