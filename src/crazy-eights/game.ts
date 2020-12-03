@@ -1,4 +1,8 @@
-import { Game, GameNotPlaying, GamePlaying } from "../entities/game";
+import {
+    COUNTER_CLOCKWISE,
+    GameNotPlaying,
+    GamePlaying,
+} from "../entities/game";
 import { Card, Deck, Hand, newDeck } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
@@ -23,6 +27,9 @@ export const initialize = (game: GameNotPlaying): GamePlaying => {
         deck,
         discard,
         userGameRecord,
+        playDirection: COUNTER_CLOCKWISE,
+        currentPlayerNumber: 1,
+        nextPlayerNumber: 2,
     };
 };
 
@@ -93,8 +100,15 @@ export const playCard = (game: GamePlaying, player: User, card: Card) => {
     };
 };
 
-// TODO
-export const isPlayable = () => {};
+export const isPlayable = (game: GamePlaying, card: Card) => {
+    const { discard } = game;
+    const topCard = R.last(discard);
+    return topCard
+        ? topCard.rank === card.rank ||
+              topCard.suit === card.suit ||
+              card.rank === "8"
+        : false;
+};
 
 // TODO
 export const drawCard = () => {};

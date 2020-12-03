@@ -11,7 +11,13 @@ type Props = {
     player: UserGame;
 };
 
-const Wrapper = styled.div``;
+type WrapperProps = {
+    isTurn: boolean;
+};
+
+const Wrapper = styled.div<WrapperProps>`
+    border: ${(props) => `2px solid ${props.isTurn ? "red" : "transparent"}`};
+`;
 
 const PlayerInfo = styled.div`
     display: flex;
@@ -64,6 +70,13 @@ export const PlayerHUD = (props: Props) => {
         }
     };
 
+    const handleDrawCard = (event: React.SyntheticEvent) => {
+        event.preventDefault();
+        if (selectedCard) {
+            actions.drawCard(selectedCard);
+        }
+    };
+
     const canStart =
         state.game &&
         !(state.game.mode === PLAYING) &&
@@ -74,8 +87,12 @@ export const PlayerHUD = (props: Props) => {
         actions.startGame();
     };
 
+    const isTurn =
+        state.game?.mode === PLAYING &&
+        player.playerNumber === state.game.currentPlayerNumber;
+
     return (
-        <Wrapper>
+        <Wrapper isTurn={isTurn}>
             <PlayerInfo>
                 <Field>{userGame?.playerNumber}</Field>
                 <Field>{props.player.email}</Field>
@@ -100,12 +117,17 @@ export const PlayerHUD = (props: Props) => {
                 ) : null}
             </Hand>
             <PlayerControls>
-                <Button kind={ButtonKind.PRIMARY} onClick={handlePlayCard}>
+                <Button
+                    kind={ButtonKind.PRIMARY}
+                    onClick={handlePlayCard}
+                    disabled={!isTurn}
+                >
                     Play Card
                 </Button>
                 <Button
                     kind={ButtonKind.PRIMARY_INVERTED}
-                    onClick={handlePlayCard}
+                    onClick={handleDrawCard}
+                    disabled={!isTurn}
                 >
                     Draw Card
                 </Button>
