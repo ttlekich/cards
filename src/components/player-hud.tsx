@@ -64,6 +64,11 @@ export const PlayerHUD = (props: Props) => {
         }
     };
 
+    const handleDrawCard = (event: React.SyntheticEvent) => {
+        event.preventDefault();
+        actions.drawCard();
+    };
+
     const canStart =
         state.game &&
         !(state.game.mode === PLAYING) &&
@@ -99,26 +104,28 @@ export const PlayerHUD = (props: Props) => {
                     </>
                 ) : null}
             </Hand>
-            <PlayerControls>
-                <Button kind={ButtonKind.PRIMARY} onClick={handlePlayCard}>
-                    Play Card
-                </Button>
-                <Button
-                    kind={ButtonKind.PRIMARY_INVERTED}
-                    onClick={handlePlayCard}
-                >
-                    Draw Card
-                </Button>
-
-                {canStart ? (
-                    <Button
-                        kind={ButtonKind.SECONDARY}
-                        onClick={handleStartGame}
-                    >
-                        Start Game
+            {isPlayer && (
+                <PlayerControls>
+                    <Button kind={ButtonKind.PRIMARY} onClick={handlePlayCard}>
+                        Play Card
                     </Button>
-                ) : null}
-            </PlayerControls>
+                    <Button
+                        kind={ButtonKind.PRIMARY_INVERTED}
+                        onClick={handleDrawCard}
+                    >
+                        Draw Card
+                    </Button>
+
+                    {canStart ? (
+                        <Button
+                            kind={ButtonKind.SECONDARY}
+                            onClick={handleStartGame}
+                        >
+                            Start Game
+                        </Button>
+                    ) : null}
+                </PlayerControls>
+            )}
         </Wrapper>
     );
 };

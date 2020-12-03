@@ -1,4 +1,4 @@
-import { Game, GameNotPlaying, GamePlaying } from "../entities/game";
+import { GameNotPlaying, GamePlaying } from "../entities/game";
 import { Card, Deck, Hand, newDeck } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
@@ -17,12 +17,17 @@ export const initialize = (game: GameNotPlaying): GamePlaying => {
     const { hands, rest } = deal(nPlayers)(INITIAL_HAND_SIZE)(initialDeck);
     const { deck, discard } = reveal({ deck: rest, discard: [] });
     const userGameRecord = assignHands(game.userGameRecord)(hands);
+    const currentPlayer = R.find(
+        (userGame) => userGame.playerNumber === 1,
+        R.values(userGameRecord)
+    );
     return {
         ...game,
         mode: PLAYING,
         deck,
         discard,
         userGameRecord,
+        currentPlayer: currentPlayer ? currentPlayer.userUID : "",
     };
 };
 
@@ -72,6 +77,10 @@ const areCardsEqual = (card1: Card) => (card2: Card) => {
     return card1.suit === card2.suit && card1.rank === card2.rank;
 };
 
+export const canPlayCard = (game: GamePlaying) => (player: User) => {
+    return game.currentPlayer === player.uid;
+};
+
 export const playCard = (game: GamePlaying, player: User, card: Card) => {
     const { discard } = game;
     const newDiscard = [...discard, card];
@@ -93,8 +102,37 @@ export const playCard = (game: GamePlaying, player: User, card: Card) => {
     };
 };
 
-// TODO
-export const isPlayable = () => {};
+export const isCardPlayable = (game: GamePlaying) => (card: Card) => {
+    const { discard } = game;
+    const lastCard = R.last(discard);
+    if (lastCard) {
+        return (
+            card.rank === "8" ||
+            card.rank === lastCard.rank ||
+            card.suit === lastCard.suit
+        );
+    } else {
+        return false;
+    }
+};
 
-// TODO
-export const drawCard = () => {};
+export const drawCard = (game: GamePlaying, player: User) => {
+    const { deck } = game;
+    const userGame = game.userGameRecord[player.uid];
+    const lastCard = R.head(deck);
+    const newPlayerHand = lastCard
+        ? [lastCard, ...userGame.hand]
+        : userGame.hand;
+    const newUserGame = {
+        ...userGame,
+        hand: newPlayerHand,
+    };
+    return {
+        ...game,
+        deck: R.tail(deck),
+        userGameRecord: {
+            ...game.userGameRecord,
+            [player.uid]: newUserGame,
+        },
+    };
+};

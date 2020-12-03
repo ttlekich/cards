@@ -9,6 +9,7 @@ export const GamePlaying = t.type({
     userGameRecord: UserGameRecordPlaying,
     deck: Deck,
     discard: Deck,
+    currentPlayer: t.string,
 });
 
 export type GamePlaying = t.TypeOf<typeof GamePlaying>;

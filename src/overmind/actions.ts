@@ -62,3 +62,10 @@ export const playCard: Action<Card, void> = ({ state, effects }, card) => {
         effects.api.updateGame(game);
     }
 };
+
+export const drawCard: Action<void, void> = ({ state, effects }) => {
+    if (state.game && state.game.mode === PLAYING && state.user) {
+        const game = Crazy8s.drawCard(state.game, state.user);
+        effects.api.updateGame(game);
+    }
+};
