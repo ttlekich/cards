@@ -26,7 +26,6 @@ export const DrawPile = () => {
     switch (state.game.mode) {
         case PLAYING:
             const lastPlayed = R.last(state.game.discard);
-            console.log(lastPlayed);
             return (
                 <>
                     {state.game && (

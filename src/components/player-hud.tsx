@@ -55,7 +55,6 @@ export const PlayerHUD = (props: Props) => {
     const isPlayer = state.user?.email === player.email;
 
     const selectCard = (card: CardType) => () => {
-        console.log("here");
         setSelectedCard(card);
     };
 
@@ -72,9 +71,7 @@ export const PlayerHUD = (props: Props) => {
 
     const handleDrawCard = (event: React.SyntheticEvent) => {
         event.preventDefault();
-        if (selectedCard) {
-            actions.drawCard(selectedCard);
-        }
+        actions.drawCard();
     };
 
     const canStart =
@@ -134,7 +131,7 @@ export const PlayerHUD = (props: Props) => {
 
                 {canStart ? (
                     <Button
-                        kind={ButtonKind.SECONDARY}
+                        kind={ButtonKind.PRIMARY_INVERTED}
                         onClick={handleStartGame}
                     >
                         Start Game

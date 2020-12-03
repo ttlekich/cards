@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Card as CardType } from "../crazy-eights/deck";
 
@@ -65,7 +65,7 @@ type Props = {
 
 export const Card = (props: Props) => {
     const suitRecord = {
-        S: { symbol: "♠︎", color: "red" },
+        S: { symbol: "♠︎", color: "black" },
         C: { symbol: "♣︎", color: "black" },
         D: { symbol: "♦︎", color: "red" },
         H: { symbol: "♥︎", color: "red" },

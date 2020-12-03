@@ -1,4 +1,5 @@
 import {
+    CLOCKWISE,
     COUNTER_CLOCKWISE,
     GameNotPlaying,
     GamePlaying,
@@ -8,6 +9,7 @@ import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
 import { PLAYING } from "../entities/game-mode";
 import {
+    UserGamePlaying,
     UserGameRecord,
     UserGameRecordNotPlaying,
     UserGameRecordPlaying,
@@ -79,6 +81,10 @@ const areCardsEqual = (card1: Card) => (card2: Card) => {
     return card1.suit === card2.suit && card1.rank === card2.rank;
 };
 
+export const canPlayCard = (game: GamePlaying, player: UserGamePlaying) => {
+    return game.currentPlayerNumber === player.playerNumber;
+};
+
 export const playCard = (game: GamePlaying, player: User, card: Card) => {
     const { discard } = game;
     const newDiscard = [...discard, card];
@@ -90,8 +96,10 @@ export const playCard = (game: GamePlaying, player: User, card: Card) => {
             previousUserGame.hand
         ),
     };
+    console.log("next player n: ", nextCurrentPlayerNumber(game));
     return {
         ...game,
+        currentPlayerNumber: nextCurrentPlayerNumber(game),
         discard: newDiscard,
         userGameRecord: {
             ...game.userGameRecord,
@@ -100,9 +108,28 @@ export const playCard = (game: GamePlaying, player: User, card: Card) => {
     };
 };
 
-export const isPlayable = (game: GamePlaying, card: Card) => {
+export const nextCurrentPlayerNumber = (game: GamePlaying) => {
+    const nPlayers = R.keys(game.userGameRecord).length;
+    console.log(nPlayers);
+    const { currentPlayerNumber, playDirection } = game;
+    switch (playDirection) {
+        case CLOCKWISE:
+            const temp = currentPlayerNumber - 1;
+            if (temp <= 0) {
+                return nPlayers;
+            } else {
+                return temp;
+            }
+        case COUNTER_CLOCKWISE:
+            return (currentPlayerNumber % nPlayers) + 1;
+    }
+};
+
+export const isCardPlayable = (game: GamePlaying, card: Card) => {
     const { discard } = game;
     const topCard = R.last(discard);
+    console.log(topCard);
+    console.log(card);
     return topCard
         ? topCard.rank === card.rank ||
               topCard.suit === card.suit ||
@@ -110,5 +137,23 @@ export const isPlayable = (game: GamePlaying, card: Card) => {
         : false;
 };
 
-// TODO
-export const drawCard = () => {};
+export const drawCard = (game: GamePlaying, player: User) => {
+    const { deck } = game;
+    const userGame = game.userGameRecord[player.uid];
+    const lastCard = R.head(deck);
+    const newPlayerHand = lastCard
+        ? [lastCard, ...userGame.hand]
+        : userGame.hand;
+    const newUserGame = {
+        ...userGame,
+        hand: newPlayerHand,
+    };
+    return {
+        ...game,
+        deck: R.tail(deck),
+        userGameRecord: {
+            ...game.userGameRecord,
+            [player.uid]: newUserGame,
+        },
+    };
+};
