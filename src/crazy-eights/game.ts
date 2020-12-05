@@ -20,6 +20,7 @@ import {
     UserGameRecordPlaying,
 } from "../entities/user-game";
 import { User } from "../entities/user";
+import { alt } from "fp-ts/lib/Option";
 
 export const initialize = (game: GameNotPlaying): GamePlaying => {
     const initialDeck = newDeck();
@@ -40,6 +41,7 @@ export const initialize = (game: GameNotPlaying): GamePlaying => {
         playDirection: COUNTER_CLOCKWISE,
         currentPlayerNumber: 1,
         moveOptions,
+        cardLastPlayed: topCard,
     };
 };
 
@@ -56,58 +58,93 @@ const getMoveOptions = (
     currentPlayerNumber: number,
     playDirection: PlayDirection,
     nPlayers: number,
-    card: Card
+    card: Card | null | undefined
 ): MoveOptions => {
-    const { rank } = card;
-    if (rank === "2") {
-        return {
-            playCard: true,
-            drawCard: {
-                required: false,
-                nCards: 2,
-            },
-            alterTurn: false,
-        };
-    }
-    if (rank === "4") {
-        const nextPlayDirection = getNextPlayDirection(playDirection);
-        const nextPlayerNumber = getNextPlayerNumber(
-            currentPlayerNumber,
-            playDirection,
-            nPlayers
-        );
-        return {
-            playCard: true,
-            drawCard: false,
-            alterTurn: {
-                required: false,
-                nextPlayDirection,
-                nextPlayerNumber,
-            },
-        };
-    }
-    if (rank === "7") {
-        const nextPlayDirection = getNextPlayDirection(playDirection);
-        const nextPlayerNumber = getNextPlayerNumber(
-            currentPlayerNumber,
-            playDirection,
-            nPlayers
-        );
-        return {
-            playCard: false,
-            drawCard: false,
-            alterTurn: {
-                required: true,
-                nextPlayDirection,
-                nextPlayerNumber,
-            },
-        };
+    if (card) {
+        const { rank } = card;
+        if (rank === "2") {
+            return {
+                playCard: true,
+                drawCard: {
+                    required: false,
+                    nCards: 2,
+                },
+                alterTurn: null,
+            };
+        }
+        if (rank === "4") {
+            const nextPlayDirection = getNextPlayDirection(playDirection);
+            const nextPlayerNumber = getNextPlayerNumber(
+                currentPlayerNumber,
+                playDirection,
+                nPlayers
+            );
+            return {
+                playCard: true,
+                drawCard: false,
+                alterTurn: {
+                    required: false,
+                    nextPlayDirection,
+                    nextPlayerNumber,
+                },
+            };
+        }
+        if (rank === "7") {
+            const nextPlayDirection = getNextPlayDirection(playDirection);
+            const nextPlayerNumber = getNextPlayerNumber(
+                currentPlayerNumber,
+                playDirection,
+                nPlayers
+            );
+            return {
+                playCard: false,
+                drawCard: false,
+                alterTurn: {
+                    required: true,
+                    nextPlayDirection,
+                    nextPlayerNumber,
+                },
+            };
+        }
     }
     return {
         playCard: true,
         drawCard: true,
-        alterTurn: false,
+        alterTurn: null,
     };
+};
+
+export const assignMoveOptions = (game: GamePlaying) => {
+    const { playDirection, currentPlayerNumber, cardLastPlayed } = game;
+    const nPlayers = R.keys(game.userGameRecord).length;
+    const moveOptions = getMoveOptions(
+        currentPlayerNumber,
+        playDirection,
+        nPlayers,
+        cardLastPlayed
+    );
+    return {
+        ...game,
+        moveOptions,
+    };
+};
+
+export const enforceMoveOptions = (game: GamePlaying): GamePlaying => {
+    const { moveOptions } = game;
+    const { playCard, drawCard, alterTurn } = moveOptions;
+    if (alterTurn && alterTurn.required) {
+        return {
+            ...game,
+            currentPlayerNumber: alterTurn.nextPlayerNumber
+                ? alterTurn.nextPlayerNumber
+                : game.currentPlayerNumber,
+            playDirection: alterTurn.nextPlayDirection
+                ? alterTurn.nextPlayDirection
+                : game.playDirection,
+            cardLastPlayed: null,
+        };
+    }
+    return game;
 };
 
 const deal = (nHands: number) => (nCards: number) => (deck: Deck) => {
@@ -160,22 +197,10 @@ export const canPlayCard = (game: GamePlaying, player: UserGamePlaying) => {
     return game.currentPlayerNumber === player.playerNumber;
 };
 
-export const getPlayEffect = (card: Card) => {
-    const { rank } = card;
-    switch (rank) {
-        case "7":
-            return [REVERSE_PLAY_DIRECTION];
-        case "4":
-            return [SKIP_NEXT_PLAYER];
-        case "2":
-            return [DRAW_CARD, DRAW_CARD];
-        default:
-            return [];
-    }
-};
-
 export const playCard = (game: GamePlaying, player: User, card: Card) => {
-    const { discard } = game;
+    const { discard, playDirection, currentPlayerNumber } = game;
+    const nPlayers = R.keys(game.userGameRecord).length;
+    const topCard = R.last(discard) as Card;
     const newDiscard = [...discard, card];
     const previousUserGame = game.userGameRecord[player.uid];
     const newUserGame = {
@@ -185,7 +210,12 @@ export const playCard = (game: GamePlaying, player: User, card: Card) => {
             previousUserGame.hand
         ),
     };
-    const playEffect = getPlayEffect(card);
+    const moveOptions = getMoveOptions(
+        currentPlayerNumber,
+        playDirection,
+        nPlayers,
+        topCard
+    );
     return {
         ...game,
         currentPlayerNumber: getNextPlayerNumber(
@@ -198,6 +228,8 @@ export const playCard = (game: GamePlaying, player: User, card: Card) => {
             ...game.userGameRecord,
             [player.uid]: newUserGame,
         },
+        moveOptions,
+        cardLastPlayed: card,
     };
 };
 
@@ -220,15 +252,32 @@ export const getNextPlayerNumber = (
 };
 
 export const isCardPlayable = (game: GamePlaying, card: Card) => {
-    const { discard } = game;
+    const { discard, cardLastPlayed } = game;
     const topCard = R.last(discard);
-    console.log(topCard);
-    console.log(card);
-    return topCard
-        ? topCard.rank === card.rank ||
-              topCard.suit === card.suit ||
-              card.rank === "8"
-        : false;
+
+    if (cardLastPlayed) {
+        const { rank, suit } = cardLastPlayed;
+        if (rank === "2") {
+            // Can only play a two on a two
+            return card.rank === rank;
+        }
+        if (rank === "4") {
+            // TODO
+            // Can only play a four on a four
+            return card.rank === rank;
+        }
+        if (rank === "8") {
+            // TODO
+        }
+        return rank === card.rank || suit === card.suit;
+    }
+
+    if (topCard) {
+        const { rank, suit } = topCard;
+        return rank === card.rank || suit === card.suit;
+    }
+
+    return false;
 };
 
 export const drawCard = (game: GamePlaying, player: User) => {
@@ -254,5 +303,6 @@ export const drawCard = (game: GamePlaying, player: User) => {
             ...game.userGameRecord,
             [player.uid]: newUserGame,
         },
+        cardLastPlayed: null,
     };
 };

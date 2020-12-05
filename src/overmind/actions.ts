@@ -1,6 +1,6 @@
 import { Action } from "overmind";
 import { UserLoginInput } from "../entities/user";
-import { Game } from "../entities/game";
+import { Game, GamePlaying } from "../entities/game";
 import * as Crazy8s from "../crazy-eights/game";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card } from "../crazy-eights/deck";
@@ -21,11 +21,11 @@ export const logoutUser: Action<void, void> = ({ state, effects }) => {
     effects.api.logoutUser();
 };
 
-// GAME
-
 export const startGame: Action<void, void> = ({ effects, state }) => {
     if (state.game && state.game.mode === NOT_PLAYING) {
-        const game = Crazy8s.initialize(state.game);
+        let game: GamePlaying = Crazy8s.initialize(state.game);
+        game = Crazy8s.assignMoveOptions(game);
+        game = Crazy8s.enforceMoveOptions(game);
         effects.api.updateGame(game);
     }
 };
@@ -63,14 +63,18 @@ export const playCard: Action<Card, void> = ({ state, effects }, card) => {
         state.user &&
         Crazy8s.isCardPlayable(state.game, card)
     ) {
-        const game = Crazy8s.playCard(state.game, state.user, card);
+        let game: GamePlaying = Crazy8s.playCard(state.game, state.user, card);
+        game = Crazy8s.assignMoveOptions(game);
+        game = Crazy8s.enforceMoveOptions(game);
         effects.api.updateGame(game);
     }
 };
 
 export const drawCard: Action<void, void> = ({ state, effects }) => {
     if (state.game && state.game.mode === PLAYING && state.user) {
-        const game = Crazy8s.drawCard(state.game, state.user);
+        let game: GamePlaying = Crazy8s.drawCard(state.game, state.user);
+        game = Crazy8s.assignMoveOptions(game);
+        game = Crazy8s.enforceMoveOptions(game);
         effects.api.updateGame(game);
     }
 };

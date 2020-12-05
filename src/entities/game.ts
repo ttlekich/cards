@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { Deck } from "../crazy-eights/deck";
+import { Card, Deck } from "../crazy-eights/deck";
 import { _NOT_PLAYING, _PLAYING } from "./game-mode";
 import { UserGameRecordNotPlaying, UserGameRecordPlaying } from "./user-game";
 
@@ -37,7 +37,8 @@ export const MoveOptions = t.type({
             nextPlayerNumber: t.union([t.number, t.undefined]),
             nextPlayDirection: t.union([PlayDirection, t.undefined]),
         }),
-        t.boolean,
+        t.null,
+        t.undefined,
     ]),
 });
 
@@ -52,6 +53,7 @@ export const GamePlaying = t.type({
     currentPlayerNumber: t.number,
     playDirection: PlayDirection,
     moveOptions: MoveOptions,
+    cardLastPlayed: t.union([Card, t.null, t.undefined]),
 });
 
 export type GamePlaying = t.TypeOf<typeof GamePlaying>;
