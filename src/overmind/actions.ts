@@ -66,6 +66,7 @@ export const playCard: Action<Card, void> = ({ state, effects }, card) => {
         let game: GamePlaying = Crazy8s.playCard(state.game, state.user, card);
         game = Crazy8s.assignMoveOptions(game);
         game = Crazy8s.enforceMoveOptions(game);
+        game = Crazy8s.assignCurrentPlayer(game);
         effects.api.updateGame(game);
     }
 };
@@ -75,6 +76,7 @@ export const drawCard: Action<void, void> = ({ state, effects }) => {
         let game: GamePlaying = Crazy8s.drawCard(state.game, state.user);
         game = Crazy8s.assignMoveOptions(game);
         game = Crazy8s.enforceMoveOptions(game);
+        game = Crazy8s.assignCurrentPlayer(game);
         effects.api.updateGame(game);
     }
 };

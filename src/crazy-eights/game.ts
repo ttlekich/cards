@@ -1,13 +1,10 @@
 import {
     CLOCKWISE,
     COUNTER_CLOCKWISE,
-    DRAW_CARD,
     GameNotPlaying,
     GamePlaying,
     MoveOptions,
     PlayDirection,
-    REVERSE_PLAY_DIRECTION,
-    SKIP_NEXT_PLAYER,
 } from "../entities/game";
 import { Card, Deck, Hand, newDeck } from "./deck";
 import * as R from "ramda";
@@ -20,7 +17,6 @@ import {
     UserGameRecordPlaying,
 } from "../entities/user-game";
 import { User } from "../entities/user";
-import { alt } from "fp-ts/lib/Option";
 
 export const initialize = (game: GameNotPlaying): GamePlaying => {
     const initialDeck = newDeck();
@@ -198,9 +194,7 @@ export const canPlayCard = (game: GamePlaying, player: UserGamePlaying) => {
 };
 
 export const playCard = (game: GamePlaying, player: User, card: Card) => {
-    const { discard, playDirection, currentPlayerNumber } = game;
-    const nPlayers = R.keys(game.userGameRecord).length;
-    const topCard = R.last(discard) as Card;
+    const { discard } = game;
     const newDiscard = [...discard, card];
     const previousUserGame = game.userGameRecord[player.uid];
     const newUserGame = {
@@ -210,12 +204,18 @@ export const playCard = (game: GamePlaying, player: User, card: Card) => {
             previousUserGame.hand
         ),
     };
-    const moveOptions = getMoveOptions(
-        currentPlayerNumber,
-        playDirection,
-        nPlayers,
-        topCard
-    );
+    return {
+        ...game,
+        discard: newDiscard,
+        userGameRecord: {
+            ...game.userGameRecord,
+            [player.uid]: newUserGame,
+        },
+        cardLastPlayed: card,
+    };
+};
+
+export const assignCurrentPlayer = (game: GamePlaying) => {
     return {
         ...game,
         currentPlayerNumber: getNextPlayerNumber(
@@ -223,13 +223,6 @@ export const playCard = (game: GamePlaying, player: User, card: Card) => {
             game.playDirection,
             R.keys(game.userGameRecord).length
         ),
-        discard: newDiscard,
-        userGameRecord: {
-            ...game.userGameRecord,
-            [player.uid]: newUserGame,
-        },
-        moveOptions,
-        cardLastPlayed: card,
     };
 };
 
@@ -294,11 +287,6 @@ export const drawCard = (game: GamePlaying, player: User) => {
     return {
         ...game,
         deck: R.tail(deck),
-        currentPlayerNumber: getNextPlayerNumber(
-            game.currentPlayerNumber,
-            game.playDirection,
-            R.keys(game.userGameRecord).length
-        ),
         userGameRecord: {
             ...game.userGameRecord,
             [player.uid]: newUserGame,
