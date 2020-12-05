@@ -114,29 +114,33 @@ export const PlayerHUD = (props: Props) => {
                 ) : null}
             </Hand>
             <PlayerControls>
-                <Button
-                    kind={ButtonKind.PRIMARY}
-                    onClick={handlePlayCard}
-                    disabled={!isTurn}
-                >
-                    Play Card
-                </Button>
-                <Button
-                    kind={ButtonKind.PRIMARY_INVERTED}
-                    onClick={handleDrawCard}
-                    disabled={!isTurn}
-                >
-                    Draw Card
-                </Button>
+                {isPlayer && (
+                    <>
+                        <Button
+                            kind={ButtonKind.PRIMARY}
+                            onClick={handlePlayCard}
+                            disabled={!isTurn}
+                        >
+                            Play Card
+                        </Button>
+                        <Button
+                            kind={ButtonKind.PRIMARY_INVERTED}
+                            onClick={handleDrawCard}
+                            disabled={!isTurn}
+                        >
+                            Draw Card
+                        </Button>
 
-                {canStart ? (
-                    <Button
-                        kind={ButtonKind.PRIMARY_INVERTED}
-                        onClick={handleStartGame}
-                    >
-                        Start Game
-                    </Button>
-                ) : null}
+                        {canStart ? (
+                            <Button
+                                kind={ButtonKind.PRIMARY_INVERTED}
+                                onClick={handleStartGame}
+                            >
+                                Start Game
+                            </Button>
+                        ) : null}
+                    </>
+                )}
             </PlayerControls>
         </Wrapper>
     );

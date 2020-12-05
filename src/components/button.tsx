@@ -16,6 +16,7 @@ export const ButtonKind = {
 type Props = {
     kind: keyof typeof ButtonKind;
     size?: "s" | "m" | "l";
+    disabled?: boolean;
 };
 
 const getColor = (props: Props) => {
@@ -82,4 +83,5 @@ export const Button = styled.button<Props>`
     border: 2px solid ${(props) => getColor(props).border};
     border-radius: 3px;
     cursor: pointer;
+    pointer-events: ${(props) => (props.disabled ? "none" : "inherit")};
 `;
