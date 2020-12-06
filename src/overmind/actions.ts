@@ -24,7 +24,7 @@ export const logoutUser: Action<void, void> = ({ state, effects }) => {
 export const startGame: Action<void, void> = ({ effects, state }) => {
     if (state.game && state.game.mode === NOT_PLAYING) {
         let game: GamePlaying = Crazy8s.initialize(state.game);
-        game = Crazy8s.assignMoveOptions(game);
+        game = Crazy8s.updateMoveOptions(game);
         game = Crazy8s.enforceMoveOptions(game);
         effects.api.updateGame(game);
     }
@@ -64,9 +64,9 @@ export const playCard: Action<Card, void> = ({ state, effects }, card) => {
         Crazy8s.isCardPlayable(state.game, card)
     ) {
         let game: GamePlaying = Crazy8s.playCard(state.game, state.user, card);
-        game = Crazy8s.assignMoveOptions(game);
+        game = Crazy8s.updateMoveOptions(game);
         game = Crazy8s.enforceMoveOptions(game);
-        game = Crazy8s.assignCurrentPlayer(game);
+        game = Crazy8s.updateCurrentPlayerNumber(game);
         effects.api.updateGame(game);
     }
 };
@@ -74,9 +74,9 @@ export const playCard: Action<Card, void> = ({ state, effects }, card) => {
 export const drawCard: Action<void, void> = ({ state, effects }) => {
     if (state.game && state.game.mode === PLAYING && state.user) {
         let game: GamePlaying = Crazy8s.drawCard(state.game, state.user);
-        game = Crazy8s.assignMoveOptions(game);
+        game = Crazy8s.updateMoveOptions(game);
         game = Crazy8s.enforceMoveOptions(game);
-        game = Crazy8s.assignCurrentPlayer(game);
+        game = Crazy8s.updateCurrentPlayerNumber(game);
         effects.api.updateGame(game);
     }
 };

@@ -3,6 +3,7 @@ import {
     COUNTER_CLOCKWISE,
     GameNotPlaying,
     GamePlaying,
+    GAME_START,
     MoveOptions,
     PlayDirection,
 } from "../entities/game";
@@ -25,9 +26,15 @@ export const initialize = (game: GameNotPlaying): GamePlaying => {
     const { hands, rest } = deal(nPlayers)(INITIAL_HAND_SIZE)(initialDeck);
     const { deck, discard } = reveal({ deck: rest, discard: [] });
     const userGameRecord = assignHands(game.userGameRecord)(hands);
-    const topCard = R.last(discard) as Card;
-    const playDirection = COUNTER_CLOCKWISE;
-    const moveOptions = getMoveOptions(1, playDirection, nPlayers, topCard);
+    // const topCard = R.last(discard) as Card;
+    // const playDirection = COUNTER_CLOCKWISE;
+    // const moveOptions = getMoveOptions(
+    //     1,
+    //     playDirection,
+    //     nPlayers,
+    //     null,
+    //     topCard
+    // );
     return {
         ...game,
         mode: PLAYING,
@@ -36,8 +43,12 @@ export const initialize = (game: GameNotPlaying): GamePlaying => {
         userGameRecord,
         playDirection: COUNTER_CLOCKWISE,
         currentPlayerNumber: 1,
-        moveOptions,
-        cardLastPlayed: topCard,
+        history: [
+            {
+                type: GAME_START,
+                payload: null,
+            },
+        ],
     };
 };
 
@@ -54,11 +65,16 @@ const getMoveOptions = (
     currentPlayerNumber: number,
     playDirection: PlayDirection,
     nPlayers: number,
+    currentMoveOptions: MoveOptions | null,
     card: Card | null | undefined
 ): MoveOptions => {
     if (card) {
+        // Played A Card.
         const { rank } = card;
         if (rank === "2") {
+            if (currentMoveOptions) {
+            }
+
             return {
                 playCard: true,
                 drawCard: {
@@ -102,6 +118,13 @@ const getMoveOptions = (
                 },
             };
         }
+    } else {
+        // Drew A Card
+        return {
+            playCard: true,
+            drawCard: true,
+            alterTurn: null,
+        };
     }
     return {
         playCard: true,
@@ -110,13 +133,14 @@ const getMoveOptions = (
     };
 };
 
-export const assignMoveOptions = (game: GamePlaying) => {
+export const updateMoveOptions = (game: GamePlaying) => {
     const { playDirection, currentPlayerNumber, cardLastPlayed } = game;
     const nPlayers = R.keys(game.userGameRecord).length;
     const moveOptions = getMoveOptions(
         currentPlayerNumber,
         playDirection,
         nPlayers,
+        game.moveOptions,
         cardLastPlayed
     );
     return {
@@ -215,7 +239,7 @@ export const playCard = (game: GamePlaying, player: User, card: Card) => {
     };
 };
 
-export const assignCurrentPlayer = (game: GamePlaying) => {
+export const updateCurrentPlayerNumber = (game: GamePlaying) => {
     return {
         ...game,
         currentPlayerNumber: getNextPlayerNumber(
