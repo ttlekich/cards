@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { LoginForm } from "../components/login-form";
 import { withRouter } from "react-router-dom";
+import { RegisterForm } from "../components/register-form";
 
 const Wrapper = styled.div`
     display: flex;
@@ -16,6 +17,7 @@ export const LoginPage = withRouter((props) => {
     return (
         <Wrapper>
             <LoginForm onSubmit={onSubmit}></LoginForm>
+            <RegisterForm onSubmit={onSubmit}></RegisterForm>
         </Wrapper>
     );
 });

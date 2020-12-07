@@ -231,6 +231,11 @@ export const processMove = (
             ];
         case PLAY_CARD:
             const updatedGame = playCard(game, move.player, move.payload);
+            const nextPlayerNumber = getNextPlayerNumber(
+                game.currentPlayerNumber,
+                game.playDirection,
+                game.nPlayers
+            );
             if (move.payload) {
                 const { rank, suit } = move.payload;
                 if (rank === "7") {
@@ -240,12 +245,42 @@ export const processMove = (
                     return [updatedGame, newMove];
                 }
             }
-            return [updatedGame, null];
+            return [
+                {
+                    ...updatedGame,
+                    currentPlayerNumber: nextPlayerNumber,
+                },
+                null,
+            ];
         case DRAW_CARD:
-            return [drawCard(game, move.player), null];
+            return [
+                drawCard(
+                    {
+                        ...game,
+                        currentPlayerNumber: getNextPlayerNumber(
+                            game.currentPlayerNumber,
+                            game.playDirection,
+                            game.nPlayers
+                        ),
+                    },
+                    move.player
+                ),
+                null,
+            ];
         case REVERSE_DIRECTION:
             const playDirection = reversePlayDirection(game.playDirection);
-            return [{ ...game, playDirection }, null];
+            return [
+                {
+                    ...game,
+                    playDirection,
+                    currentPlayerNumber: getNextPlayerNumber(
+                        game.currentPlayerNumber,
+                        playDirection,
+                        game.nPlayers
+                    ),
+                },
+                null,
+            ];
         case SKIP_TURN:
             const currentPlayerNumber = getNextPlayerNumber(
                 game.currentPlayerNumber,

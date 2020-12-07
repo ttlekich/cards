@@ -11,6 +11,13 @@ import * as Crazy8s from "../crazy-eights/game";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card } from "../crazy-eights/deck";
 
+export const registerUser: Action<UserLoginInput, Promise<void>> = async (
+    { state, effects },
+    { email, password }
+) => {
+    await effects.api.registerUser({ email, password });
+};
+
 export const loginUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
     { email, password }

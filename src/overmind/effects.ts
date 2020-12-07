@@ -168,6 +168,20 @@ export const api = (() => {
             }
         },
 
+        async registerUser({
+            email,
+            password,
+        }: {
+            email: string;
+            password: string;
+        }) {
+            const token = await auth.createUserWithEmailAndPassword(
+                email,
+                password
+            );
+            console.log(token);
+        },
+
         async loginUser({
             email,
             password,
