@@ -49,6 +49,14 @@ export const Card = t.type({
 });
 export type Card = t.TypeOf<typeof Card>;
 
+export const WILD_CARD = "WILD_CARD";
+
+export const WildCard = t.type({
+    suit: t.union([Suit, t.literal(WILD_CARD)]),
+    rank: t.union([Rank, t.literal(WILD_CARD)]),
+});
+export type WildCard = t.TypeOf<typeof WildCard>;
+
 export const Deck = t.array(Card);
 export type Deck = t.TypeOf<typeof Deck>;
 

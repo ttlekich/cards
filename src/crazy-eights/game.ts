@@ -2,17 +2,22 @@ import {
     CLOCKWISE,
     COUNTER_CLOCKWISE,
     DRAW_CARD,
+    GameHistory,
     GameNotPlaying,
     GamePlaying,
     GAME_START,
     Move,
+    PlayCard,
     PlayDirection,
     PLAY_CARD,
+    REVEALED_CARD,
     REVEAL_CARD,
     REVERSE_DIRECTION,
     SKIP_TURN,
+    TurnOption,
+    TurnOptions,
 } from "../entities/game";
-import { Card, Deck, Hand, newDeck } from "./deck";
+import { Card, Deck, Hand, newDeck, WILD_CARD } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
 import { PLAYING } from "../entities/game-mode";
@@ -43,7 +48,8 @@ export const initialize = (game: GameNotPlaying): GamePlaying => {
                 type: GAME_START,
             },
         ],
-        history: null,
+        history: [],
+        turnOptions: [],
     };
 };
 
@@ -189,10 +195,8 @@ export const update = (game: GamePlaying): GamePlaying => {
     if (stack && stack.length > 0) {
         const headMove = stack[0];
         const rest = R.tail(stack);
-        const newHistory = [...(history ? history : []), headMove];
+        const newHistory = [headMove, ...(history ? history : [])];
         const [updatedGame, newMove] = processMove(game, headMove);
-        console.log(updatedGame);
-        console.log(newMove);
         if (newMove) {
             return update({
                 ...updatedGame,
@@ -208,6 +212,123 @@ export const update = (game: GamePlaying): GamePlaying => {
     }
     return game;
 };
+export const getNthLastPlayCard = (n: number) => (history: GameHistory) => {
+    let counter = 1;
+    if (history) {
+        for (let move of history) {
+            if (move.type === PLAY_CARD || move.type === REVEALED_CARD) {
+                if (counter === n) {
+                    return move;
+                }
+                counter = counter + 1;
+            }
+        }
+    }
+    return undefined;
+};
+
+export const getLastPlayCard = getNthLastPlayCard(1);
+export const getSecondLastPlayCard = getNthLastPlayCard(2);
+
+export const getNewMove = (card: Card) => {
+    const { rank } = card;
+    if (rank === "7") {
+        return {
+            type: REVERSE_DIRECTION,
+        };
+    }
+    return null;
+};
+
+export const getLastMove = (history: GameHistory) => {
+    return R.head(history);
+};
+
+export const getSecondToLastMove = (history: GameHistory) => {
+    return R.head(R.tail(history));
+};
+
+export const getTurnOptions = (history: GameHistory): TurnOption[] => {
+    const lastMove = getLastMove(history);
+
+    if (lastMove) {
+        switch (lastMove.type) {
+            // TODO these are not being hit correctly
+            case REVEALED_CARD:
+            case PLAY_CARD:
+                let { suit, rank } = lastMove.payload;
+                console.log("lastMove", lastMove);
+                if (rank === "2") {
+                    // TODO Compound 2's
+                    return [
+                        {
+                            type: PLAY_CARD,
+                            payload: {
+                                rank: "2",
+                                suit: suit,
+                            },
+                        },
+                        {
+                            type: DRAW_CARD,
+                            payload: 2,
+                        },
+                    ];
+                }
+                if (rank === "4") {
+                    return [
+                        {
+                            type: PLAY_CARD,
+                            payload: {
+                                rank: "4",
+                                suit: suit,
+                            },
+                        },
+                        {
+                            type: SKIP_TURN,
+                        },
+                    ];
+                }
+                return [
+                    {
+                        type: PLAY_CARD,
+                        payload: {
+                            rank: WILD_CARD,
+                            suit: suit,
+                        },
+                    },
+                    {
+                        type: PLAY_CARD,
+                        payload: {
+                            rank: rank,
+                            suit: WILD_CARD,
+                        },
+                    },
+                ];
+            default:
+                return [
+                    {
+                        type: PLAY_CARD,
+                        payload: {
+                            rank: WILD_CARD,
+                            suit: WILD_CARD,
+                        },
+                    },
+                ];
+        }
+    }
+
+    // Handle last playcard
+
+    return [
+        {
+            type: PLAY_CARD,
+            payload: {
+                rank: WILD_CARD,
+                suit: WILD_CARD,
+            },
+        },
+    ];
+};
 
 export const processMove = (
     game: GamePlaying,
@@ -222,12 +343,35 @@ export const processMove = (
                 },
             ];
         case REVEAL_CARD:
+            const { deck, discard } = reveal(game);
+            const lastPlayedCard = discard[0];
             return [
                 {
                     ...game,
-                    ...reveal(game),
+                    deck,
+                    discard,
                 },
-                null,
+                {
+                    type: REVEALED_CARD,
+                    payload: lastPlayedCard,
+                },
+            ];
+        case REVEALED_CARD:
+            const lastPlayCard = getLastPlayCard([move, ...game.history]);
+            console.log("lpc", lastPlayCard);
+            const newMove = lastPlayCard
+                ? getNewMove(lastPlayCard.payload)
+                : null;
+            const turnOptions: TurnOptions = newMove
+                ? []
+                : getTurnOptions(game.history);
+            console.log("tu", turnOptions);
+            return [
+                {
+                    ...game,
+                    turnOptions,
+                },
+                newMove,
             ];
         case PLAY_CARD:
             const updatedGame = playCard(game, move.player, move.payload);
@@ -237,13 +381,8 @@ export const processMove = (
                 game.nPlayers
             );
             if (move.payload) {
-                const { rank, suit } = move.payload;
-                if (rank === "7") {
-                    const newMove = {
-                        type: REVERSE_DIRECTION,
-                    };
-                    return [updatedGame, newMove];
-                }
+                const newMove = getNewMove(move.payload);
+                return [updatedGame, newMove];
             }
             return [
                 {
