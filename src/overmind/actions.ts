@@ -1,11 +1,15 @@
 import { Action } from "overmind";
 import { UserLoginInput } from "../entities/user";
-import { Game, GamePlaying } from "../entities/game";
+import {
+    DRAW_CARD,
+    Game,
+    GamePlaying,
+    Move,
+    PLAY_CARD,
+} from "../entities/game";
 import * as Crazy8s from "../crazy-eights/game";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card } from "../crazy-eights/deck";
-
-// GAME
 
 export const loginUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
@@ -24,8 +28,8 @@ export const logoutUser: Action<void, void> = ({ state, effects }) => {
 export const startGame: Action<void, void> = ({ effects, state }) => {
     if (state.game && state.game.mode === NOT_PLAYING) {
         let game: GamePlaying = Crazy8s.initialize(state.game);
-        game = Crazy8s.updateMoveOptions(game);
-        game = Crazy8s.enforceMoveOptions(game);
+        game = Crazy8s.update(game);
+        console.log("startGame", game);
         effects.api.updateGame(game);
     }
 };
@@ -60,23 +64,28 @@ export const playCard: Action<Card, void> = ({ state, effects }, card) => {
     if (
         state.game &&
         state.game.mode === PLAYING &&
-        state.user &&
-        Crazy8s.isCardPlayable(state.game, card)
+        state.user
+        // && Crazy8s.isCardPlayable(state.game, card)
     ) {
-        let game: GamePlaying = Crazy8s.playCard(state.game, state.user, card);
-        game = Crazy8s.updateMoveOptions(game);
-        game = Crazy8s.enforceMoveOptions(game);
-        game = Crazy8s.updateCurrentPlayerNumber(game);
+        let move: Move = {
+            type: PLAY_CARD,
+            player: state.user,
+            payload: card,
+        };
+        let game: GamePlaying = Crazy8s.move(state.game, move);
+        game = Crazy8s.update(game);
         effects.api.updateGame(game);
     }
 };
 
 export const drawCard: Action<void, void> = ({ state, effects }) => {
     if (state.game && state.game.mode === PLAYING && state.user) {
-        let game: GamePlaying = Crazy8s.drawCard(state.game, state.user);
-        game = Crazy8s.updateMoveOptions(game);
-        game = Crazy8s.enforceMoveOptions(game);
-        game = Crazy8s.updateCurrentPlayerNumber(game);
+        let move: Move = {
+            type: DRAW_CARD,
+            player: state.user,
+        };
+        let game: GamePlaying = Crazy8s.move(state.game, move);
+        game = Crazy8s.update(game);
         effects.api.updateGame(game);
     }
 };

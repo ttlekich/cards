@@ -6,8 +6,8 @@ import * as E from "fp-ts/lib/Either";
 import Cookies from "js-cookie";
 import { Game, GameNotPlaying } from "../entities/game";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
-import * as R from "ramda";
 import { nextPlayerNumber } from "../util/player-management";
+import { PathReporter } from "io-ts/PathReporter";
 
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDZbJPyeWwtR4kBpSUrBDOPEx496q8smBc",
@@ -78,6 +78,7 @@ export const api = (() => {
         },
 
         async updateGame(game: Game) {
+            console.log("updateGame", game);
             const gameRef = this.getGameRef(game.id);
             await gameRef.update(game);
         },
@@ -133,8 +134,10 @@ export const api = (() => {
         subscribe(gameRef: firebase.database.Reference) {
             gameRef.on("value", (snapshot) => {
                 const value = snapshot.val();
+                console.log(value);
                 const game = Game.decode(value);
                 if (!value || E.isLeft(game)) {
+                    console.log(PathReporter.report(game));
                     gameRef.off();
                 } else {
                     onGameSnapshot(game.right);
