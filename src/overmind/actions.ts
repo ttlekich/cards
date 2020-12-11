@@ -85,10 +85,11 @@ export const playCard: Action<Card, void> = ({ state, effects }, card) => {
     }
 };
 
-export const drawCard: Action<void, void> = ({ state, effects }) => {
+export const drawCard: Action<number, void> = ({ state, effects }, nCards) => {
     if (state.game && state.game.mode === PLAYING && state.user) {
         let move: Move = {
             type: DRAW_CARD,
+            payload: nCards,
             player: state.user,
         };
         let game: GamePlaying = Crazy8s.move(state.game, move);

@@ -6,6 +6,7 @@ import { Card } from "./card";
 import { PLAYING } from "../entities/game-mode";
 import { Card as CardType } from "../crazy-eights/deck";
 import { Button, ButtonKind } from "./button";
+import { TurnControls } from "./turn-controls";
 
 type Props = {
     player: UserGame;
@@ -69,15 +70,18 @@ export const PlayerHUD = (props: Props) => {
         }
     };
 
-    const handleDrawCard = (event: React.SyntheticEvent) => {
+    const handleDrawCard = (nCards: number) => (
+        event: React.SyntheticEvent
+    ) => {
         event.preventDefault();
-        actions.drawCard();
+        actions.drawCard(nCards);
     };
 
-    const canStart =
+    const canStart = Boolean(
         state.game &&
-        !(state.game.mode === PLAYING) &&
-        userGame.playerNumber === 1;
+            !(state.game.mode === PLAYING) &&
+            userGame.playerNumber === 1
+    );
 
     const handleStartGame = (event: React.SyntheticEvent) => {
         event.preventDefault();
@@ -115,31 +119,13 @@ export const PlayerHUD = (props: Props) => {
             </Hand>
             <PlayerControls>
                 {isPlayer && (
-                    <>
-                        <Button
-                            kind={ButtonKind.PRIMARY}
-                            onClick={handlePlayCard}
-                            disabled={!isTurn}
-                        >
-                            Play Card
-                        </Button>
-                        <Button
-                            kind={ButtonKind.PRIMARY_INVERTED}
-                            onClick={handleDrawCard}
-                            disabled={!isTurn}
-                        >
-                            Draw Card
-                        </Button>
-
-                        {canStart ? (
-                            <Button
-                                kind={ButtonKind.PRIMARY_INVERTED}
-                                onClick={handleStartGame}
-                            >
-                                Start Game
-                            </Button>
-                        ) : null}
-                    </>
+                    <TurnControls
+                        handleStartGame={handleStartGame}
+                        handleDrawCard={handleDrawCard}
+                        handlePlayCard={handlePlayCard}
+                        isTurn={isTurn}
+                        canStart={canStart}
+                    />
                 )}
             </PlayerControls>
         </Wrapper>

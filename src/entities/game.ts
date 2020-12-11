@@ -43,7 +43,9 @@ export type PlayCard = t.TypeOf<typeof PlayCard>;
 export const DrawCard = t.type({
     type: t.literal(DRAW_CARD),
     player: User,
+    payload: t.number,
 });
+export type DrawCard = t.TypeOf<typeof DrawCard>;
 
 export const RevealCard = t.type({
     type: t.literal(REVEAL_CARD),

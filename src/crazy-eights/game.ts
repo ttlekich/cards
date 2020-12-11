@@ -2,6 +2,7 @@ import {
     CLOCKWISE,
     COUNTER_CLOCKWISE,
     DRAW_CARD,
+    Game,
     GameHistory,
     GameNotPlaying,
     GamePlaying,
@@ -155,21 +156,23 @@ export const getNextPlayerNumber = (
     }
 };
 
-export const drawCard = (game: GamePlaying, player: User | null) => {
+export const drawCard = (
+    game: GamePlaying,
+    player: User | null,
+    nCards: number
+) => {
     if (player) {
         const { deck } = game;
         const userGame = game.userGameRecord[player.uid];
-        const lastCard = R.head(deck);
-        const newPlayerHand = lastCard
-            ? [lastCard, ...userGame.hand]
-            : userGame.hand;
+        const [drawnCards, newDeck] = R.splitAt(nCards, deck);
+        const newPlayerHand = [...drawnCards, ...userGame.hand];
         const newUserGame = {
             ...userGame,
             hand: newPlayerHand,
         };
         return {
             ...game,
-            deck: R.tail(deck),
+            deck: newDeck,
             userGameRecord: {
                 ...game.userGameRecord,
                 [player.uid]: newUserGame,
@@ -248,8 +251,24 @@ export const getSecondToLastMove = (history: GameHistory) => {
     return R.head(R.tail(history));
 };
 
-export const getTurnOptions = (history: GameHistory): TurnOption[] => {
-    const lastMove = getLastMove(history);
+const countTwos = (history: GameHistory) => {
+    const looper = (total: number, history: GameHistory): number => {
+        const head = R.head(history);
+        if (head && head.type === PLAY_CARD && head.payload.rank === "2") {
+            return looper(total + 1, R.tail(history));
+        } else {
+            return total;
+        }
+    };
+    return looper(0, history);
+};
+
+export const getTurnOptions = (
+    stack: Move[] | null | undefined,
+    history: GameHistory
+): TurnOption[] => {
+    const lastMove = R.head(stack || []);
+    console.log("lastMove", lastMove);
 
     if (lastMove) {
         switch (lastMove.type) {
@@ -257,9 +276,8 @@ export const getTurnOptions = (history: GameHistory): TurnOption[] => {
             case REVEALED_CARD:
             case PLAY_CARD:
                 let { suit, rank } = lastMove.payload;
-                console.log("lastMove", lastMove);
                 if (rank === "2") {
-                    // TODO Compound 2's
+                    const twosCount = 2 + 2 * countTwos(history);
                     return [
                         {
                             type: PLAY_CARD,
@@ -270,7 +288,7 @@ export const getTurnOptions = (history: GameHistory): TurnOption[] => {
                         },
                         {
                             type: DRAW_CARD,
-                            payload: 2,
+                            payload: twosCount,
                         },
                     ];
                 }
@@ -293,15 +311,12 @@ export const getTurnOptions = (history: GameHistory): TurnOption[] => {
                         type: PLAY_CARD,
                         payload: {
                             rank: WILD_CARD,
-                            suit: suit,
+                            suit: WILD_CARD,
                         },
                     },
                     {
-                        type: PLAY_CARD,
-                        payload: {
-                            rank: rank,
-                            suit: WILD_CARD,
-                        },
+                        type: DRAW_CARD,
+                        payload: 1,
                     },
                 ];
             default:
@@ -312,6 +327,10 @@ export const getTurnOptions = (history: GameHistory): TurnOption[] => {
                             rank: WILD_CARD,
                             suit: WILD_CARD,
                         },
+                    },
+                    {
+                        type: DRAW_CARD,
+                        payload: 1,
                     },
                 ];
         }
@@ -326,6 +345,10 @@ export const getTurnOptions = (history: GameHistory): TurnOption[] => {
                 rank: WILD_CARD,
                 suit: WILD_CARD,
             },
+        },
+        {
+            type: DRAW_CARD,
+            payload: 1,
         },
     ];
 };
@@ -358,14 +381,12 @@ export const processMove = (
             ];
         case REVEALED_CARD:
             const lastPlayCard = getLastPlayCard([move, ...game.history]);
-            console.log("lpc", lastPlayCard);
             const newMove = lastPlayCard
                 ? getNewMove(lastPlayCard.payload)
                 : null;
             const turnOptions: TurnOptions = newMove
                 ? []
-                : getTurnOptions(game.history);
-            console.log("tu", turnOptions);
+                : getTurnOptions(game.stack, game.history);
             return [
                 {
                     ...game,
@@ -375,19 +396,21 @@ export const processMove = (
             ];
         case PLAY_CARD:
             const updatedGame = playCard(game, move.player, move.payload);
-            const nextPlayerNumber = getNextPlayerNumber(
-                game.currentPlayerNumber,
-                game.playDirection,
-                game.nPlayers
-            );
             if (move.payload) {
                 const newMove = getNewMove(move.payload);
-                return [updatedGame, newMove];
+                if (newMove) {
+                    return [updatedGame, newMove];
+                }
             }
             return [
                 {
                     ...updatedGame,
-                    currentPlayerNumber: nextPlayerNumber,
+                    currentPlayerNumber: getNextPlayerNumber(
+                        game.currentPlayerNumber,
+                        game.playDirection,
+                        game.nPlayers
+                    ),
+                    turnOptions: getTurnOptions(game.stack, game.history),
                 },
                 null,
             ];
@@ -401,8 +424,10 @@ export const processMove = (
                             game.playDirection,
                             game.nPlayers
                         ),
+                        turnOptions: getTurnOptions(game.stack, game.history),
                     },
-                    move.player
+                    move.player,
+                    move.payload
                 ),
                 null,
             ];
@@ -426,7 +451,14 @@ export const processMove = (
                 game.playDirection,
                 game.nPlayers
             );
-            return [{ ...game, currentPlayerNumber }, null];
+            return [
+                {
+                    ...game,
+                    currentPlayerNumber,
+                    turnOptions: getTurnOptions(game.stack, game.history),
+                },
+                null,
+            ];
         default:
             return [game, null];
     }
