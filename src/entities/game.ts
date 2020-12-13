@@ -11,6 +11,7 @@ export const PlayDirection = t.union([
     t.literal(CLOCKWISE),
     t.literal(COUNTER_CLOCKWISE),
 ]);
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type PlayDirection = t.TypeOf<typeof PlayDirection>;
 
 export const REVEAL_CARD = "REVEAL_CARD" as const;
@@ -34,6 +35,7 @@ export const MoveType = t.union([
     t.literal(REVERSE_DIRECTION),
     t.literal(SET_SUIT),
 ]);
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type MoveType = t.TypeOf<typeof MoveType>;
 
 export const PlayCard = t.type({
@@ -41,6 +43,7 @@ export const PlayCard = t.type({
     player: User,
     payload: Card,
 });
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type PlayCard = t.TypeOf<typeof PlayCard>;
 
 export const DrawCard = t.type({
@@ -48,6 +51,7 @@ export const DrawCard = t.type({
     player: User,
     payload: t.number,
 });
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type DrawCard = t.TypeOf<typeof DrawCard>;
 
 export const ChooseSuit = t.type({
@@ -91,7 +95,7 @@ export const Move = t.union([
     SetSuit,
     ChooseSuit,
 ]);
-
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Move = t.TypeOf<typeof Move>;
 
 export const DrawCardOption = t.type({
@@ -118,12 +122,15 @@ export const TurnOption = t.union([
     SkipTurnOption,
     ChooseSuitOption,
 ]);
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type TurnOption = t.TypeOf<typeof TurnOption>;
 
 export const TurnOptions = t.array(TurnOption);
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type TurnOptions = t.TypeOf<typeof TurnOptions>;
 
 export const GameHistory = t.array(Move);
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type GameHistory = t.TypeOf<typeof GameHistory>;
 
 export const GamePlaying = t.type({
@@ -139,7 +146,7 @@ export const GamePlaying = t.type({
     history: GameHistory,
     turnOptions: TurnOptions,
 });
-
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type GamePlaying = t.TypeOf<typeof GamePlaying>;
 
 export const GameNotPlaying = t.type({
@@ -147,9 +154,10 @@ export const GameNotPlaying = t.type({
     id: t.string,
     userGameRecord: UserGameRecordNotPlaying,
 });
-
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type GameNotPlaying = t.TypeOf<typeof GameNotPlaying>;
 
 export const Game = t.union([GamePlaying, GameNotPlaying]);
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Game = t.TypeOf<typeof Game>;

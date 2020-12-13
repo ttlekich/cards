@@ -7,6 +7,7 @@ import {
     Move,
     PLAY_CARD,
     SET_SUIT,
+    SKIP_TURN,
 } from "../entities/game";
 import * as Crazy8s from "../crazy-eights/game";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
@@ -69,15 +70,21 @@ export const leaveGame: Action<void, void> = ({ state, effects }) => {
 };
 
 export const chooseSuit: Action<Suit, void> = ({ state, effects }, suit) => {
-    if (
-        state.game &&
-        state.game.mode === PLAYING &&
-        state.user
-        // && Crazy8s.isCardPlayable(state.game, card)
-    ) {
+    if (state.game && state.game.mode === PLAYING && state.user) {
         let move: Move = {
             type: SET_SUIT,
             payload: suit,
+        };
+        let game: GamePlaying = Crazy8s.move(state.game, move);
+        game = Crazy8s.update(game);
+        effects.api.updateGame(game);
+    }
+};
+
+export const skipTurn: Action<void, void> = ({ state, effects }) => {
+    if (state.game && state.game.mode === PLAYING && state.user) {
+        let move: Move = {
+            type: SKIP_TURN,
         };
         let game: GamePlaying = Crazy8s.move(state.game, move);
         game = Crazy8s.update(game);

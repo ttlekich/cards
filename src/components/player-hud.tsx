@@ -62,6 +62,11 @@ export const PlayerHUD = (props: Props) => {
         return card1.suit === card2.suit && card1.rank === card2.rank;
     };
 
+    const handleSkip = (event: React.SyntheticEvent) => {
+        event.preventDefault();
+        actions.skipTurn();
+    };
+
     const handleChooseSuit = (suit: Suit) => (event: React.SyntheticEvent) => {
         event.preventDefault();
         actions.chooseSuit(suit);
@@ -128,6 +133,7 @@ export const PlayerHUD = (props: Props) => {
                         handleDrawCard={handleDrawCard}
                         handlePlayCard={handlePlayCard}
                         handleChooseSuit={handleChooseSuit}
+                        handleSkip={handleSkip}
                         isTurn={isTurn}
                         canStart={canStart}
                     />

@@ -8,6 +8,7 @@ export const Suit = t.union([
     t.literal("C"),
     t.literal("D"),
 ]);
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Suit = t.TypeOf<typeof Suit>;
 export const Suits: Suit[] = ["S", "H", "C", "D"];
 
@@ -26,6 +27,7 @@ export const Rank = t.union([
     t.literal("Q"),
     t.literal("K"),
 ]);
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Rank = t.TypeOf<typeof Rank>;
 const Ranks: Rank[] = [
     "A",
@@ -47,6 +49,7 @@ export const Card = t.type({
     suit: Suit,
     rank: Rank,
 });
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Card = t.TypeOf<typeof Card>;
 
 export const WILD_CARD = "WILD_CARD";
@@ -55,12 +58,15 @@ export const WildCard = t.type({
     suit: t.union([Suit, t.literal(WILD_CARD)]),
     rank: t.union([Rank, t.literal(WILD_CARD)]),
 });
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type WildCard = t.TypeOf<typeof WildCard>;
 
 export const Deck = t.array(Card);
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Deck = t.TypeOf<typeof Deck>;
 
 export const Hand = Deck;
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Hand = Deck;
 
 export const card = (suit: Suit) => (rank: Rank) => {

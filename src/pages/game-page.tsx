@@ -1,12 +1,10 @@
 import React, { useEffect } from "react";
-import { useHistory, useRouteMatch } from "react-router";
+import { useRouteMatch } from "react-router";
 import styled from "styled-components";
 import { PlayerHUD } from "../components/player-hud";
 import { useOvermind } from "../overmind";
 import * as R from "ramda";
-import { Button } from "../components/button";
 import { DrawPile } from "../components/draw-pile";
-import { PLAYING } from "../entities/game-mode";
 import { Navigation } from "../components/navigation";
 
 const Wrapper = styled.div`
@@ -30,7 +28,6 @@ export const GamePage = () => {
     const gameId = match?.params.id;
     const { state, actions } = useOvermind();
     const joinGame = actions.joinGame;
-    const history = useHistory();
 
     useEffect(() => {
         joinGame(gameId);
@@ -40,8 +37,6 @@ export const GamePage = () => {
         R.prop("playerNumber"),
         R.values(state.game ? state.game.userGameRecord : {})
     );
-
-    const playerOne = R.head(players);
 
     return (
         <Wrapper>

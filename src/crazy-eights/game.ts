@@ -372,6 +372,17 @@ export const getTurnOptions = (
     ];
 };
 
+export const reshuffleDiscard = (game: GamePlaying) => {
+    const { deck, discard } = game;
+    const newDeck = [...deck, ...shuffle(discard.slice(0, discard.length - 1))];
+    const newDiscard = [discard[discard.length - 1]];
+    return {
+        ...game,
+        deck: newDeck,
+        discard: newDiscard,
+    };
+};
+
 export const processMove = (
     game: GamePlaying,
     move: Move
@@ -458,7 +469,9 @@ export const processMove = (
             return [
                 drawCard(
                     {
-                        ...game,
+                        ...(game.deck.length < move.payload
+                            ? reshuffleDiscard(game)
+                            : game),
                         currentPlayerNumber: getNextPlayerNumber(
                             game.currentPlayerNumber,
                             game.playDirection,

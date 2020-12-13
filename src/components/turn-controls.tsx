@@ -18,6 +18,7 @@ type Props = {
     handleDrawCard: (nCards: number) => (event: React.SyntheticEvent) => void;
     handleStartGame: (event: React.SyntheticEvent) => void;
     handleChooseSuit: (suit: Suit) => (event: React.SyntheticEvent) => void;
+    handleSkip: (event: React.SyntheticEvent) => void;
     isTurn: boolean;
     canStart: boolean;
 };
@@ -27,6 +28,7 @@ export const TurnControls: React.FC<Props> = ({
     handleDrawCard,
     handleStartGame,
     handleChooseSuit,
+    handleSkip,
     isTurn,
     canStart,
 }) => {
@@ -77,7 +79,7 @@ export const TurnControls: React.FC<Props> = ({
             {skipTurn && (
                 <Button
                     kind={ButtonKind.PRIMARY_INVERTED}
-                    onClick={handleDrawCard(3)}
+                    onClick={handleSkip}
                     disabled={!isTurn}
                 >
                     Skip Turn
