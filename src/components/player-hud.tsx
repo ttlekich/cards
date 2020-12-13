@@ -6,6 +6,7 @@ import { Card } from "./card";
 import { PLAYING } from "../entities/game-mode";
 import { Card as CardType, Suit } from "../crazy-eights/deck";
 import { TurnControls } from "./turn-controls";
+import { Button, ButtonKind } from "./button";
 
 type Props = {
     player: UserGame;
@@ -127,18 +128,24 @@ export const PlayerHUD = (props: Props) => {
                 ) : null}
             </Hand>
             <PlayerControls>
-                {isPlayer && (
+                {isPlayer && isTurn && (
                     <TurnControls
-                        handleStartGame={handleStartGame}
                         handleDrawCard={handleDrawCard}
                         handlePlayCard={handlePlayCard}
                         handleChooseSuit={handleChooseSuit}
                         handleSkip={handleSkip}
                         isTurn={isTurn}
-                        canStart={canStart}
                     />
                 )}
             </PlayerControls>
+            {canStart ? (
+                <Button
+                    kind={ButtonKind.PRIMARY_INVERTED}
+                    onClick={handleStartGame}
+                >
+                    Start Game
+                </Button>
+            ) : null}
         </Wrapper>
     );
 };

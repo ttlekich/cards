@@ -16,21 +16,17 @@ import { SuitChooser } from "./suit-chooser";
 type Props = {
     handlePlayCard: (event: React.SyntheticEvent) => void;
     handleDrawCard: (nCards: number) => (event: React.SyntheticEvent) => void;
-    handleStartGame: (event: React.SyntheticEvent) => void;
     handleChooseSuit: (suit: Suit) => (event: React.SyntheticEvent) => void;
     handleSkip: (event: React.SyntheticEvent) => void;
     isTurn: boolean;
-    canStart: boolean;
 };
 
 export const TurnControls: React.FC<Props> = ({
     handlePlayCard,
     handleDrawCard,
-    handleStartGame,
     handleChooseSuit,
     handleSkip,
     isTurn,
-    canStart,
 }) => {
     const { state } = useOvermind();
     const { game } = state;
@@ -85,14 +81,6 @@ export const TurnControls: React.FC<Props> = ({
                     Skip Turn
                 </Button>
             )}
-            {canStart ? (
-                <Button
-                    kind={ButtonKind.PRIMARY_INVERTED}
-                    onClick={handleStartGame}
-                >
-                    Start Game
-                </Button>
-            ) : null}
         </>
     );
 };

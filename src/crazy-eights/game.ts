@@ -453,6 +453,16 @@ export const processMove = (
                     return [updatedGame, newMove];
                 }
             }
+            if (move.payload && move.payload.rank === "8") {
+                //TODO
+                return [
+                    {
+                        ...updatedGame,
+                        turnOptions: getTurnOptions(game.stack, game.history),
+                    },
+                    null,
+                ];
+            }
             return [
                 {
                     ...updatedGame,
