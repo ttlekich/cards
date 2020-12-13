@@ -1,19 +1,19 @@
 import {
+    CHOOSE_SUIT,
     CLOCKWISE,
     COUNTER_CLOCKWISE,
     DRAW_CARD,
-    Game,
     GameHistory,
     GameNotPlaying,
     GamePlaying,
     GAME_START,
     Move,
-    PlayCard,
     PlayDirection,
     PLAY_CARD,
     REVEALED_CARD,
     REVEAL_CARD,
     REVERSE_DIRECTION,
+    SET_SUIT,
     SKIP_TURN,
     TurnOption,
     TurnOptions,
@@ -272,7 +272,6 @@ export const getTurnOptions = (
 
     if (lastMove) {
         switch (lastMove.type) {
-            // TODO these are not being hit correctly
             case REVEALED_CARD:
             case PLAY_CARD:
                 let { suit, rank } = lastMove.payload;
@@ -306,6 +305,28 @@ export const getTurnOptions = (
                         },
                     ];
                 }
+                if (rank === "8") {
+                    return [
+                        {
+                            type: CHOOSE_SUIT,
+                        },
+                    ];
+                }
+                return [
+                    {
+                        type: PLAY_CARD,
+                        payload: {
+                            rank: WILD_CARD,
+                            suit: WILD_CARD,
+                        },
+                    },
+                    {
+                        type: DRAW_CARD,
+                        payload: 1,
+                    },
+                ];
+            case SET_SUIT:
+                // aedf
                 return [
                     {
                         type: PLAY_CARD,
@@ -335,8 +356,6 @@ export const getTurnOptions = (
                 ];
         }
     }
-
-    // Handle last playcard
 
     return [
         {
@@ -393,6 +412,27 @@ export const processMove = (
                     turnOptions,
                 },
                 newMove,
+            ];
+        case CHOOSE_SUIT:
+            return [
+                {
+                    ...game,
+                    turnOptions: getTurnOptions(game.stack, game.history),
+                },
+                null,
+            ];
+        case SET_SUIT:
+            return [
+                {
+                    ...game,
+                    currentPlayerNumber: getNextPlayerNumber(
+                        game.currentPlayerNumber,
+                        game.playDirection,
+                        game.nPlayers
+                    ),
+                    turnOptions: getTurnOptions(game.stack, game.history),
+                },
+                null,
             ];
         case PLAY_CARD:
             const updatedGame = playCard(game, move.player, move.payload);

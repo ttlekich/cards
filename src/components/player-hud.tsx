@@ -4,8 +4,7 @@ import { useOvermind } from "../overmind";
 import styled from "styled-components";
 import { Card } from "./card";
 import { PLAYING } from "../entities/game-mode";
-import { Card as CardType } from "../crazy-eights/deck";
-import { Button, ButtonKind } from "./button";
+import { Card as CardType, Suit } from "../crazy-eights/deck";
 import { TurnControls } from "./turn-controls";
 
 type Props = {
@@ -61,6 +60,11 @@ export const PlayerHUD = (props: Props) => {
 
     const areCardsEqual = (card1: CardType) => (card2: CardType) => {
         return card1.suit === card2.suit && card1.rank === card2.rank;
+    };
+
+    const handleChooseSuit = (suit: Suit) => (event: React.SyntheticEvent) => {
+        event.preventDefault();
+        actions.chooseSuit(suit);
     };
 
     const handlePlayCard = (event: React.SyntheticEvent) => {
@@ -123,6 +127,7 @@ export const PlayerHUD = (props: Props) => {
                         handleStartGame={handleStartGame}
                         handleDrawCard={handleDrawCard}
                         handlePlayCard={handlePlayCard}
+                        handleChooseSuit={handleChooseSuit}
                         isTurn={isTurn}
                         canStart={canStart}
                     />

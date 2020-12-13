@@ -1,14 +1,23 @@
 import React from "react";
-import { DrawCard, DRAW_CARD, PLAY_CARD, SKIP_TURN } from "../entities/game";
+import {
+    CHOOSE_SUIT,
+    DrawCard,
+    DRAW_CARD,
+    PLAY_CARD,
+    SKIP_TURN,
+} from "../entities/game";
 import { PLAYING } from "../entities/game-mode";
 import { useOvermind } from "../overmind";
 import { Button, ButtonKind } from "./button";
 import * as R from "ramda";
+import { Suit } from "../crazy-eights/deck";
+import { SuitChooser } from "./suit-chooser";
 
 type Props = {
     handlePlayCard: (event: React.SyntheticEvent) => void;
     handleDrawCard: (nCards: number) => (event: React.SyntheticEvent) => void;
     handleStartGame: (event: React.SyntheticEvent) => void;
+    handleChooseSuit: (suit: Suit) => (event: React.SyntheticEvent) => void;
     isTurn: boolean;
     canStart: boolean;
 };
@@ -17,6 +26,7 @@ export const TurnControls: React.FC<Props> = ({
     handlePlayCard,
     handleDrawCard,
     handleStartGame,
+    handleChooseSuit,
     isTurn,
     canStart,
 }) => {
@@ -37,8 +47,15 @@ export const TurnControls: React.FC<Props> = ({
         R.filter((turnOption) => turnOption.type === SKIP_TURN, turnOptions)
     );
 
+    const chooseSuit = R.head(
+        R.filter((turnOption) => turnOption.type === CHOOSE_SUIT, turnOptions)
+    );
+
     return (
         <>
+            {chooseSuit && (
+                <SuitChooser handleChooseSuit={handleChooseSuit}></SuitChooser>
+            )}
             {playCard && (
                 <Button
                     kind={ButtonKind.PRIMARY}

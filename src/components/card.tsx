@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { Card as CardType } from "../crazy-eights/deck";
+import { CardRank } from "./card-rank";
+import { CardSuit } from "./card-suit";
 
 type WrapperProps = {
     color: "red" | "black";
@@ -46,14 +48,6 @@ const CardBottom = styled.div`
     flex-flow: column nowrap;
     justify-content: flex-start;
     transform: rotate(-180deg);
-`;
-
-const CardRank = styled.div`
-    font-size: 1rem;
-`;
-
-const CardSuit = styled.div`
-    font-size: 1.5rem;
 `;
 
 type Props = {

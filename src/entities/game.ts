@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { Card, Deck, WildCard } from "../crazy-eights/deck";
+import { Card, Deck, Suit, WildCard } from "../crazy-eights/deck";
 import { _NOT_PLAYING, _PLAYING } from "./game-mode";
 import { User } from "./user";
 import { UserGameRecordNotPlaying, UserGameRecordPlaying } from "./user-game";
@@ -21,6 +21,8 @@ export const ROOT_PLAY_CARD = "ROOT_PLAY_CARD" as const;
 export const DRAW_CARD = "DRAW_CARD" as const;
 export const SKIP_TURN = "SKIP_TURN" as const;
 export const REVERSE_DIRECTION = "REVERSE_DIRECTION" as const;
+export const CHOOSE_SUIT = "CHOOSE_SUIT" as const;
+export const SET_SUIT = "SET_SUIT" as const;
 
 export const MoveType = t.union([
     t.literal(REVEAL_CARD),
@@ -30,6 +32,7 @@ export const MoveType = t.union([
     t.literal(DRAW_CARD),
     t.literal(SKIP_TURN),
     t.literal(REVERSE_DIRECTION),
+    t.literal(SET_SUIT),
 ]);
 export type MoveType = t.TypeOf<typeof MoveType>;
 
@@ -46,6 +49,15 @@ export const DrawCard = t.type({
     payload: t.number,
 });
 export type DrawCard = t.TypeOf<typeof DrawCard>;
+
+export const ChooseSuit = t.type({
+    type: t.literal(CHOOSE_SUIT),
+});
+
+export const SetSuit = t.type({
+    type: t.literal(SET_SUIT),
+    payload: Suit,
+});
 
 export const RevealCard = t.type({
     type: t.literal(REVEAL_CARD),
@@ -76,6 +88,8 @@ export const Move = t.union([
     GameStart,
     SkipTurn,
     ReverseDirection,
+    SetSuit,
+    ChooseSuit,
 ]);
 
 export type Move = t.TypeOf<typeof Move>;
@@ -94,10 +108,15 @@ export const SkipTurnOption = t.type({
     type: t.literal(SKIP_TURN),
 });
 
+export const ChooseSuitOption = t.type({
+    type: t.literal(CHOOSE_SUIT),
+});
+
 export const TurnOption = t.union([
     DrawCardOption,
     PlayCardOption,
     SkipTurnOption,
+    ChooseSuitOption,
 ]);
 export type TurnOption = t.TypeOf<typeof TurnOption>;
 

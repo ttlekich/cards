@@ -9,7 +9,7 @@ export const Suit = t.union([
     t.literal("D"),
 ]);
 export type Suit = t.TypeOf<typeof Suit>;
-const Suits: Suit[] = ["S", "H", "C", "D"];
+export const Suits: Suit[] = ["S", "H", "C", "D"];
 
 export const Rank = t.union([
     t.literal("A"),

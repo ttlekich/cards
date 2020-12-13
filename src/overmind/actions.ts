@@ -6,10 +6,11 @@ import {
     GamePlaying,
     Move,
     PLAY_CARD,
+    SET_SUIT,
 } from "../entities/game";
 import * as Crazy8s from "../crazy-eights/game";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
-import { Card } from "../crazy-eights/deck";
+import { Card, Suit } from "../crazy-eights/deck";
 
 export const registerUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
@@ -64,6 +65,23 @@ export const leaveGame: Action<void, void> = ({ state, effects }) => {
     if (state.game && state.user) {
         effects.api.leaveGame(state.game.id);
         state.game = undefined;
+    }
+};
+
+export const chooseSuit: Action<Suit, void> = ({ state, effects }, suit) => {
+    if (
+        state.game &&
+        state.game.mode === PLAYING &&
+        state.user
+        // && Crazy8s.isCardPlayable(state.game, card)
+    ) {
+        let move: Move = {
+            type: SET_SUIT,
+            payload: suit,
+        };
+        let game: GamePlaying = Crazy8s.move(state.game, move);
+        game = Crazy8s.update(game);
+        effects.api.updateGame(game);
     }
 };
 
