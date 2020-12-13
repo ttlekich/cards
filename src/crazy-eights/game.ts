@@ -469,7 +469,7 @@ export const processMove = (
             return [
                 drawCard(
                     {
-                        ...(game.deck.length < move.payload
+                        ...(game.deck.length <= move.payload
                             ? reshuffleDiscard(game)
                             : game),
                         currentPlayerNumber: getNextPlayerNumber(
