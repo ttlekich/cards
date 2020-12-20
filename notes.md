@@ -12,3 +12,15 @@ if card is 2; next player has to draw two cards
 - play card 
 - draw card(s)
 - forfiet turn (conditional, unconditional)
+
+{
+    play,
+    draw: {
+        required: boolean
+        nCards: number
+    },
+    forfiet: {
+        kind: conditional | unconditional,
+        nextPlayerNumber: 
+    },
+}

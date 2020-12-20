@@ -6,6 +6,7 @@ import { useOvermind } from "../overmind";
 import * as R from "ramda";
 import { DrawPile } from "../components/draw-pile";
 import { Navigation } from "../components/navigation";
+import { GameInfo } from "../components/game-info";
 
 const Wrapper = styled.div`
     display: flex;
@@ -41,6 +42,7 @@ export const GamePage = () => {
     return (
         <Wrapper>
             <Navigation></Navigation>
+            <GameInfo></GameInfo>
             <DrawPile></DrawPile>
             {state.game ? (
                 <Players>

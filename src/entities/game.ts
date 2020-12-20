@@ -24,6 +24,7 @@ export const SKIP_TURN = "SKIP_TURN" as const;
 export const REVERSE_DIRECTION = "REVERSE_DIRECTION" as const;
 export const CHOOSE_SUIT = "CHOOSE_SUIT" as const;
 export const SET_SUIT = "SET_SUIT" as const;
+export const NEXT_ROUND = "NEXT_ROUND" as const;
 
 export const MoveType = t.union([
     t.literal(REVEAL_CARD),
@@ -34,6 +35,7 @@ export const MoveType = t.union([
     t.literal(SKIP_TURN),
     t.literal(REVERSE_DIRECTION),
     t.literal(SET_SUIT),
+    t.literal(NEXT_ROUND),
 ]);
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type MoveType = t.TypeOf<typeof MoveType>;
@@ -84,6 +86,10 @@ export const ReverseDirection = t.type({
     type: t.literal(REVERSE_DIRECTION),
 });
 
+export const NextRound = t.type({
+    type: t.literal(NEXT_ROUND),
+});
+
 export const Move = t.union([
     RevealCard,
     RevealedCard,
@@ -94,6 +100,7 @@ export const Move = t.union([
     ReverseDirection,
     SetSuit,
     ChooseSuit,
+    NextRound,
 ]);
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Move = t.TypeOf<typeof Move>;
@@ -136,6 +143,7 @@ export type GameHistory = t.TypeOf<typeof GameHistory>;
 export const GamePlaying = t.type({
     mode: _PLAYING,
     nPlayers: t.number,
+    round: t.number,
     id: t.string,
     userGameRecord: UserGameRecordPlaying,
     deck: Deck,

@@ -3,11 +3,12 @@ import {
     CLOCKWISE,
     COUNTER_CLOCKWISE,
     DRAW_CARD,
+    Game,
     GameHistory,
-    GameNotPlaying,
     GamePlaying,
     GAME_START,
     Move,
+    NEXT_ROUND,
     PlayDirection,
     PLAY_CARD,
     REVEALED_CARD,
@@ -22,18 +23,13 @@ import { Card, Deck, Hand, newDeck, WILD_CARD } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
 import { PLAYING } from "../entities/game-mode";
-import {
-    UserGameRecord,
-    UserGameRecordNotPlaying,
-    UserGameRecordPlaying,
-} from "../entities/user-game";
+import { UserGameRecord, UserGameRecordPlaying } from "../entities/user-game";
 import { User } from "../entities/user";
 
-export const initialize = (game: GameNotPlaying): GamePlaying => {
+export const initialize = (round: number) => (game: Game): GamePlaying => {
     const initialDeck = newDeck();
     const nPlayers = R.keys(game.userGameRecord).length;
-    const INITIAL_HAND_SIZE = 8;
-    const { hands, rest } = deal(nPlayers)(INITIAL_HAND_SIZE)(initialDeck);
+    const { hands, rest } = deal(nPlayers)(round)(initialDeck);
     const userGameRecord = assignHands(game.userGameRecord)(hands);
     return {
         ...game,
@@ -51,6 +47,7 @@ export const initialize = (game: GameNotPlaying): GamePlaying => {
         ],
         history: [],
         turnOptions: [],
+        round: round,
     };
 };
 
@@ -64,9 +61,7 @@ const deal = (nHands: number) => (nCards: number) => (deck: Deck) => {
     };
 };
 
-const assignHands = (userGameRecord: UserGameRecordNotPlaying) => (
-    hands: Hand[]
-) => {
+const assignHands = (userGameRecord: UserGameRecord) => (hands: Hand[]) => {
     const userIds = R.keys(userGameRecord);
     const userHands = R.zipObj(userIds, hands);
     return userIds.reduce((record: UserGameRecord, userId: string) => {
@@ -199,7 +194,10 @@ export const update = (game: GamePlaying): GamePlaying => {
         const headMove = stack[0];
         const rest = R.tail(stack);
         const newHistory = [headMove, ...(history ? history : [])];
+        const currentRound = game.round;
         const [updatedGame, newMove] = processMove(game, headMove);
+        const newRound = updatedGame.round;
+        console.log("updated game: ", updatedGame);
         if (newMove) {
             return update({
                 ...updatedGame,
@@ -326,7 +324,6 @@ export const getTurnOptions = (
                     },
                 ];
             case SET_SUIT:
-                // aedf
                 return [
                     {
                         type: PLAY_CARD,
@@ -387,6 +384,7 @@ export const processMove = (
     game: GamePlaying,
     move: Move
 ): [GamePlaying, Move | null] => {
+    console.log("MOVE: ", move);
     switch (move.type) {
         case GAME_START:
             return [
@@ -447,6 +445,16 @@ export const processMove = (
             ];
         case PLAY_CARD:
             const updatedGame = playCard(game, move.player, move.payload);
+            const userGame = updatedGame.userGameRecord[move.player.uid];
+            console.log("hand: ", userGame.hand);
+            if (userGame.hand.length <= 0) {
+                return [
+                    updatedGame,
+                    {
+                        type: NEXT_ROUND,
+                    },
+                ];
+            }
             if (move.payload) {
                 const newMove = getNewMove(move.payload);
                 if (newMove) {
@@ -454,7 +462,6 @@ export const processMove = (
                 }
             }
             if (move.payload && move.payload.rank === "8") {
-                //TODO
                 return [
                     {
                         ...updatedGame,
@@ -521,6 +528,22 @@ export const processMove = (
                     turnOptions: getTurnOptions(game.stack, game.history),
                 },
                 null,
+            ];
+        case NEXT_ROUND:
+            const nextRoundGame = initialize(game.round - 1)(game);
+            return [
+                {
+                    ...nextRoundGame,
+                    currentPlayerNumber: getNextPlayerNumber(
+                        game.currentPlayerNumber,
+                        game.playDirection,
+                        game.nPlayers
+                    ),
+                    turnOptions: getTurnOptions(game.stack, game.history),
+                },
+                {
+                    type: GAME_START,
+                },
             ];
         default:
             return [game, null];

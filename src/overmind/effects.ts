@@ -78,7 +78,6 @@ export const api = (() => {
         },
 
         async updateGame(game: Game) {
-            console.log("updateGame", game);
             const gameRef = this.getGameRef(game.id);
             await gameRef.update(game);
         },
@@ -134,7 +133,6 @@ export const api = (() => {
         subscribe(gameRef: firebase.database.Reference) {
             gameRef.on("value", (snapshot) => {
                 const value = snapshot.val();
-                console.log(value);
                 const game = Game.decode(value);
                 if (!value || E.isLeft(game)) {
                     console.log(PathReporter.report(game));

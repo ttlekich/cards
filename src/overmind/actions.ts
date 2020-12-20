@@ -36,9 +36,8 @@ export const logoutUser: Action<void, void> = ({ state, effects }) => {
 
 export const startGame: Action<void, void> = ({ effects, state }) => {
     if (state.game && state.game.mode === NOT_PLAYING) {
-        let game: GamePlaying = Crazy8s.initialize(state.game);
+        let game: GamePlaying = Crazy8s.initialize(2)(state.game);
         game = Crazy8s.update(game);
-        console.log("startGame", game);
         effects.api.updateGame(game);
     }
 };
