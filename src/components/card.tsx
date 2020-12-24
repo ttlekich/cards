@@ -29,7 +29,7 @@ const FrontWrapper = styled.div<WrapperProps>`
     height: 80px;
     background-color: #fff;
     border-radius: 5px;
-    border: ${(props) => `2px solid ${props.isSelected ? "red" : "black"}`};
+    border: ${(props) => `5px ${props.isSelected ? "solid blue" : "none"}`};
     padding: 0.25rem;
     color: ${(props) => props.color};
     cursor: pointer;

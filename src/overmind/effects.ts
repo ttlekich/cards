@@ -85,7 +85,6 @@ export const api = (() => {
         joinOccupiedGame(game: Game, user: User) {
             switch (game.mode) {
                 case PLAYING:
-                    console.error("GAME ALREADY IN PROGRESS");
                     return;
                 case NOT_PLAYING:
                     const playerNumber = nextPlayerNumber(game.userGameRecord);
@@ -102,13 +101,13 @@ export const api = (() => {
                                     userUID: user.uid,
                                     email: user.email,
                                     playerNumber,
+                                    score: 0,
                                 },
                             },
                         };
                         this.updateGame(newGame);
                         return;
                     } else {
-                        console.error("GAME IS FULL");
                         return;
                     }
             }
@@ -124,6 +123,7 @@ export const api = (() => {
                         userUID: user.uid,
                         email: user.email,
                         playerNumber: 1,
+                        score: 0,
                     },
                 },
             };

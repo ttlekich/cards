@@ -8,6 +8,7 @@ export const UserGamePlaying = t.type({
     email: t.string,
     hand: Hand,
     playerNumber: t.number,
+    score: t.number,
 });
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type UserGamePlaying = t.TypeOf<typeof UserGamePlaying>;
@@ -17,6 +18,7 @@ export const UserGameNotPlaying = t.type({
     userUID: t.string,
     email: t.string,
     playerNumber: t.number,
+    score: t.number,
 });
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type UserGameNotPlaying = t.TypeOf<typeof UserGameNotPlaying>;

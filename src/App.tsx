@@ -6,7 +6,7 @@ import { GamePage } from "./pages/game-page";
 import { BrowserRouter as Router, Switch } from "react-router-dom";
 import { PrivateRoute } from "./components/private-route";
 import { Redirect, Route } from "react-router";
-import { DARK, LIGHT } from "./styles/colors";
+import { GREEN, LIGHT } from "./styles/colors";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -24,7 +24,7 @@ const GlobalStyle = createGlobalStyle`
 const Wrapper = styled.div`
     align-items: center;
     /* background-color: #282c34; */
-    background-color: ${DARK};
+    background-color: ${GREEN};
     color: ${LIGHT};
     display: flex;
     flex-direction: column;

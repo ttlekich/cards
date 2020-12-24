@@ -23,7 +23,11 @@ import { Card, Deck, Hand, newDeck, WILD_CARD } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
 import { PLAYING } from "../entities/game-mode";
-import { UserGameRecord, UserGameRecordPlaying } from "../entities/user-game";
+import {
+    UserGamePlaying,
+    UserGameRecord,
+    UserGameRecordPlaying,
+} from "../entities/user-game";
 import { User } from "../entities/user";
 
 export const initialize = (round: number) => (game: Game): GamePlaying => {
@@ -194,10 +198,7 @@ export const update = (game: GamePlaying): GamePlaying => {
         const headMove = stack[0];
         const rest = R.tail(stack);
         const newHistory = [headMove, ...(history ? history : [])];
-        const currentRound = game.round;
         const [updatedGame, newMove] = processMove(game, headMove);
-        const newRound = updatedGame.round;
-        console.log("updated game: ", updatedGame);
         if (newMove) {
             return update({
                 ...updatedGame,
@@ -259,6 +260,46 @@ const countTwos = (history: GameHistory) => {
         }
     };
     return looper(0, history);
+};
+
+const calculateScores = (game: GamePlaying) => (
+    userGameRecord: UserGameRecordPlaying
+): UserGameRecordPlaying => {
+    const userGames = R.values(userGameRecord);
+    const updatedUserGames = userGames.map(calculateScore);
+    return R.indexBy(R.prop("userUID"), updatedUserGames);
+};
+
+const calculateScore = (userGame: UserGamePlaying) => {
+    const { hand } = userGame;
+    // eslint-disable-next-line
+    const score = hand.reduce((score: number, card: Card) => {
+        switch (card.rank) {
+            case "2":
+                return score + 20;
+            case "3":
+            case "4":
+            case "5":
+            case "6":
+            case "7":
+                return score + parseInt(card.rank);
+            case "8":
+                return score + 50;
+            case "9":
+            case "10":
+                return score + parseInt(card.rank);
+            case "J":
+            case "Q":
+            case "K":
+                return score + 10;
+            case "A":
+                return score + 15;
+        }
+    }, userGame.score);
+    return {
+        ...userGame,
+        score,
+    };
 };
 
 export const getTurnOptions = (
@@ -530,7 +571,13 @@ export const processMove = (
                 null,
             ];
         case NEXT_ROUND:
-            const nextRoundGame = initialize(game.round - 1)(game);
+            const updatedUserGameRecord = calculateScores(game)(
+                game.userGameRecord
+            );
+            const nextRoundGame = initialize(game.round - 1)({
+                ...game,
+                userGameRecord: updatedUserGameRecord,
+            });
             return [
                 {
                     ...nextRoundGame,
