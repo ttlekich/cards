@@ -4,11 +4,15 @@ import {
     COUNTER_CLOCKWISE,
     DRAW_CARD,
     Game,
+    GameFinished,
     GameHistory,
     GamePlaying,
+    GAME_END,
     GAME_START,
     Move,
     NEXT_ROUND,
+    PlayCard,
+    PlayCardOption,
     PlayDirection,
     PLAY_CARD,
     REVEALED_CARD,
@@ -22,10 +26,12 @@ import {
 import { Card, Deck, Hand, newDeck, WILD_CARD } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
-import { PLAYING } from "../entities/game-mode";
+import { FINISHED, PLAYING } from "../entities/game-mode";
 import {
     UserGamePlaying,
     UserGameRecord,
+    UserGameRecordFinished,
+    UserGameRecordNotPlaying,
     UserGameRecordPlaying,
 } from "../entities/user-game";
 import { User } from "../entities/user";
@@ -34,7 +40,9 @@ export const initialize = (round: number) => (game: Game): GamePlaying => {
     const initialDeck = newDeck();
     const nPlayers = R.keys(game.userGameRecord).length;
     const { hands, rest } = deal(nPlayers)(round)(initialDeck);
-    const userGameRecord = assignHands(game.userGameRecord)(hands);
+    const userGameRecord = assignHands(
+        game.userGameRecord as UserGameRecordNotPlaying
+    )(hands);
     return {
         ...game,
         nPlayers,
@@ -192,13 +200,17 @@ export const reversePlayDirection = (playDirection: PlayDirection) => {
     }
 };
 
-export const update = (game: GamePlaying): GamePlaying => {
+export const update = (
+    game: GamePlaying | GameFinished
+): GamePlaying | GameFinished => {
+    if (game.mode === FINISHED) return game;
     const { stack, history } = game;
     if (stack && stack.length > 0) {
         const headMove = stack[0];
         const rest = R.tail(stack);
         const newHistory = [headMove, ...(history ? history : [])];
         const [updatedGame, newMove] = processMove(game, headMove);
+        if (updatedGame.mode === FINISHED) return updatedGame;
         if (newMove) {
             return update({
                 ...updatedGame,
@@ -214,6 +226,7 @@ export const update = (game: GamePlaying): GamePlaying => {
     }
     return game;
 };
+
 export const getNthLastPlayCard = (n: number) => (history: GameHistory) => {
     let counter = 1;
     if (history) {
@@ -307,21 +320,20 @@ export const getTurnOptions = (
     history: GameHistory
 ): TurnOption[] => {
     const lastMove = R.head(stack || []);
-    console.log("lastMove", lastMove);
 
     if (lastMove) {
         switch (lastMove.type) {
             case REVEALED_CARD:
             case PLAY_CARD:
-                let { suit, rank } = lastMove.payload;
-                if (rank === "2") {
+                let { payload } = lastMove;
+                if (payload.rank === "2") {
                     const twosCount = 2 + 2 * countTwos(history);
                     return [
                         {
                             type: PLAY_CARD,
                             payload: {
                                 rank: "2",
-                                suit: suit,
+                                suit: payload.suit,
                             },
                         },
                         {
@@ -330,13 +342,13 @@ export const getTurnOptions = (
                         },
                     ];
                 }
-                if (rank === "4") {
+                if (payload.rank === "4") {
                     return [
                         {
                             type: PLAY_CARD,
                             payload: {
                                 rank: "4",
-                                suit: suit,
+                                suit: payload.suit,
                             },
                         },
                         {
@@ -344,19 +356,31 @@ export const getTurnOptions = (
                         },
                     ];
                 }
-                if (rank === "8") {
-                    return [
-                        {
-                            type: CHOOSE_SUIT,
-                        },
-                    ];
+                if (payload.rank === "8") {
+                    if (lastMove.type === PLAY_CARD) {
+                        return [
+                            {
+                                type: CHOOSE_SUIT,
+                            },
+                        ];
+                    } else {
+                        return [
+                            {
+                                type: PLAY_CARD,
+                                payload: {
+                                    rank: WILD_CARD,
+                                    suit: WILD_CARD,
+                                },
+                            },
+                        ];
+                    }
                 }
                 return [
                     {
                         type: PLAY_CARD,
                         payload: {
-                            rank: WILD_CARD,
-                            suit: WILD_CARD,
+                            rank: payload.rank,
+                            suit: payload.suit,
                         },
                     },
                     {
@@ -370,7 +394,7 @@ export const getTurnOptions = (
                         type: PLAY_CARD,
                         payload: {
                             rank: WILD_CARD,
-                            suit: WILD_CARD,
+                            suit: lastMove.payload,
                         },
                     },
                     {
@@ -379,12 +403,20 @@ export const getTurnOptions = (
                     },
                 ];
             default:
+                const lastPlayedCard = R.head(
+                    history.filter(
+                        (move) =>
+                            move.type === PLAY_CARD ||
+                            move.type === REVEALED_CARD
+                    )
+                ) as PlayCard;
+
                 return [
                     {
                         type: PLAY_CARD,
                         payload: {
-                            rank: WILD_CARD,
-                            suit: WILD_CARD,
+                            rank: lastPlayedCard.payload.rank,
+                            suit: lastPlayedCard.payload.suit,
                         },
                     },
                     {
@@ -424,8 +456,7 @@ export const reshuffleDiscard = (game: GamePlaying) => {
 export const processMove = (
     game: GamePlaying,
     move: Move
-): [GamePlaying, Move | null] => {
-    console.log("MOVE: ", move);
+): [GamePlaying | GameFinished, Move | null] => {
     switch (move.type) {
         case GAME_START:
             return [
@@ -487,7 +518,6 @@ export const processMove = (
         case PLAY_CARD:
             const updatedGame = playCard(game, move.player, move.payload);
             const userGame = updatedGame.userGameRecord[move.player.uid];
-            console.log("hand: ", userGame.hand);
             if (userGame.hand.length <= 0) {
                 return [
                     updatedGame,
@@ -574,27 +604,63 @@ export const processMove = (
             const updatedUserGameRecord = calculateScores(game)(
                 game.userGameRecord
             );
-            const nextRoundGame = initialize(game.round - 1)({
-                ...game,
-                userGameRecord: updatedUserGameRecord,
-            });
+            const nextRound = game.round - 1;
+            return [
+                nextRound < 1
+                    ? {
+                          id: game.id,
+                          mode: FINISHED,
+                          userGameRecord: finishUserGameRecord(
+                              game.userGameRecord
+                          ),
+                      }
+                    : {
+                          ...initialize(nextRound)({
+                              ...game,
+                              userGameRecord: updatedUserGameRecord,
+                          }),
+                          currentPlayerNumber: getNextPlayerNumber(
+                              game.currentPlayerNumber,
+                              game.playDirection,
+                              game.nPlayers
+                          ),
+                          turnOptions: getTurnOptions(game.stack, game.history),
+                      },
+                nextRound < 1
+                    ? {
+                          type: GAME_END,
+                      }
+                    : {
+                          type: GAME_START,
+                      },
+            ];
+        case GAME_END:
             return [
                 {
-                    ...nextRoundGame,
-                    currentPlayerNumber: getNextPlayerNumber(
-                        game.currentPlayerNumber,
-                        game.playDirection,
-                        game.nPlayers
-                    ),
-                    turnOptions: getTurnOptions(game.stack, game.history),
+                    id: game.id,
+                    mode: FINISHED,
+
+                    userGameRecord: finishUserGameRecord(game.userGameRecord),
                 },
-                {
-                    type: GAME_START,
-                },
+                null,
             ];
         default:
             return [game, null];
     }
+};
+
+const finishUserGameRecord = (
+    userGameRecord: UserGameRecordPlaying
+): UserGameRecordFinished => {
+    return R.mapObjIndexed((userGame, id, userGameRecord) => {
+        return {
+            mode: FINISHED,
+            email: userGame.email,
+            userUID: userGame.userUID,
+            score: userGame.score,
+            playerNumber: userGame.playerNumber,
+        };
+    }, userGameRecord);
 };
 
 export const move = (game: GamePlaying, move: Move) => {
@@ -602,4 +668,25 @@ export const move = (game: GamePlaying, move: Move) => {
         ...game,
         stack: [move, ...(game.stack ? game.stack : [])],
     };
+};
+
+export const isCardPlayable = (game: GamePlaying, card: Card) => {
+    const { turnOptions } = game;
+    console.log(turnOptions);
+    const playCard: PlayCardOption | undefined = R.head(
+        R.filter(
+            (turnOption) => turnOption.type === PLAY_CARD,
+            turnOptions
+        ) as PlayCard[]
+    );
+    if (playCard) {
+        const { payload } = playCard;
+        return (
+            payload.rank === card.rank ||
+            payload.suit === card.suit ||
+            card.rank === "8" ||
+            (payload.rank === WILD_CARD && payload.suit === WILD_CARD)
+        );
+    }
+    return false;
 };

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useOvermind } from "../overmind";
 import { Card } from "./card";
-import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
+import { FINISHED, NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import * as R from "ramda";
 
 const Wrapper = styled.div`
@@ -49,6 +49,7 @@ export const DrawPile = () => {
                     )}
                 </>
             );
+        case FINISHED:
         case NOT_PLAYING:
             return <></>;
     }

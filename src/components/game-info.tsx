@@ -1,14 +1,16 @@
 import React from "react";
-import { PLAYING } from "../entities/game-mode";
 import { useOvermind } from "../overmind";
 
 export const GameInfo = () => {
     const { state } = useOvermind();
     const game = state.game;
 
-    return game && game.mode === PLAYING ? (
+    return game ? (
         <div>
-            <div>Round: {game.round}</div>
+            <div>Mode: {game.mode}</div>
+            {game.mode === "PLAYING" && <div>Round: {game.round}</div>}
         </div>
-    ) : null;
+    ) : (
+        <></>
+    );
 };

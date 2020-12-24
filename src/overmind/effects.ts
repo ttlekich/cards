@@ -78,6 +78,7 @@ export const api = (() => {
         },
 
         async updateGame(game: Game) {
+            console.log("game", game);
             const gameRef = this.getGameRef(game.id);
             await gameRef.update(game);
         },

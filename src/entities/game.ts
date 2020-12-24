@@ -1,8 +1,12 @@
 import * as t from "io-ts";
 import { Card, Deck, Suit, WildCard } from "../crazy-eights/deck";
-import { _NOT_PLAYING, _PLAYING } from "./game-mode";
+import { _FINISHED, _NOT_PLAYING, _PLAYING } from "./game-mode";
 import { User } from "./user";
-import { UserGameRecordNotPlaying, UserGameRecordPlaying } from "./user-game";
+import {
+    UserGameRecordFinished,
+    UserGameRecordNotPlaying,
+    UserGameRecordPlaying,
+} from "./user-game";
 
 export const CLOCKWISE = "CLOCKWISE" as const;
 export const COUNTER_CLOCKWISE = "COUNTER_CLOCKWISE" as const;
@@ -17,6 +21,7 @@ export type PlayDirection = t.TypeOf<typeof PlayDirection>;
 export const REVEAL_CARD = "REVEAL_CARD" as const;
 export const REVEALED_CARD = "REVEALED_CARD" as const;
 export const GAME_START = "GAME_START" as const;
+export const GAME_END = "GAME_END" as const;
 export const PLAY_CARD = "PLAY_CARD" as const;
 export const ROOT_PLAY_CARD = "ROOT_PLAY_CARD" as const;
 export const DRAW_CARD = "DRAW_CARD" as const;
@@ -30,6 +35,7 @@ export const MoveType = t.union([
     t.literal(REVEAL_CARD),
     t.literal(REVEALED_CARD),
     t.literal(GAME_START),
+    t.literal(GAME_END),
     t.literal(PLAY_CARD),
     t.literal(DRAW_CARD),
     t.literal(SKIP_TURN),
@@ -78,6 +84,10 @@ export const GameStart = t.type({
     type: t.literal(GAME_START),
 });
 
+export const GameEnd = t.type({
+    type: t.literal(GAME_END),
+});
+
 export const SkipTurn = t.type({
     type: t.literal(SKIP_TURN),
 });
@@ -96,6 +106,7 @@ export const Move = t.union([
     PlayCard,
     DrawCard,
     GameStart,
+    GameEnd,
     SkipTurn,
     ReverseDirection,
     SetSuit,
@@ -114,6 +125,8 @@ export const PlayCardOption = t.type({
     type: t.literal(PLAY_CARD),
     payload: t.union([Card, WildCard]),
 });
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
+export type PlayCardOption = t.TypeOf<typeof PlayCardOption>;
 
 export const SkipTurnOption = t.type({
     type: t.literal(SKIP_TURN),
@@ -165,7 +178,15 @@ export const GameNotPlaying = t.type({
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type GameNotPlaying = t.TypeOf<typeof GameNotPlaying>;
 
-export const Game = t.union([GamePlaying, GameNotPlaying]);
+export const GameFinished = t.type({
+    mode: _FINISHED,
+    id: t.string,
+    userGameRecord: UserGameRecordFinished,
+});
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
+export type GameFinished = t.TypeOf<typeof GameFinished>;
+
+export const Game = t.union([GamePlaying, GameNotPlaying, GameFinished]);
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Game = t.TypeOf<typeof Game>;

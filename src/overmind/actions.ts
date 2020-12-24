@@ -3,6 +3,7 @@ import { UserLoginInput } from "../entities/user";
 import {
     DRAW_CARD,
     Game,
+    GameFinished,
     GamePlaying,
     Move,
     PLAY_CARD,
@@ -36,7 +37,9 @@ export const logoutUser: Action<void, void> = ({ state, effects }) => {
 
 export const startGame: Action<void, void> = ({ effects, state }) => {
     if (state.game && state.game.mode === NOT_PLAYING) {
-        let game: GamePlaying = Crazy8s.initialize(2)(state.game);
+        let game: GamePlaying | GameFinished = Crazy8s.initialize(8)(
+            state.game
+        );
         game = Crazy8s.update(game);
         effects.api.updateGame(game);
     }
@@ -74,7 +77,7 @@ export const chooseSuit: Action<Suit, void> = ({ state, effects }, suit) => {
             type: SET_SUIT,
             payload: suit,
         };
-        let game: GamePlaying = Crazy8s.move(state.game, move);
+        let game: GamePlaying | GameFinished = Crazy8s.move(state.game, move);
         game = Crazy8s.update(game);
         effects.api.updateGame(game);
     }
@@ -85,7 +88,7 @@ export const skipTurn: Action<void, void> = ({ state, effects }) => {
         let move: Move = {
             type: SKIP_TURN,
         };
-        let game: GamePlaying = Crazy8s.move(state.game, move);
+        let game: GamePlaying | GameFinished = Crazy8s.move(state.game, move);
         game = Crazy8s.update(game);
         effects.api.updateGame(game);
     }
@@ -95,15 +98,15 @@ export const playCard: Action<Card, void> = ({ state, effects }, card) => {
     if (
         state.game &&
         state.game.mode === PLAYING &&
-        state.user
-        // && Crazy8s.isCardPlayable(state.game, card)
+        state.user &&
+        Crazy8s.isCardPlayable(state.game, card)
     ) {
         let move: Move = {
             type: PLAY_CARD,
             player: state.user,
             payload: card,
         };
-        let game: GamePlaying = Crazy8s.move(state.game, move);
+        let game: GamePlaying | GameFinished = Crazy8s.move(state.game, move);
         game = Crazy8s.update(game);
         effects.api.updateGame(game);
     }
@@ -116,7 +119,7 @@ export const drawCard: Action<number, void> = ({ state, effects }, nCards) => {
             payload: nCards,
             player: state.user,
         };
-        let game: GamePlaying = Crazy8s.move(state.game, move);
+        let game: GamePlaying | GameFinished = Crazy8s.move(state.game, move);
         game = Crazy8s.update(game);
         effects.api.updateGame(game);
     }

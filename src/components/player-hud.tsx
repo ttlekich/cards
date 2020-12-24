@@ -3,7 +3,7 @@ import { UserGame } from "../entities/user-game";
 import { useOvermind } from "../overmind";
 import styled from "styled-components";
 import { Card } from "./card";
-import { PLAYING } from "../entities/game-mode";
+import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card as CardType, Suit } from "../crazy-eights/deck";
 import { TurnControls } from "./turn-controls";
 import { Button, ButtonKind } from "./button";
@@ -77,6 +77,7 @@ export const PlayerHUD = (props: Props) => {
         event.preventDefault();
         if (selectedCard) {
             actions.playCard(selectedCard);
+            setSelectedCard(null);
         }
     };
 
@@ -89,7 +90,7 @@ export const PlayerHUD = (props: Props) => {
 
     const canStart = Boolean(
         state.game &&
-            !(state.game.mode === PLAYING) &&
+            state.game.mode === NOT_PLAYING &&
             userGame.playerNumber === 1
     );
 
@@ -107,6 +108,7 @@ export const PlayerHUD = (props: Props) => {
             <PlayerInfo>
                 <Field>{userGame?.playerNumber}</Field>
                 <Field>{props.player.email}</Field>
+                <Field>{props.player.score}</Field>
             </PlayerInfo>
             <Hand>
                 {props.player.mode === PLAYING ? (
