@@ -20,6 +20,7 @@
         "js-cookie": "^2.2.1",
         "overmind": "^25.0.2",
         "overmind-react": "^26.0.2",
+        "polished": "^4.0.5",
         "query-string": "^6.13.6",
         "ramda": "^0.27.1",
         "react": "^16.13.1",

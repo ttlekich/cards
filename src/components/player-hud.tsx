@@ -7,6 +7,7 @@ import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card as CardType, Suit } from "../crazy-eights/deck";
 import { TurnControls } from "./turn-controls";
 import { Button, ButtonKind } from "./button";
+import { ACCENT, DARK_GRAY } from "../styles/colors";
 
 type Props = {
     player: UserGame;
@@ -16,14 +17,15 @@ type WrapperProps = {
     isTurn: boolean;
 };
 
-const Wrapper = styled.div<WrapperProps>`
-    border: ${(props) => `2px solid ${props.isTurn ? "red" : "transparent"}`};
+const Wrapper = styled.div`
+    max-width: 800px;
 `;
 
-const PlayerInfo = styled.div`
+const PlayerInfo = styled.div<WrapperProps>`
     display: flex;
+    color: ${(props) => (props.isTurn ? `${ACCENT};` : `${DARK_GRAY};`)}
     gap: 1rem;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 `;
 
@@ -104,11 +106,14 @@ export const PlayerHUD = (props: Props) => {
         player.playerNumber === state.game.currentPlayerNumber;
 
     return (
-        <Wrapper isTurn={isTurn}>
-            <PlayerInfo>
-                <Field>{userGame?.playerNumber}</Field>
-                <Field>{props.player.email}</Field>
-                <Field>{props.player.score}</Field>
+        <Wrapper>
+            <PlayerInfo isTurn={isTurn}>
+                <Field>
+                    <b>Player:</b> {props.player.email}
+                </Field>
+                <Field>
+                    <b>Score:</b> {props.player.score}
+                </Field>
             </PlayerInfo>
             <Hand>
                 {props.player.mode === PLAYING ? (

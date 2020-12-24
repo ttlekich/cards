@@ -18,7 +18,7 @@ const Wrapper = styled.div`
 
 const Players = styled.div`
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     gap: 1rem;
 `;
 
