@@ -403,27 +403,48 @@ export const getTurnOptions = (
                     },
                 ];
             default:
-                const lastPlayedCard = R.head(
+                const lastSetMove = R.head(
                     history.filter(
                         (move) =>
                             move.type === PLAY_CARD ||
-                            move.type === REVEALED_CARD
+                            move.type === REVEALED_CARD ||
+                            move.type === SET_SUIT
                     )
-                ) as PlayCard;
+                );
 
-                return [
-                    {
-                        type: PLAY_CARD,
-                        payload: {
-                            rank: lastPlayedCard.payload.rank,
-                            suit: lastPlayedCard.payload.suit,
-                        },
-                    },
-                    {
-                        type: DRAW_CARD,
-                        payload: 1,
-                    },
-                ];
+                if (lastSetMove) {
+                    switch (lastSetMove.type) {
+                        case PLAY_CARD:
+                        case REVEALED_CARD:
+                            return [
+                                {
+                                    type: PLAY_CARD,
+                                    payload: {
+                                        rank: lastSetMove.payload.rank,
+                                        suit: lastSetMove.payload.suit,
+                                    },
+                                },
+                                {
+                                    type: DRAW_CARD,
+                                    payload: 1,
+                                },
+                            ];
+                        case SET_SUIT:
+                            return [
+                                {
+                                    type: PLAY_CARD,
+                                    payload: {
+                                        rank: WILD_CARD,
+                                        suit: lastSetMove.payload,
+                                    },
+                                },
+                                {
+                                    type: DRAW_CARD,
+                                    payload: 1,
+                                },
+                            ];
+                    }
+                }
         }
     }
 
