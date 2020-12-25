@@ -1,5 +1,5 @@
 import { Action } from "overmind";
-import { UserLoginInput } from "../entities/user";
+import { User, UserLoginInput } from "../entities/user";
 import {
     DRAW_CARD,
     Game,
@@ -13,6 +13,8 @@ import {
 import * as Crazy8s from "../crazy-eights/game";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card, Suit } from "../crazy-eights/deck";
+import * as E from "fp-ts/lib/Either";
+import { cookies } from "./effects";
 
 export const registerUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
@@ -21,12 +23,17 @@ export const registerUser: Action<UserLoginInput, Promise<void>> = async (
     await effects.api.registerUser({ email, password });
 };
 
-export const loginUser: Action<UserLoginInput, Promise<void>> = async (
-    { state, effects },
-    { email, password }
-) => {
-    const user = await effects.api.loginUser({ email, password });
-    state.user = user;
+export const loginUser: Action<
+    firebase.auth.UserCredential,
+    Promise<void>
+> = async ({ state, effects }, token) => {
+    const user = User.decode(token.user);
+    if (E.isLeft(user)) {
+        return undefined;
+    }
+    cookies.saveUser(user.right);
+    console.log(user.right);
+    state.user = user.right;
 };
 
 export const logoutUser: Action<void, void> = ({ state, effects }) => {

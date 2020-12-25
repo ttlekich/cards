@@ -15,14 +15,11 @@ export const SuitButton: React.FC<Props> = ({ suit, onClick }) => {
         H: { symbol: "♥︎", color: "red" },
     } as const;
     return (
-        <Button
-            kind={ButtonKind.PRIMARY}
-            style={{
-                color: suitRecord[suit].color,
-            }}
+        <button
             onClick={onClick}
+            className="p-3 rounded-sm bg-blue-500 hover:bg-blue-700"
         >
             {suitRecord[suit].symbol}
-        </Button>
+        </button>
     );
 };

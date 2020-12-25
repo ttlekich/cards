@@ -49,6 +49,9 @@ export type FirebaseInitializeOptions = {
     onGameSnapshot: (game: Game) => void;
 };
 
+export const app = firebase.initializeApp(FIREBASE_CONFIG);
+export const auth = firebase.auth();
+
 export const api = (() => {
     let app: firebase.app.App;
     let db: firebase.database.Database;
@@ -57,9 +60,9 @@ export const api = (() => {
 
     return {
         initialize(options: FirebaseInitializeOptions) {
-            app = firebase.initializeApp(FIREBASE_CONFIG);
+            // app = firebase.initializeApp(FIREBASE_CONFIG);
             db = firebase.database(app);
-            auth = firebase.auth();
+            // auth = firebase.auth();
             onGameSnapshot = options.onGameSnapshot;
         },
 
@@ -179,25 +182,6 @@ export const api = (() => {
                 password
             );
             console.log(token);
-        },
-
-        async loginUser({
-            email,
-            password,
-        }: {
-            email: string;
-            password: string;
-        }) {
-            const token = await auth.signInWithEmailAndPassword(
-                email,
-                password
-            );
-            const user = User.decode(token.user);
-            if (E.isLeft(user)) {
-                return undefined;
-            }
-            cookies.saveUser(user.right);
-            return user.right;
         },
     };
 })();

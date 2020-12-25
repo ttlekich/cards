@@ -146,12 +146,12 @@ export const PlayerHUD = (props: Props) => {
                 )}
             </PlayerControls>
             {canStart ? (
-                <Button
-                    kind={ButtonKind.PRIMARY_INVERTED}
+                <button
                     onClick={handleStartGame}
+                    className="p-3 rounded-sm bg-blue-500 hover:bg-blue-700"
                 >
                     Start Game
-                </Button>
+                </button>
             ) : null}
         </Wrapper>
     );
