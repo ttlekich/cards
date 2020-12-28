@@ -55,14 +55,11 @@ export const auth = firebase.auth();
 export const api = (() => {
     let app: firebase.app.App;
     let db: firebase.database.Database;
-    let auth: firebase.auth.Auth;
     let onGameSnapshot: (game: Game) => void;
 
     return {
         initialize(options: FirebaseInitializeOptions) {
-            // app = firebase.initializeApp(FIREBASE_CONFIG);
             db = firebase.database(app);
-            // auth = firebase.auth();
             onGameSnapshot = options.onGameSnapshot;
         },
 
@@ -164,10 +161,8 @@ export const api = (() => {
         },
 
         async logoutUser() {
-            if (auth) {
-                cookies.removeUser();
-                await auth.signOut();
-            }
+            cookies.removeUser();
+            await auth.signOut();
         },
 
         async registerUser({

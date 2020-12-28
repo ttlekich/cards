@@ -30,7 +30,6 @@ export const DrawPile = () => {
                 <>
                     {state.game && (
                         <Wrapper>
-                            <div>Draw Pile</div>
                             <PileWrapper>
                                 <Card
                                     card={{ suit: "S", rank: "A" }}

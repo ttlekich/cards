@@ -6,7 +6,6 @@ import { Card } from "./card";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card as CardType, Suit } from "../crazy-eights/deck";
 import { TurnControls } from "./turn-controls";
-import { Button, ButtonKind } from "./button";
 import { ACCENT, DARK_GRAY } from "../styles/colors";
 
 type Props = {

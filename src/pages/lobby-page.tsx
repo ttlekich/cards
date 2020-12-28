@@ -8,9 +8,9 @@ export const LobbyPage = withRouter((props) => {
         props.history.push(`/game/${gameId}`);
     };
     return (
-        <div className="flex flex-col h-full w-full">
+        <div className="flex flex-col items-center h-full w-full">
             <Navigation></Navigation>
-            <div className="container mx-auto">
+            <div className="container">
                 <NewGameForm onSubmit={onSubmit}></NewGameForm>
             </div>
         </div>

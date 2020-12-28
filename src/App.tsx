@@ -7,26 +7,36 @@ import { PrivateRoute } from "./components/private-route";
 import { Redirect, Route } from "react-router";
 
 import { QueryClient, QueryClientProvider } from "react-query";
+import { useOvermind } from "./overmind";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false,
+        },
+    },
+});
 
 export const App = () => {
+    const { state } = useOvermind();
+
     return (
         <div className="flex flex-col bg-gray-50 w-full h-full">
             <QueryClientProvider client={queryClient}>
                 <Router>
                     <Switch>
                         <Route path="/login">
-                            <LoginPage></LoginPage>
+                            {state.user ? (
+                                <Redirect to="/lobby"></Redirect>
+                            ) : (
+                                <LoginPage></LoginPage>
+                            )}
                         </Route>
                         <PrivateRoute path="/lobby">
                             <LobbyPage></LobbyPage>
                         </PrivateRoute>
                         <PrivateRoute path="/game/:id">
                             <GamePage></GamePage>
-                        </PrivateRoute>
-                        <PrivateRoute path="/game">
-                            <Redirect to="/lobby"></Redirect>
                         </PrivateRoute>
                         <PrivateRoute path="/">
                             <LobbyPage></LobbyPage>

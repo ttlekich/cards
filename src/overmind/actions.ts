@@ -1,4 +1,4 @@
-import { Action } from "overmind";
+import { Action, AsyncAction } from "overmind";
 import { User, UserLoginInput } from "../entities/user";
 import {
     DRAW_CARD,
@@ -23,7 +23,7 @@ export const registerUser: Action<UserLoginInput, Promise<void>> = async (
     await effects.api.registerUser({ email, password });
 };
 
-export const loginUser: Action<
+export const setUser: Action<
     firebase.auth.UserCredential,
     Promise<void>
 > = async ({ state, effects }, token) => {
@@ -32,7 +32,6 @@ export const loginUser: Action<
         return undefined;
     }
     cookies.saveUser(user.right);
-    console.log(user.right);
     state.user = user.right;
 };
 
@@ -56,12 +55,12 @@ export const updateGame: Action<Game, void> = ({ state }, game) => {
     state.game = game;
 };
 
-export const joinGame: Action<string | undefined, void> = (
+export const joinGame: AsyncAction<string | undefined, void> = async (
     { effects, state },
     name
 ) => {
     if (state.user && name) {
-        effects.api.joinGame(name, state.user);
+        await effects.api.joinGame(name, state.user);
     }
 };
 

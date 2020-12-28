@@ -6,21 +6,7 @@ import { useOvermind } from "../overmind";
 import * as R from "ramda";
 import { DrawPile } from "../components/draw-pile";
 import { Navigation } from "../components/navigation";
-import { GameInfo } from "../components/game-info";
-
-const Wrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    width: 100%;
-    gap: 1rem;
-`;
-
-const Players = styled.div`
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-`;
+import { LoadingSpinner } from "../components/loading-spinner";
 
 export const GamePage = () => {
     const match = useRouteMatch<{ id: string }>({
@@ -39,26 +25,34 @@ export const GamePage = () => {
         R.values(state.game ? state.game.userGameRecord : {})
     );
 
+    const userGame =
+        state.game && state.user
+            ? state.game?.userGameRecord[state.user.uid]
+            : undefined;
+
+    const nPlayers = R.keys(state.game?.userGameRecord).length;
+
     return (
-        <Wrapper>
+        <div className="flex flex-col items-center h-full w-full">
             <Navigation></Navigation>
-            <GameInfo></GameInfo>
-            <DrawPile></DrawPile>
-            {state.game ? (
-                <Players>
-                    {R.map(
-                        (player) => (
+            <div className="container grid grid-cols-3 grid-rows-3">
+                <div className="col-span-3">Other Player</div>
+                <div className="transform -rotate-90">Other Player</div>
+                <div>
+                    <DrawPile></DrawPile>
+                </div>
+                <div className="transform rotate-90">Other Player</div>
+                <div className="col-span-3">
+                    {userGame && (
+                        <div className="flex justify-center">
                             <PlayerHUD
-                                key={player.email}
-                                player={player}
+                                key={userGame.email}
+                                player={userGame}
                             ></PlayerHUD>
-                        ),
-                        players
+                        </div>
                     )}
-                </Players>
-            ) : (
-                <span>Loading...</span>
-            )}
-        </Wrapper>
+                </div>
+            </div>
+        </div>
     );
 };

@@ -1,6 +1,5 @@
 import React from "react";
 import { Suit } from "../crazy-eights/deck";
-import { Button, ButtonKind } from "./button";
 
 type Props = {
     suit: Suit;
