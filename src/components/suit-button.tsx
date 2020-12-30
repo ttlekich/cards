@@ -13,10 +13,18 @@ export const SuitButton: React.FC<Props> = ({ suit, onClick }) => {
         D: { symbol: "♦︎", color: "red" },
         H: { symbol: "♥︎", color: "red" },
     } as const;
+    const suitInfo = suitRecord[suit];
     return (
         <button
+            className={`
+                bg-gray-200 
+                hover:bg-gray-400 
+                px-2 py-1 
+                rounded 
+                text-lg 
+                ${suitInfo.color === "black" ? "text-gray-900" : "text-red-500"}
+                `}
             onClick={onClick}
-            className="p-3 rounded-sm bg-blue-500 hover:bg-blue-700"
         >
             {suitRecord[suit].symbol}
         </button>

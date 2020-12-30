@@ -7,4 +7,9 @@ module.exports = {
             },
         },
     },
+    variants: {
+        overflow: ["last"],
+        translate: ["first"],
+        transform: ["first"],
+    },
 };

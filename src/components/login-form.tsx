@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useOvermind } from "../overmind";
 import { LoadingSpinner } from "./loading-spinner";
@@ -10,10 +10,16 @@ import { FormWrapper } from "./form-wrapper";
 type Inputs = {
     email: string;
     password: string;
+    confirm_password?: string;
 };
 
 export const LoginForm = () => {
     const [isRegister, setIsRegister] = useState(false);
+    const { register, handleSubmit, reset, watch, errors } = useForm<Inputs>();
+    const { actions } = useOvermind();
+
+    const password = useRef({});
+    password.current = watch("password", "");
 
     const login = useMutation(async ({ email, password }: Inputs) => {
         try {
@@ -23,23 +29,38 @@ export const LoginForm = () => {
             );
             return token;
         } catch (error) {
-            throw new Error("email or password is invalid.");
+            throw new Error(error.message);
         }
     });
 
-    const { register, handleSubmit, reset } = useForm<Inputs>();
-
-    const { actions } = useOvermind();
+    const registerUser = useMutation(async ({ email, password }: Inputs) => {
+        try {
+            const token = await auth.createUserWithEmailAndPassword(
+                email,
+                password
+            );
+            return token;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    });
 
     useEffect(() => {
         if (login.isSuccess && login.data) {
             actions.setUser(login.data);
         }
-    }, [login, actions]);
+        if (registerUser.isSuccess && registerUser.data) {
+            actions.setUser(registerUser.data);
+        }
+    }, [login, actions, registerUser]);
 
     const onSubmit = (data: Inputs) => {
         reset();
-        login.mutate(data);
+        if (isRegister) {
+            registerUser.mutate(data);
+        } else {
+            login.mutate(data);
+        }
     };
 
     return (
@@ -48,6 +69,7 @@ export const LoginForm = () => {
                 <div className="flex flex-col mb-4">
                     <span className="text-sm text-red-400 text-center">
                         {login.isError ? `${login.error}` : ""}
+                        {registerUser.isError ? `${registerUser.error}` : ""}
                     </span>
                     <label
                         className="mb-1 uppercase font-bold text-sm text-gray-600"
@@ -78,10 +100,18 @@ export const LoginForm = () => {
                         type="password"
                         placeholder="Password"
                         ref={register({
-                            required: "You must specify a password.",
+                            required: "You must specify a password",
+                            minLength: {
+                                value: 8,
+                                message:
+                                    "Password must have at least 8 characters",
+                            },
                         })}
                     ></input>
-                    {login.isLoading ? (
+                    <span className="text-sm text-red-400 text-center">
+                        {errors.password && <p>{errors.password.message}</p>}
+                    </span>
+                    {login.isLoading || registerUser.isLoading ? (
                         <LoadingSpinner></LoadingSpinner>
                     ) : (
                         <>
@@ -100,10 +130,21 @@ export const LoginForm = () => {
                                         type="password"
                                         placeholder="Confirm Password"
                                         ref={register({
-                                            required:
-                                                "You must specify a password.",
+                                            validate: (value) =>
+                                                value === password.current ||
+                                                "The passwords do not match",
                                         })}
                                     ></input>
+                                    <span className="text-sm text-red-400 text-center">
+                                        {errors.confirm_password && (
+                                            <p>
+                                                {
+                                                    errors.confirm_password
+                                                        .message
+                                                }
+                                            </p>
+                                        )}
+                                    </span>
                                 </>
                             )}
                             <button

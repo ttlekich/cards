@@ -1,53 +1,14 @@
 import React, { useState } from "react";
 import { UserGame } from "../entities/user-game";
 import { useOvermind } from "../overmind";
-import styled from "styled-components";
 import { Card } from "./card";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card as CardType, Suit } from "../crazy-eights/deck";
 import { TurnControls } from "./turn-controls";
-import { ACCENT, DARK_GRAY } from "../styles/colors";
 
 type Props = {
     player: UserGame;
 };
-
-type WrapperProps = {
-    isTurn: boolean;
-};
-
-const Wrapper = styled.div`
-    max-width: 800px;
-`;
-
-const PlayerInfo = styled.div<WrapperProps>`
-    display: flex;
-    color: ${(props) => (props.isTurn ? `${ACCENT};` : `${DARK_GRAY};`)}
-    gap: 1rem;
-    justify-content: space-between;
-    align-items: center;
-`;
-
-const Hand = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem;
-`;
-
-const Field = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
-
-const PlayerControls = styled.div`
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    padding: 1rem;
-`;
 
 export const PlayerHUD = (props: Props) => {
     const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
@@ -105,19 +66,19 @@ export const PlayerHUD = (props: Props) => {
         player.playerNumber === state.game.currentPlayerNumber;
 
     return (
-        <Wrapper>
-            <PlayerInfo isTurn={isTurn}>
-                <Field>
-                    <b>Player:</b> {props.player.email}
-                </Field>
-                <Field>
-                    <b>Score:</b> {props.player.score}
-                </Field>
-            </PlayerInfo>
-            <Hand>
+        <div className="flex flex-col p-5">
+            <div className="flex flex-row justify-center gap-2 p-2">
+                <div>
+                    <b>Player: </b> {userGame.email}
+                </div>
+                <div>
+                    <b>Score: </b> {userGame.score}
+                </div>
+            </div>
+            <div className="flex flex-row justify-center gap-2 p-2">
                 {props.player.mode === PLAYING ? (
                     <>
-                        {props.player.hand.map((card) => (
+                        {props.player.hand.map((card, i) => (
                             <Card
                                 face={isPlayer ? "FRONT" : "BACK"}
                                 key={card.rank + card.suit}
@@ -128,12 +89,13 @@ export const PlayerHUD = (props: Props) => {
                                         : false
                                 }
                                 onClick={selectCard(card)}
+                                position={i}
                             ></Card>
                         ))}
                     </>
                 ) : null}
-            </Hand>
-            <PlayerControls>
+            </div>
+            <div className="flex justify-center gap-2 p-2">
                 {isPlayer && isTurn && (
                     <TurnControls
                         handleDrawCard={handleDrawCard}
@@ -143,7 +105,7 @@ export const PlayerHUD = (props: Props) => {
                         isTurn={isTurn}
                     />
                 )}
-            </PlayerControls>
+            </div>
             {canStart ? (
                 <button
                     onClick={handleStartGame}
@@ -152,6 +114,6 @@ export const PlayerHUD = (props: Props) => {
                     Start Game
                 </button>
             ) : null}
-        </Wrapper>
+        </div>
     );
 };

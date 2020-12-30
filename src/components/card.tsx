@@ -1,13 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import { Card as CardType } from "../crazy-eights/deck";
-import { CardRank } from "./card-rank";
-import { CardSuit } from "./card-suit";
-
-type WrapperProps = {
-    color: "red" | "black";
-    isSelected: boolean;
-};
 
 const BackWrapper = styled.div`
     width: 48px;
@@ -23,46 +16,13 @@ const BackWrapper = styled.div`
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 `;
 
-const FrontWrapper = styled.div<WrapperProps>`
-    display: flex;
-    width: 48px;
-    height: 80px;
-    background-color: #fff;
-    border-radius: 5px;
-    padding: 0.25rem;
-    color: ${(props) => props.color};
-    cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-    transition: ease 0.1s;
-    transform: ${(props) =>
-        props.isSelected ? `translate(0px, -8px) scale(1.1)` : `none`};
-    &:hover {
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19),
-            0 6px 6px rgba(0, 0, 0, 0.23);
-        transform: translate(0px, -8px) scale(1.1);
-    }
-`;
-
-const CardTop = styled.div`
-    display: flex;
-    flex-grow: 1;
-    flex-flow: column nowrap;
-    align-items: flex-start;
-`;
-
-const CardBottom = styled.div`
-    display: flex;
-    flex-grow: 1;
-    flex-flow: column nowrap;
-    justify-content: flex-start;
-    transform: rotate(-180deg);
-`;
-
 type Props = {
     card: CardType;
     face: "FRONT" | "BACK";
     isSelected: boolean;
     onClick?: () => void;
+    horizontal?: boolean;
+    position: number;
 };
 
 export const Card = (props: Props) => {
@@ -79,22 +39,53 @@ export const Card = (props: Props) => {
     switch (props.face) {
         case "FRONT":
             return (
-                <FrontWrapper
-                    isSelected={props.isSelected}
-                    color={suitDetails.color}
+                <div
+                    className={`
+                        w-12 h-20 
+                        flex 
+                        justify-between
+                        px-1
+                        ${
+                            suitDetails.color === "black"
+                                ? "text-gray-900"
+                                : "text-red-500"
+                        }
+                        rounded shadow-md 
+                        cursor-pointer
+                        leading-tight
+                        transform 
+                        ${
+                            props.isSelected
+                                ? "-translate-y-2"
+                                : "hover:-translate-y-2"
+                        }
+                   `}
                     onClick={props.onClick}
                 >
-                    <CardTop>
-                        <CardRank>{rank}</CardRank>
-                        <CardSuit>{suitDetails.symbol}</CardSuit>
-                    </CardTop>
-                    <CardBottom>
-                        <CardRank>{rank}</CardRank>
-                        <CardSuit>{suitDetails.symbol}</CardSuit>
-                    </CardBottom>
-                </FrontWrapper>
+                    <div className="flex flex-col items-center">
+                        <div>{rank}</div>
+                        <div>{suitDetails.symbol}</div>
+                    </div>
+                    <div className="flex flex-col items-center justify-start transform rotate-180">
+                        <div>{rank}</div>
+                        <div>{suitDetails.symbol}</div>
+                    </div>
+                </div>
             );
         case "BACK":
-            return <BackWrapper></BackWrapper>;
+            return (
+                <div
+                    className={`
+                        ${props.horizontal ? "w-20" : "w-12"}
+                        ${props.horizontal ? "h-12" : "h-20"}
+                        shadow-md
+                        rounded
+                        ${props.horizontal ? "col-start-1" : ""}
+                        ${props.horizontal ? "row-start-1" : ""}
+                        ${props.horizontal ? `mt-${props.position * 8}` : ""}
+                   `}
+                    style={}
+                ></div>
+            );
     }
 };

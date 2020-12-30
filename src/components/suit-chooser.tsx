@@ -1,13 +1,6 @@
 import React from "react";
-import styled from "styled-components";
 import { Suit, Suits } from "../crazy-eights/deck";
 import { SuitButton } from "./suit-button";
-
-const Wrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-`;
 
 type Props = {
     handleChooseSuit: (suit: Suit) => (event: React.SyntheticEvent) => void;
@@ -15,7 +8,7 @@ type Props = {
 
 export const SuitChooser: React.FC<Props> = ({ handleChooseSuit }) => {
     return (
-        <Wrapper>
+        <div className="flex flex-row gap-2">
             {Suits.map((suit) => (
                 <SuitButton
                     key={suit}
@@ -23,6 +16,6 @@ export const SuitChooser: React.FC<Props> = ({ handleChooseSuit }) => {
                     onClick={handleChooseSuit(suit)}
                 ></SuitButton>
             ))}
-        </Wrapper>
+        </div>
     );
 };

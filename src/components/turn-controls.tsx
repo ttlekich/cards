@@ -8,7 +8,6 @@ import {
 } from "../entities/game";
 import { PLAYING } from "../entities/game-mode";
 import { useOvermind } from "../overmind";
-import { Button, ButtonKind } from "./button";
 import * as R from "ramda";
 import { Suit } from "../crazy-eights/deck";
 import { SuitChooser } from "./suit-chooser";
@@ -55,31 +54,31 @@ export const TurnControls: React.FC<Props> = ({
                 <SuitChooser handleChooseSuit={handleChooseSuit}></SuitChooser>
             )}
             {playCard && (
-                <Button
-                    kind={ButtonKind.PRIMARY}
+                <button
+                    className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
                     onClick={handlePlayCard}
                     disabled={!isTurn}
                 >
                     Play Card
-                </Button>
+                </button>
             )}
             {drawCard && (
-                <Button
-                    kind={ButtonKind.PRIMARY_INVERTED}
+                <button
+                    className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
                     onClick={handleDrawCard(drawCard.payload)}
                     disabled={!isTurn}
                 >
                     {`Draw Card (${drawCard.payload})`}
-                </Button>
+                </button>
             )}
             {skipTurn && (
-                <Button
-                    kind={ButtonKind.PRIMARY_INVERTED}
+                <button
+                    className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
                     onClick={handleSkip}
                     disabled={!isTurn}
                 >
                     Skip Turn
-                </Button>
+                </button>
             )}
         </>
     );
