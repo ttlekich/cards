@@ -93,15 +93,15 @@ export const GamePage = () => {
             ? userGamePositions(state.game?.userGameRecord, userGame)
             : [undefined, undefined, undefined];
 
-    console.log(userGameLeft, userGameTop, userGameRight);
-
     return (
         <div className="flex flex-col items-center h-full w-full">
             <Navigation></Navigation>
             <div className="container grid grid-cols-3">
-                <div className="col-span-3">
+                <div></div>
+                <div>
                     {userGameTop && <OtherPlayerHUD userGame={userGameTop} />}
                 </div>
+                <div></div>
                 <div>
                     {userGameLeft && (
                         <OtherPlayerHUD userGame={userGameLeft} isSide={true} />

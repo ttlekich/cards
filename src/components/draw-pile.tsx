@@ -13,12 +13,12 @@ export const DrawPile = () => {
             return (
                 <>
                     {state.game && (
-                        <div className="flex justify-center items-center gap-4">
+                        <div className="flex justify-center items-center gap-4 relative">
                             <Card
                                 card={{ suit: "S", rank: "A" }}
                                 face={"BACK"}
                                 isSelected={false}
-                                position={0}
+                                position={1.5}
                             ></Card>
                             {lastPlayed && (
                                 <Card

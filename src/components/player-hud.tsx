@@ -66,13 +66,15 @@ export const PlayerHUD = (props: Props) => {
         player.playerNumber === state.game.currentPlayerNumber;
 
     return (
-        <div className="flex flex-col p-5">
-            <div className="flex flex-row justify-center gap-2 p-2">
+        <div className="flex flex-col p-2">
+            <div className="flex flex-row justify-center gap-2 p-2 text-sm">
                 <div>
-                    <b>Player: </b> {userGame.email}
+                    <span className="font-semibold">Player: </span>{" "}
+                    {userGame.email}
                 </div>
                 <div>
-                    <b>Score: </b> {userGame.score}
+                    <span className="font-semibold">Score: </span>{" "}
+                    {userGame.score}
                 </div>
             </div>
             <div className="flex flex-row justify-center gap-2 p-2">

@@ -1,20 +1,5 @@
 import React from "react";
-import styled from "styled-components";
 import { Card as CardType } from "../crazy-eights/deck";
-
-const BackWrapper = styled.div`
-    width: 48px;
-    height: 80px;
-    padding: 0.25rem;
-    border-radius: 5px;
-    background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
-        linear-gradient(135deg, #ccc 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #ccc 75%),
-        linear-gradient(135deg, transparent 75%, #ccc 75%);
-    background-size: 5px 5px;
-    background-position: 0 0, 2.5px 0, 2.5px -2.5px, 0px 2.5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-`;
 
 type Props = {
     card: CardType;
@@ -23,6 +8,7 @@ type Props = {
     onClick?: () => void;
     horizontal?: boolean;
     position: number;
+    total?: number;
 };
 
 export const Card = (props: Props) => {
@@ -35,15 +21,17 @@ export const Card = (props: Props) => {
 
     const { suit, rank } = props.card;
     const suitDetails = suitRecord[suit];
+    const total = props.total || 1;
 
     switch (props.face) {
         case "FRONT":
             return (
                 <div
                     className={`
-                        w-12 h-20 
+                        w-16 h-24
                         flex 
                         justify-between
+                        text-lg
                         px-1
                         ${
                             suitDetails.color === "black"
@@ -76,15 +64,21 @@ export const Card = (props: Props) => {
             return (
                 <div
                     className={`
-                        ${props.horizontal ? "w-20" : "w-12"}
-                        ${props.horizontal ? "h-12" : "h-20"}
+                        absolute
+                        bg-gradient-to-tr from-gray-900 gray-100 to-red-500
+                        ${props.horizontal ? "w-24" : "w-16"}
+                        ${props.horizontal ? "h-16" : "h-24"}
                         shadow-md
                         rounded
-                        ${props.horizontal ? "col-start-1" : ""}
-                        ${props.horizontal ? "row-start-1" : ""}
-                        ${props.horizontal ? `mt-${props.position * 8}` : ""}
                    `}
-                    style={}
+                    style={{
+                        top: props.horizontal
+                            ? `${Math.floor((props.position * 88) / total)}%`
+                            : undefined,
+                        left: props.horizontal
+                            ? undefined
+                            : `${Math.floor((props.position * 88) / total)}%`,
+                    }}
                 ></div>
             );
     }

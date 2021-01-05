@@ -10,21 +10,33 @@ type Props = {
 
 export const OtherPlayerHUD: React.FC<Props> = ({ userGame, isSide }) => {
     return (
-        <div className="flex flex-col p-5">
-            <div className="flex flex-row justify-center gap-2 p-2">
+        <div
+            className={`
+                    flex
+                    flex-col
+                    p-2
+                `}
+        >
+            <div className="flex flex-row justify-center gap-2 p-2 text-sm">
                 <div>
-                    <b>Player: </b> {userGame.email}
+                    <span className="font-semibold">Player: </span>{" "}
+                    {userGame.email}
                 </div>
                 <div>
-                    <b>Score: </b> {userGame.score}
+                    <span className="font-semibold">Score: </span>{" "}
+                    {userGame.score}
                 </div>
             </div>
             <div
                 className={`
-                ${isSide ? "grid" : "flex"}
-                ${isSide ? "h-48" : ""}
-                justify-center
+                    grid
+                    mx-auto
+                    justify-center
                 `}
+                style={{
+                    gridTemplateColumns:
+                        "repeat(auto-fit,  minmax(10px, max-content))",
+                }}
             >
                 {userGame.mode === PLAYING &&
                     userGame.hand.map((card, i) => (
