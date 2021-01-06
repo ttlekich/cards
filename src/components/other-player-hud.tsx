@@ -29,13 +29,19 @@ export const OtherPlayerHUD: React.FC<Props> = ({ userGame, isSide }) => {
             </div>
             <div
                 className={`
-                    grid
+                    absolute
                     mx-auto
                     justify-center
                 `}
                 style={{
-                    gridTemplateColumns:
-                        "repeat(auto-fit,  minmax(10px, max-content))",
+                    display: "flex",
+                    height: "150px",
+                    padding: "0 50px",
+                    justifyContent: "center",
+                    position: "fixed",
+                    bottom: isSide ? "50vh" : undefined,
+                    left: isSide ? "-50%" : "",
+                    right: 0,
                 }}
             >
                 {userGame.mode === PLAYING &&

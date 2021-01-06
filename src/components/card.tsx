@@ -64,7 +64,6 @@ export const Card = (props: Props) => {
             return (
                 <div
                     className={`
-                        absolute
                         bg-gradient-to-tr from-gray-900 gray-100 to-red-500
                         ${props.horizontal ? "w-24" : "w-16"}
                         ${props.horizontal ? "h-16" : "h-24"}
