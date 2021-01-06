@@ -8,13 +8,21 @@ type Props = {
     isSide?: boolean;
 };
 
+const ANGLE = 90;
+
 export const OtherPlayerHUD: React.FC<Props> = ({ userGame, isSide }) => {
+    const nCards = userGame.mode === PLAYING ? userGame.hand.length : 0;
+    const middle =
+        (nCards / 2) % 2 === 0 ? nCards / 2 - 0.5 : Math.ceil(nCards / 2);
     return (
         <div
             className={`
                     flex
                     flex-col
                     p-2
+                    relative
+                    ${isSide ? "-top-1/2" : "left-1/2"}
+                    ${isSide ? "transform -translate-y-1/2" : ""}
                 `}
         >
             <div className="flex flex-row justify-center gap-2 p-2 text-sm">
@@ -28,35 +36,30 @@ export const OtherPlayerHUD: React.FC<Props> = ({ userGame, isSide }) => {
                 </div>
             </div>
             <div
-                className={`
-                    absolute
-                    mx-auto
-                    justify-center
-                `}
+                className={``}
                 style={{
                     display: "flex",
-                    height: "150px",
-                    padding: "0 50px",
                     justifyContent: "center",
-                    position: "fixed",
-                    bottom: isSide ? "50vh" : undefined,
-                    left: isSide ? "-50%" : "",
-                    right: 0,
+                    position: "relative",
+                    flexDirection: isSide ? "column" : "row",
                 }}
             >
                 {userGame.mode === PLAYING &&
-                    userGame.hand.map((card, i) => (
-                        <Card
-                            face={"BACK"}
-                            key={card.rank + card.suit}
-                            card={card}
-                            isSelected={false}
-                            onClick={() => {}}
-                            horizontal={isSide}
-                            position={i}
-                            total={userGame.hand.length}
-                        ></Card>
-                    ))}
+                    userGame.hand.map((card, i) => {
+                        return (
+                            <Card
+                                face={"BACK"}
+                                key={card.rank + card.suit}
+                                card={card}
+                                isSelected={false}
+                                onClick={() => {}}
+                                horizontal={isSide}
+                                position={nCards * (i - middle)}
+                                total={userGame.hand.length}
+                                angle={(ANGLE / nCards) * (i - middle)}
+                            ></Card>
+                        );
+                    })}
             </div>
         </div>
     );

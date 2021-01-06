@@ -13,7 +13,7 @@ export const DrawPile = () => {
             return (
                 <>
                     {state.game && (
-                        <div className="flex justify-center items-center gap-4 relative">
+                        <div className="flex justify-center items-center gap-4 relative left-1/2 transform -translate-y-1/2">
                             <Card
                                 card={{ suit: "S", rank: "A" }}
                                 face={"BACK"}

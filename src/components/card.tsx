@@ -1,3 +1,4 @@
+import { position } from "polished";
 import React from "react";
 import { Card as CardType } from "../crazy-eights/deck";
 
@@ -9,6 +10,7 @@ type Props = {
     horizontal?: boolean;
     position: number;
     total?: number;
+    angle?: number;
 };
 
 export const Card = (props: Props) => {
@@ -69,16 +71,22 @@ export const Card = (props: Props) => {
                         ${props.horizontal ? "h-16" : "h-24"}
                         shadow-md
                         rounded
+                        relative
                    `}
                     style={{
-                        top: props.horizontal
-                            ? `${Math.floor((props.position * 88) / total)}%`
-                            : undefined,
-                        left: props.horizontal
-                            ? undefined
-                            : `${Math.floor((props.position * 88) / total)}%`,
+                        top: `${
+                            (Math.abs(props.position) / props.position) *
+                            -4 *
+                            Math.abs(props.position) ** 1.05
+                        }px`,
+                        left: `${-(Math.abs(props.position) ** 1.12)}px`,
+                        transform: `rotate(${
+                            props.angle ? props.angle : 0
+                        }deg)`,
                     }}
-                ></div>
+                >
+                    {props.angle}
+                </div>
             );
     }
 };

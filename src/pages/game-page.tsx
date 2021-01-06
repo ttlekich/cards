@@ -94,31 +94,32 @@ export const GamePage = () => {
             : [undefined, undefined, undefined];
 
     return (
-        <div className="flex flex-col items-center h-full w-full">
+        <div className="flex flex-col  items-center h-full w-full">
             <Navigation></Navigation>
-            <div className="container grid grid-cols-3">
+            <div className="relative h-5/6 w-5/6">
                 <div></div>
-                <div>
+                <div className="border absolute right-1/2">
                     {userGameTop && <OtherPlayerHUD userGame={userGameTop} />}
                 </div>
                 <div></div>
-                <div>
+                <div className="border absolute top-1/2">
                     {userGameLeft && (
                         <OtherPlayerHUD userGame={userGameLeft} isSide={true} />
                     )}
                 </div>
-                <div className="flex justify-center items-center">
+                <div className="border absolute top-1/2 right-1/2">
                     <DrawPile></DrawPile>
                 </div>
-                <div>
+                <div className="border absolute top-1/2 right-1">
                     {userGameRight && (
                         <OtherPlayerHUD
                             userGame={userGameRight}
                             isSide={true}
                         />
                     )}
+                    Player 4
                 </div>
-                <div className="col-span-3">
+                <div className="border absolute bottom-1 right-1/2">
                     {userGame && (
                         <div className="flex justify-center">
                             <PlayerHUD

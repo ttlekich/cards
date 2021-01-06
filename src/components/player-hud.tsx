@@ -66,7 +66,7 @@ export const PlayerHUD = (props: Props) => {
         player.playerNumber === state.game.currentPlayerNumber;
 
     return (
-        <div className="flex flex-col p-2">
+        <div className="flex flex-col relative left-1/2">
             <div className="flex flex-row justify-center gap-2 p-2 text-sm">
                 <div>
                     <span className="font-semibold">Player: </span>{" "}
@@ -77,7 +77,7 @@ export const PlayerHUD = (props: Props) => {
                     {userGame.score}
                 </div>
             </div>
-            <div className="flex flex-row justify-center gap-2 p-2">
+            <div className="flex flex-row justify-center gap-2">
                 {props.player.mode === PLAYING ? (
                     <>
                         {props.player.hand.map((card, i) => (
