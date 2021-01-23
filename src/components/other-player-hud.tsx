@@ -5,12 +5,17 @@ import { Card } from "./card";
 
 type Props = {
     userGame: UserGame;
+    location: "TOP" | "LEFT" | "RIGHT";
     isSide?: boolean;
 };
 
 const ANGLE = 90;
 
-export const OtherPlayerHUD: React.FC<Props> = ({ userGame, isSide }) => {
+export const OtherPlayerHUD: React.FC<Props> = ({
+    userGame,
+    isSide,
+    location,
+}) => {
     const nCards = userGame.mode === PLAYING ? userGame.hand.length : 0;
     const middle =
         (nCards / 2) % 2 === 0 ? nCards / 2 - 0.5 : Math.ceil(nCards / 2);
@@ -46,19 +51,53 @@ export const OtherPlayerHUD: React.FC<Props> = ({ userGame, isSide }) => {
             >
                 {userGame.mode === PLAYING &&
                     userGame.hand.map((card, i) => {
-                        return (
-                            <Card
-                                face={"BACK"}
-                                key={card.rank + card.suit}
-                                card={card}
-                                isSelected={false}
-                                onClick={() => {}}
-                                horizontal={isSide}
-                                position={nCards * (i - middle)}
-                                total={userGame.hand.length}
-                                angle={(ANGLE / nCards) * (i - middle)}
-                            ></Card>
-                        );
+                        if (location === "TOP") {
+                            return (
+                                <Card
+                                    face={"BACK"}
+                                    key={card.rank + card.suit}
+                                    card={card}
+                                    isSelected={false}
+                                    onClick={() => {}}
+                                    horizontal={isSide}
+                                    position={nCards * (i - middle)}
+                                    location={location}
+                                    total={userGame.hand.length}
+                                    angle={(ANGLE / nCards) * (i - middle)}
+                                ></Card>
+                            );
+                        }
+                        if (location === "RIGHT") {
+                            return (
+                                <Card
+                                    face={"BACK"}
+                                    key={card.rank + card.suit}
+                                    card={card}
+                                    isSelected={false}
+                                    onClick={() => {}}
+                                    horizontal={isSide}
+                                    position={nCards * (i - middle)}
+                                    location={location}
+                                    total={userGame.hand.length}
+                                    angle={(ANGLE / nCards) * (i - middle)}
+                                ></Card>
+                            );
+                        } else {
+                            return (
+                                <Card
+                                    face={"BACK"}
+                                    key={card.rank + card.suit}
+                                    card={card}
+                                    isSelected={false}
+                                    onClick={() => {}}
+                                    horizontal={isSide}
+                                    position={nCards * (i - middle)}
+                                    total={userGame.hand.length}
+                                    location={location}
+                                    angle={(ANGLE / nCards) * (i - middle)}
+                                ></Card>
+                            );
+                        }
                     })}
             </div>
         </div>

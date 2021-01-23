@@ -11,6 +11,7 @@ type Props = {
     position: number;
     total?: number;
     angle?: number;
+    location?: "TOP" | "RIGHT" | "LEFT" | "BOTTOM";
 };
 
 export const Card = (props: Props) => {
@@ -23,7 +24,6 @@ export const Card = (props: Props) => {
 
     const { suit, rank } = props.card;
     const suitDetails = suitRecord[suit];
-    const total = props.total || 1;
 
     switch (props.face) {
         case "FRONT":
@@ -63,6 +63,42 @@ export const Card = (props: Props) => {
                 </div>
             );
         case "BACK":
+            const left = {
+                top: `${
+                    (Math.abs(props.position) / props.position) *
+                    -4 *
+                    Math.abs(props.position) ** 1.05
+                }px`,
+                left: `${-(Math.abs(props.position) ** 1.12)}px`,
+                transform: `rotate(${props.angle ? props.angle : 0}deg)`,
+            };
+            const top = {
+                left: `${
+                    (Math.abs(props.position) / props.position) *
+                    -4 *
+                    Math.abs(props.position) ** 1.05
+                }px`,
+                top: `${-(Math.abs(props.position) ** 1.12)}px`,
+                transform: `rotate(${props.angle ? -props.angle : 0}deg)`,
+            };
+            const right = {
+                left: `${
+                    (Math.abs(props.position) / props.position) *
+                    -4 *
+                    Math.abs(props.position) ** 1.05
+                }px`,
+                top: `${-(Math.abs(props.position) ** 1.12)}px`,
+                transform: `rotate(${props.angle ? -props.angle : 0}deg)`,
+            };
+            const positionStyle = props.position
+                ? props.location === "TOP"
+                    ? top
+                    : props.location === "LEFT"
+                    ? left
+                    : props.location === "RIGHT"
+                    ? right
+                    : left
+                : left;
             return (
                 <div
                     className={`
@@ -74,15 +110,9 @@ export const Card = (props: Props) => {
                         relative
                    `}
                     style={{
-                        top: `${
-                            (Math.abs(props.position) / props.position) *
-                            -4 *
-                            Math.abs(props.position) ** 1.05
-                        }px`,
-                        left: `${-(Math.abs(props.position) ** 1.12)}px`,
-                        transform: `rotate(${
-                            props.angle ? props.angle : 0
-                        }deg)`,
+                        top: positionStyle.top,
+                        left: positionStyle.left,
+                        transform: positionStyle.transform,
                     }}
                 >
                     {props.angle}

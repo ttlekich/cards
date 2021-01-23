@@ -93,18 +93,28 @@ export const GamePage = () => {
             ? userGamePositions(state.game?.userGameRecord, userGame)
             : [undefined, undefined, undefined];
 
+    console.log(userGameLeft, userGameTop, userGameRight);
     return (
         <div className="flex flex-col  items-center h-full w-full">
             <Navigation></Navigation>
             <div className="relative h-5/6 w-5/6">
                 <div></div>
                 <div className="border absolute right-1/2">
-                    {userGameTop && <OtherPlayerHUD userGame={userGameTop} />}
+                    {userGameTop && (
+                        <OtherPlayerHUD
+                            userGame={userGameTop}
+                            location={"TOP"}
+                        />
+                    )}
                 </div>
                 <div></div>
                 <div className="border absolute top-1/2">
                     {userGameLeft && (
-                        <OtherPlayerHUD userGame={userGameLeft} isSide={true} />
+                        <OtherPlayerHUD
+                            userGame={userGameLeft}
+                            isSide={true}
+                            location={"LEFT"}
+                        />
                     )}
                 </div>
                 <div className="border absolute top-1/2 right-1/2">
@@ -115,6 +125,7 @@ export const GamePage = () => {
                         <OtherPlayerHUD
                             userGame={userGameRight}
                             isSide={true}
+                            location={"RIGHT"}
                         />
                     )}
                     Player 4
