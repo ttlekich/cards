@@ -1,23 +1,15 @@
 import React from "react";
-import styled from "styled-components";
 import { LoginForm } from "../components/login-form";
 import { withRouter } from "react-router-dom";
-import { RegisterForm } from "../components/register-form";
+import { Navigation } from "../components/navigation";
 
-const Wrapper = styled.div`
-    display: flex;
-    justify-content: space-evenly;
-    width: 100%;
-`;
-
-export const LoginPage = withRouter((props) => {
-    const onSubmit = () => {
-        props.history.push("/");
-    };
+export const LoginPage = withRouter(() => {
     return (
-        <Wrapper>
-            <LoginForm onSubmit={onSubmit}></LoginForm>
-            <RegisterForm onSubmit={onSubmit}></RegisterForm>
-        </Wrapper>
+        <div className="flex flex-col items-center h-full w-full">
+            <Navigation></Navigation>
+            <div className="container">
+                <LoginForm></LoginForm>
+            </div>
+        </div>
     );
 });

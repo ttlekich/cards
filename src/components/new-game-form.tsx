@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import Form from "./form";
-import RequiredFieldError from "./required-field-error";
 import { useOvermind } from "../overmind";
+import { FormWrapper } from "./form-wrapper";
+import { LoadingSpinner } from "./loading-spinner";
 
 type Inputs = {
     gameName: string;
@@ -13,31 +13,47 @@ type Props = {
 };
 
 export const NewGameForm = (props: Props) => {
+    const [isLoading, setIsLoading] = useState(false);
     const { actions } = useOvermind();
-    const { register, handleSubmit, errors, reset } = useForm<Inputs>();
-    const onSubmit = async ({ gameName }: Inputs) => {
-        actions.joinGame(gameName);
+    const { register, handleSubmit, reset } = useForm<Inputs>();
+    const onSubmit = async (formData: Inputs) => {
+        setIsLoading(true);
+        await actions.joinGame(formData.gameName);
         reset();
-        props.onSubmit(gameName);
+        setIsLoading(false);
+        props.onSubmit(formData.gameName);
     };
 
     return (
-        <div>
-            <h1>Join or Start a Game</h1>
-            <Form onSubmit={handleSubmit(onSubmit)}>
-                <input
-                    name="gameName"
-                    placeholder="Game Name"
-                    type="text"
-                    ref={register({})}
-                ></input>
-                {errors.gameName && (
-                    <RequiredFieldError>
-                        {errors.gameName.message}
-                    </RequiredFieldError>
-                )}
-                <button type="submit">{"Join"}</button>
-            </Form>
-        </div>
+        <FormWrapper>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="flex flex-col mb-4">
+                    <label
+                        className="mb-1 uppercase font-bold text-sm text-gray-600"
+                        htmlFor="gameName"
+                    >
+                        Join A Game
+                    </label>
+                    <input
+                        className="mb-4 border rounded py-2 px-2 text-gray-900"
+                        name="gameName"
+                        id="gameName"
+                        placeholder="Game Name"
+                        type="text"
+                        ref={register({})}
+                    ></input>
+                    {isLoading ? (
+                        <LoadingSpinner></LoadingSpinner>
+                    ) : (
+                        <button
+                            className="rounded py-1 px-2 bg-gray-900 hover:bg-gray-700 text-white"
+                            type="submit"
+                        >
+                            Join
+                        </button>
+                    )}
+                </div>
+            </form>
+        </FormWrapper>
     );
 };

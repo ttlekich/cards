@@ -1,34 +1,14 @@
 import React from "react";
 import { useHistory } from "react-router";
-import styled from "styled-components";
 import { useOvermind } from "../overmind";
-import { Button, ButtonKind } from "./button";
 
-export const Wrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.5rem 0.5rem;
-`;
-
-export const Title = styled.div``;
-
-export const Controls = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-`;
-
-export const Navigation = () => {
+export const Navigation: React.FC = () => {
     const history = useHistory();
-    const { actions } = useOvermind();
+    const { state, actions } = useOvermind();
 
     const handleLeaveGame = (event: React.SyntheticEvent) => {
         event.preventDefault();
+        // TODO
         actions.leaveGame();
         history.push("/lobby");
     };
@@ -36,28 +16,41 @@ export const Navigation = () => {
     const handleSignOut = async (event: React.SyntheticEvent) => {
         event.preventDefault();
         await actions.logoutUser();
-        history.push("/login");
     };
 
     return (
-        <Wrapper>
-            <Title>Crazy 8's</Title>
-            <Controls>
-                <Button
-                    size={"s"}
-                    kind={ButtonKind.PRIMARY}
-                    onClick={handleLeaveGame}
-                >
-                    Leave Game
-                </Button>
-                <Button
-                    size={"s"}
-                    kind={ButtonKind.PRIMARY}
-                    onClick={handleSignOut}
-                >
-                    Sign Out
-                </Button>
-            </Controls>
-        </Wrapper>
+        <>
+            <nav className="w-full">
+                <div className="flex flex-wrap justify-between p-2 shadow-sm">
+                    <div>
+                        <h1 className="flex-auto text-xl text-gray-900 font-semibold tracking-widest">
+                            <a href="/">Crazy 8s</a>{" "}
+                            <span className="text-red-500">♥︎</span>{" "}
+                            <span className="text-gray-900">♠︎</span>{" "}
+                            <span className="text-red-500">♦︎</span>{" "}
+                            <span className="text-gray-900">♣︎</span>{" "}
+                        </h1>
+                    </div>
+                    <div className="flex items-baseline gap-3">
+                        {state.game && (
+                            <button
+                                className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
+                                onClick={handleLeaveGame}
+                            >
+                                Leave Game
+                            </button>
+                        )}
+                        {state.user && (
+                            <button
+                                className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
+                                onClick={handleSignOut}
+                            >
+                                Sign Out
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </nav>
+        </>
     );
 };

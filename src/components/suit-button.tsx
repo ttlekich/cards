@@ -1,6 +1,5 @@
 import React from "react";
 import { Suit } from "../crazy-eights/deck";
-import { Button, ButtonKind } from "./button";
 
 type Props = {
     suit: Suit;
@@ -14,15 +13,20 @@ export const SuitButton: React.FC<Props> = ({ suit, onClick }) => {
         D: { symbol: "♦︎", color: "red" },
         H: { symbol: "♥︎", color: "red" },
     } as const;
+    const suitInfo = suitRecord[suit];
     return (
-        <Button
-            kind={ButtonKind.PRIMARY}
-            style={{
-                color: suitRecord[suit].color,
-            }}
+        <button
+            className={`
+                bg-gray-200 
+                hover:bg-gray-400 
+                px-2 py-1 
+                rounded 
+                text-lg 
+                ${suitInfo.color === "black" ? "text-gray-900" : "text-red-500"}
+                `}
             onClick={onClick}
         >
             {suitRecord[suit].symbol}
-        </Button>
+        </button>
     );
 };

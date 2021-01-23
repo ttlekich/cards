@@ -1,26 +1,74 @@
 import React, { useEffect } from "react";
 import { useRouteMatch } from "react-router";
-import styled from "styled-components";
 import { PlayerHUD } from "../components/player-hud";
 import { useOvermind } from "../overmind";
 import * as R from "ramda";
 import { DrawPile } from "../components/draw-pile";
 import { Navigation } from "../components/navigation";
-import { GameInfo } from "../components/game-info";
+import { UserGame, UserGameRecord } from "../entities/user-game";
+import { PLAYING } from "../entities/game-mode";
+import { CLOCKWISE } from "../entities/game";
+import { getNextPlayerNumbers } from "../util/player-management";
 
-const Wrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    width: 100%;
-    gap: 1rem;
-`;
-
-const Players = styled.div`
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-`;
+const userGamePositions = (
+    userGameRecord: UserGameRecord,
+    currentUserGame: UserGame
+) => {
+    const nPlayers = R.keys(userGameRecord).length;
+    const otherUserGames = R.sortBy(
+        R.prop("playerNumber"),
+        R.reject(
+            (userGame: UserGame) =>
+                userGame.userUID === currentUserGame.userUID,
+            R.values(userGameRecord)
+        )
+    );
+    const currentPlayerNumber = currentUserGame.playerNumber;
+    const nextPlayerNumbers = getNextPlayerNumbers(
+        currentPlayerNumber,
+        CLOCKWISE,
+        nPlayers
+    );
+    switch (nPlayers) {
+        case 4:
+            return [
+                R.find(
+                    (userGame) =>
+                        userGame.playerNumber === nextPlayerNumbers[0],
+                    otherUserGames
+                ),
+                R.find(
+                    (userGame) =>
+                        userGame.playerNumber === nextPlayerNumbers[1],
+                    otherUserGames
+                ),
+                R.find(
+                    (userGame) =>
+                        userGame.playerNumber === nextPlayerNumbers[2],
+                    otherUserGames
+                ),
+            ];
+        case 3:
+            return [
+                R.find(
+                    (userGame) =>
+                        userGame.playerNumber === nextPlayerNumbers[0],
+                    otherUserGames
+                ),
+                R.find(
+                    (userGame) =>
+                        userGame.playerNumber === nextPlayerNumbers[1],
+                    otherUserGames
+                ),
+                undefined,
+            ];
+        case 2:
+            return [undefined, otherUserGames[0], undefined];
+        case 1:
+        default:
+            return [undefined, undefined, undefined];
+    }
+};
 
 export const GamePage = () => {
     const match = useRouteMatch<{ id: string }>({
@@ -34,31 +82,66 @@ export const GamePage = () => {
         joinGame(gameId);
     }, [joinGame, gameId]);
 
-    const players = R.sortBy(
-        R.prop("playerNumber"),
-        R.values(state.game ? state.game.userGameRecord : {})
-    );
+    const userGame =
+        state.game && state.user
+            ? state.game?.userGameRecord[state.user.uid]
+            : undefined;
+
+    const [userGameLeft, userGameTop, userGameRight] =
+        state.game && state.game.mode === PLAYING && userGame
+            ? userGamePositions(state.game?.userGameRecord, userGame)
+            : [undefined, undefined, undefined];
+
+    console.log(userGameLeft, userGameTop, userGameRight);
 
     return (
-        <Wrapper>
+        <div className="flex flex-col items-center">
             <Navigation></Navigation>
-            <GameInfo></GameInfo>
-            <DrawPile></DrawPile>
-            {state.game ? (
-                <Players>
-                    {R.map(
-                        (player) => (
+            <div className="container grid grid-cols-3">
+                <div className="col-span-3">
+                    <div className="flex justify-center">
+                        {userGameTop && (
                             <PlayerHUD
-                                key={player.email}
-                                player={player}
+                                player={userGameTop}
+                                position={"TOP"}
                             ></PlayerHUD>
-                        ),
-                        players
+                        )}
+                    </div>
+                </div>
+                <div>
+                    <div className="flex justify-center">
+                        {userGameLeft && (
+                            <PlayerHUD
+                                player={userGameLeft}
+                                position={"LEFT"}
+                            ></PlayerHUD>
+                        )}
+                    </div>
+                </div>
+                <div className="flex justify-center items-center">
+                    <DrawPile></DrawPile>
+                </div>
+                <div>
+                    <div className="flex justify-center">
+                        {userGameRight && (
+                            <PlayerHUD
+                                player={userGameRight}
+                                position={"RIGHT"}
+                            ></PlayerHUD>
+                        )}
+                    </div>
+                </div>
+                <div className="col-span-3">
+                    {userGame && (
+                        <div className="flex justify-center">
+                            <PlayerHUD
+                                key={userGame.email}
+                                player={userGame}
+                            ></PlayerHUD>
+                        </div>
                     )}
-                </Players>
-            ) : (
-                <span>Loading...</span>
-            )}
-        </Wrapper>
+                </div>
+            </div>
+        </div>
     );
 };

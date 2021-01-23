@@ -1,24 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 import { useOvermind } from "../overmind";
 import { Card } from "./card";
 import { FINISHED, NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import * as R from "ramda";
-
-const Wrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-`;
-
-const PileWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-`;
 
 export const DrawPile = () => {
     const { state } = useOvermind();
@@ -29,23 +13,22 @@ export const DrawPile = () => {
             return (
                 <>
                     {state.game && (
-                        <Wrapper>
-                            <div>Draw Pile</div>
-                            <PileWrapper>
+                        <div className="flex justify-center items-center gap-4">
+                            <Card
+                                card={{ suit: "S", rank: "A" }}
+                                face={"BACK"}
+                                isSelected={false}
+                                direction={"VERTICAL"}
+                            ></Card>
+                            {lastPlayed && (
                                 <Card
-                                    card={{ suit: "S", rank: "A" }}
-                                    face={"BACK"}
+                                    card={lastPlayed}
+                                    face={"FRONT"}
                                     isSelected={false}
+                                    direction={"VERTICAL"}
                                 ></Card>
-                                {lastPlayed && (
-                                    <Card
-                                        card={lastPlayed}
-                                        face={"FRONT"}
-                                        isSelected={false}
-                                    ></Card>
-                                )}
-                            </PileWrapper>
-                        </Wrapper>
+                            )}
+                        </div>
                     )}
                 </>
             );

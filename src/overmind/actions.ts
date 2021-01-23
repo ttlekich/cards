@@ -1,5 +1,5 @@
-import { Action } from "overmind";
-import { UserLoginInput } from "../entities/user";
+import { Action, AsyncAction } from "overmind";
+import { User, UserLoginInput } from "../entities/user";
 import {
     DRAW_CARD,
     Game,
@@ -13,6 +13,8 @@ import {
 import * as Crazy8s from "../crazy-eights/game";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card, Suit } from "../crazy-eights/deck";
+import * as E from "fp-ts/lib/Either";
+import { cookies } from "./effects";
 
 export const registerUser: Action<UserLoginInput, Promise<void>> = async (
     { state, effects },
@@ -21,12 +23,16 @@ export const registerUser: Action<UserLoginInput, Promise<void>> = async (
     await effects.api.registerUser({ email, password });
 };
 
-export const loginUser: Action<UserLoginInput, Promise<void>> = async (
-    { state, effects },
-    { email, password }
-) => {
-    const user = await effects.api.loginUser({ email, password });
-    state.user = user;
+export const setUser: Action<
+    firebase.auth.UserCredential,
+    Promise<void>
+> = async ({ state, effects }, token) => {
+    const user = User.decode(token.user);
+    if (E.isLeft(user)) {
+        return undefined;
+    }
+    cookies.saveUser(user.right);
+    state.user = user.right;
 };
 
 export const logoutUser: Action<void, void> = ({ state, effects }) => {
@@ -49,12 +55,12 @@ export const updateGame: Action<Game, void> = ({ state }, game) => {
     state.game = game;
 };
 
-export const joinGame: Action<string | undefined, void> = (
+export const joinGame: AsyncAction<string | undefined, void> = async (
     { effects, state },
     name
 ) => {
     if (state.user && name) {
-        effects.api.joinGame(name, state.user);
+        await effects.api.joinGame(name, state.user);
     }
 };
 

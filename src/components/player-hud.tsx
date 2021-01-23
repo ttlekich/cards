@@ -1,68 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { UserGame } from "../entities/user-game";
 import { useOvermind } from "../overmind";
-import styled from "styled-components";
-import { Card } from "./card";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card as CardType, Suit } from "../crazy-eights/deck";
 import { TurnControls } from "./turn-controls";
-import { Button, ButtonKind } from "./button";
-import { ACCENT, DARK_GRAY } from "../styles/colors";
+import { Hand } from "./hand";
 
 type Props = {
     player: UserGame;
+    position?: "TOP" | "LEFT" | "RIGHT";
 };
-
-type WrapperProps = {
-    isTurn: boolean;
-};
-
-const Wrapper = styled.div`
-    max-width: 800px;
-`;
-
-const PlayerInfo = styled.div<WrapperProps>`
-    display: flex;
-    color: ${(props) => (props.isTurn ? `${ACCENT};` : `${DARK_GRAY};`)}
-    gap: 1rem;
-    justify-content: space-between;
-    align-items: center;
-`;
-
-const Hand = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem;
-`;
-
-const Field = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
-
-const PlayerControls = styled.div`
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    padding: 1rem;
-`;
 
 export const PlayerHUD = (props: Props) => {
     const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
+    const [width, setWidth] = useState(0);
+    const [height, setHeight] = useState(0);
     const { state, actions } = useOvermind();
     const { player } = props;
     const userGame = props.player;
     const isPlayer = state.user?.email === player.email;
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (ref.current) {
+            setWidth(ref.current.offsetWidth);
+            setHeight(ref.current.offsetHeight);
+        }
+    }, [ref]);
 
     const selectCard = (card: CardType) => () => {
         setSelectedCard(card);
-    };
-
-    const areCardsEqual = (card1: CardType) => (card2: CardType) => {
-        return card1.suit === card2.suit && card1.rank === card2.rank;
     };
 
     const handleSkip = (event: React.SyntheticEvent) => {
@@ -105,36 +72,40 @@ export const PlayerHUD = (props: Props) => {
         state.game?.mode === PLAYING &&
         player.playerNumber === state.game.currentPlayerNumber;
 
+    const direction = props.position
+        ? props.position === "RIGHT" || props.position === "LEFT"
+            ? "VERTICAL"
+            : "HORIZONTAL"
+        : "HORIZONTAL";
+
+    const hw = direction === "VERTICAL" ? "w-28 h-80" : "w-96 h-28";
     return (
-        <Wrapper>
-            <PlayerInfo isTurn={isTurn}>
-                <Field>
-                    <b>Player:</b> {props.player.email}
-                </Field>
-                <Field>
-                    <b>Score:</b> {props.player.score}
-                </Field>
-            </PlayerInfo>
-            <Hand>
+        <div className="flex flex-col p-5 items-center">
+            <div className="flex flex-row justify-center gap-2 p-2">
+                <div>
+                    <b>Player: </b> {userGame.email}
+                </div>
+                <div>
+                    <b>Score: </b> {userGame.score}
+                </div>
+            </div>
+            <div
+                className={`flex flex-row justify-center gap-2 p-2 ${hw}`}
+                ref={ref}
+            >
                 {props.player.mode === PLAYING ? (
-                    <>
-                        {props.player.hand.map((card) => (
-                            <Card
-                                face={isPlayer ? "FRONT" : "BACK"}
-                                key={card.rank + card.suit}
-                                card={card}
-                                isSelected={
-                                    selectedCard
-                                        ? areCardsEqual(card)(selectedCard)
-                                        : false
-                                }
-                                onClick={selectCard(card)}
-                            ></Card>
-                        ))}
-                    </>
+                    <Hand
+                        isFace={!Boolean(props.position)}
+                        hand={props.player.hand}
+                        selectedCard={selectedCard}
+                        selectCard={selectCard}
+                        parentWidth={width}
+                        parentHeight={height}
+                        direction={direction}
+                    ></Hand>
                 ) : null}
-            </Hand>
-            <PlayerControls>
+            </div>
+            <div className="flex justify-center gap-2 p-2">
                 {isPlayer && isTurn && (
                     <TurnControls
                         handleDrawCard={handleDrawCard}
@@ -144,15 +115,15 @@ export const PlayerHUD = (props: Props) => {
                         isTurn={isTurn}
                     />
                 )}
-            </PlayerControls>
+            </div>
             {canStart ? (
-                <Button
-                    kind={ButtonKind.PRIMARY_INVERTED}
+                <button
                     onClick={handleStartGame}
+                    className="p-3 rounded-sm bg-blue-500 hover:bg-blue-700"
                 >
                     Start Game
-                </Button>
+                </button>
             ) : null}
-        </Wrapper>
+        </div>
     );
 };
