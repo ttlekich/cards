@@ -36,6 +36,7 @@ export const Hand: React.FC<Props> = ({
         <div className="relative -left-1/2">
             {hand.map((card, i) => (
                 <div
+                    key={card.rank + card.suit}
                     className="absolute"
                     style={{
                         zIndex: 1000 + i,
@@ -48,7 +49,6 @@ export const Hand: React.FC<Props> = ({
                 >
                     <Card
                         face={isFace ? "FRONT" : "BACK"}
-                        key={card.rank + card.suit}
                         card={card}
                         isSelected={
                             selectedCard

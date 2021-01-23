@@ -92,12 +92,10 @@ export const GamePage = () => {
             ? userGamePositions(state.game?.userGameRecord, userGame)
             : [undefined, undefined, undefined];
 
-    console.log(userGameLeft, userGameTop, userGameRight);
-
     return (
         <div className="flex flex-col items-center">
             <Navigation></Navigation>
-            <div className="container grid grid-cols-3">
+            <div className="container grid grid-cols-3 p-5">
                 <div className="col-span-3">
                     <div className="flex justify-center">
                         {userGameTop && (

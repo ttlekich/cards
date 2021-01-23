@@ -693,7 +693,6 @@ export const move = (game: GamePlaying, move: Move) => {
 
 export const isCardPlayable = (game: GamePlaying, card: Card) => {
     const { turnOptions } = game;
-    console.log(turnOptions);
     const playCard: PlayCardOption | undefined = R.head(
         R.filter(
             (turnOption) => turnOption.type === PLAY_CARD,

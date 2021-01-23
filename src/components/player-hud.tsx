@@ -44,6 +44,7 @@ export const PlayerHUD = (props: Props) => {
 
     const handlePlayCard = (event: React.SyntheticEvent) => {
         event.preventDefault();
+        console.log(selectedCard);
         if (selectedCard) {
             actions.playCard(selectedCard);
             setSelectedCard(null);
@@ -78,7 +79,8 @@ export const PlayerHUD = (props: Props) => {
             : "HORIZONTAL"
         : "HORIZONTAL";
 
-    const hw = direction === "VERTICAL" ? "w-28 h-80" : "w-96 h-28";
+    const hw = direction === "VERTICAL" ? "w-28 h-80" : "w-96 h-36";
+
     return (
         <div className="flex flex-col p-5 items-center">
             <div className="flex flex-row justify-center gap-2 p-2">
