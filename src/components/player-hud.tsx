@@ -1,28 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { UserGame } from "../entities/user-game";
 import { useOvermind } from "../overmind";
-import { Card } from "./card";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { Card as CardType, Suit } from "../crazy-eights/deck";
 import { TurnControls } from "./turn-controls";
+import { Hand } from "./hand";
 
 type Props = {
     player: UserGame;
+    position?: "TOP" | "LEFT" | "RIGHT";
 };
 
 export const PlayerHUD = (props: Props) => {
     const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
+    const [width, setWidth] = useState(0);
+    const [height, setHeight] = useState(0);
     const { state, actions } = useOvermind();
     const { player } = props;
     const userGame = props.player;
     const isPlayer = state.user?.email === player.email;
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (ref.current) {
+            setWidth(ref.current.offsetWidth);
+            setHeight(ref.current.offsetHeight);
+        }
+    }, [ref]);
 
     const selectCard = (card: CardType) => () => {
         setSelectedCard(card);
-    };
-
-    const areCardsEqual = (card1: CardType) => (card2: CardType) => {
-        return card1.suit === card2.suit && card1.rank === card2.rank;
     };
 
     const handleSkip = (event: React.SyntheticEvent) => {
@@ -65,8 +72,15 @@ export const PlayerHUD = (props: Props) => {
         state.game?.mode === PLAYING &&
         player.playerNumber === state.game.currentPlayerNumber;
 
+    const direction = props.position
+        ? props.position === "RIGHT" || props.position === "LEFT"
+            ? "VERTICAL"
+            : "HORIZONTAL"
+        : "HORIZONTAL";
+
+    const hw = direction === "VERTICAL" ? "w-28 h-80" : "w-96 h-28";
     return (
-        <div className="flex flex-col p-5">
+        <div className="flex flex-col p-5 items-center">
             <div className="flex flex-row justify-center gap-2 p-2">
                 <div>
                     <b>Player: </b> {userGame.email}
@@ -75,24 +89,20 @@ export const PlayerHUD = (props: Props) => {
                     <b>Score: </b> {userGame.score}
                 </div>
             </div>
-            <div className="flex flex-row justify-center gap-2 p-2">
+            <div
+                className={`flex flex-row justify-center gap-2 p-2 ${hw}`}
+                ref={ref}
+            >
                 {props.player.mode === PLAYING ? (
-                    <>
-                        {props.player.hand.map((card, i) => (
-                            <Card
-                                face={isPlayer ? "FRONT" : "BACK"}
-                                key={card.rank + card.suit}
-                                card={card}
-                                isSelected={
-                                    selectedCard
-                                        ? areCardsEqual(card)(selectedCard)
-                                        : false
-                                }
-                                onClick={selectCard(card)}
-                                position={i}
-                            ></Card>
-                        ))}
-                    </>
+                    <Hand
+                        isFace={!Boolean(props.position)}
+                        hand={props.player.hand}
+                        selectedCard={selectedCard}
+                        selectCard={selectCard}
+                        parentWidth={width}
+                        parentHeight={height}
+                        direction={direction}
+                    ></Hand>
                 ) : null}
             </div>
             <div className="flex justify-center gap-2 p-2">

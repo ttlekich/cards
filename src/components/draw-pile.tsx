@@ -18,14 +18,14 @@ export const DrawPile = () => {
                                 card={{ suit: "S", rank: "A" }}
                                 face={"BACK"}
                                 isSelected={false}
-                                position={0}
+                                direction={"VERTICAL"}
                             ></Card>
                             {lastPlayed && (
                                 <Card
                                     card={lastPlayed}
                                     face={"FRONT"}
                                     isSelected={false}
-                                    position={0}
+                                    direction={"VERTICAL"}
                                 ></Card>
                             )}
                         </div>

@@ -5,7 +5,6 @@ import { useOvermind } from "../overmind";
 import * as R from "ramda";
 import { DrawPile } from "../components/draw-pile";
 import { Navigation } from "../components/navigation";
-import { OtherPlayerHUD } from "../components/other-player-hud";
 import { UserGame, UserGameRecord } from "../entities/user-game";
 import { PLAYING } from "../entities/game-mode";
 import { CLOCKWISE } from "../entities/game";
@@ -96,27 +95,41 @@ export const GamePage = () => {
     console.log(userGameLeft, userGameTop, userGameRight);
 
     return (
-        <div className="flex flex-col items-center h-full w-full">
+        <div className="flex flex-col items-center">
             <Navigation></Navigation>
             <div className="container grid grid-cols-3">
                 <div className="col-span-3">
-                    {userGameTop && <OtherPlayerHUD userGame={userGameTop} />}
+                    <div className="flex justify-center">
+                        {userGameTop && (
+                            <PlayerHUD
+                                player={userGameTop}
+                                position={"TOP"}
+                            ></PlayerHUD>
+                        )}
+                    </div>
                 </div>
                 <div>
-                    {userGameLeft && (
-                        <OtherPlayerHUD userGame={userGameLeft} isSide={true} />
-                    )}
+                    <div className="flex justify-center">
+                        {userGameLeft && (
+                            <PlayerHUD
+                                player={userGameLeft}
+                                position={"LEFT"}
+                            ></PlayerHUD>
+                        )}
+                    </div>
                 </div>
                 <div className="flex justify-center items-center">
                     <DrawPile></DrawPile>
                 </div>
                 <div>
-                    {userGameRight && (
-                        <OtherPlayerHUD
-                            userGame={userGameRight}
-                            isSide={true}
-                        />
-                    )}
+                    <div className="flex justify-center">
+                        {userGameRight && (
+                            <PlayerHUD
+                                player={userGameRight}
+                                position={"RIGHT"}
+                            ></PlayerHUD>
+                        )}
+                    </div>
                 </div>
                 <div className="col-span-3">
                     {userGame && (
