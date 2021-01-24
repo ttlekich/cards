@@ -1,5 +1,5 @@
 import React from "react";
-// import { NewGameForm } from "../components/new-game-form";
+import { NewGameForm } from "../components/new-game-form";
 import { withRouter } from "react-router-dom";
 import { Navigation } from "../components/navigation";
 
@@ -11,7 +11,7 @@ export const LobbyPage = withRouter((props) => {
         <div className="flex flex-col items-center h-full w-full">
             <Navigation></Navigation>
             <div className="container">
-                {/* <NewGameForm onSubmit={onSubmit}></NewGameForm> */}
+                <NewGameForm onSubmit={onSubmit}></NewGameForm>
             </div>
         </div>
     );

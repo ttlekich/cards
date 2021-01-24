@@ -51,12 +51,20 @@ export const useLoginUser = () => {
     return registerUser;
 };
 
+export const useLogoutUser = () => {
+    const logoutUser = useMutation(async () => {
+        try {
+            firebase.auth().signOut();
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    });
+
+    return logoutUser;
+};
+
 export const useSession = () => {
     const { user } = useContext(UserContext);
-
-    // const logoutUser = () => {
-    //     firebase.auth().signOut();
-    // };
 
     return user;
 };
