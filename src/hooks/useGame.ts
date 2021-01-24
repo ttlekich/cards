@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import { useMutation } from "react-query";
 import * as E from "fp-ts/Either";
 
@@ -16,8 +16,13 @@ export const GameContext = createContext<State>({
     game: null,
 });
 
-export const useGame = (id: string, user: firebase.User) => {
+export const useGameSelector = () => {
     const { game } = useContext(GameContext);
+    return game;
+};
+
+export const useJoinGame = (id: string, user: firebase.User) => {
+    const [game, setGame] = useState<Game | null>(null);
 
     const updateGame = async (game: Game) => {
         const gameRef = db.ref(`game/${game.id}`);
@@ -80,14 +85,10 @@ export const useGame = (id: string, user: firebase.User) => {
                 gameRef.off();
                 throw Error("Cannot subscribe to game.");
             } else {
-                onGameSnapshot(game.right);
+                setGame(game.right);
             }
         });
     };
-
-    // const onGameSnapshot(game: Game) {
-
-    // }
 
     const joinGame = useMutation(async (id: string) => {
         try {

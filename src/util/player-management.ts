@@ -1,7 +1,7 @@
 import * as R from "ramda";
-import { UserGameRecord } from "../entities/user-game";
 
 import { CLOCKWISE, COUNTER_CLOCKWISE, PlayDirection } from "../entities/game";
+import type { UserGameRecord } from "../entities/user-game";
 
 const PLAYER_NUMBERS = [1, 2, 3, 4];
 

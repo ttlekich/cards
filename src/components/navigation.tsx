@@ -19,7 +19,7 @@ export const Navigation: React.FC = () => {
 
     return (
         <>
-            <nav className="w-full">
+            <nav className="absolute w-full">
                 <div className="flex flex-wrap justify-between p-2 shadow-sm">
                     <div>
                         <h1 className="flex-auto text-xl text-gray-900 font-semibold tracking-widest">

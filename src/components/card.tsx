@@ -1,5 +1,5 @@
 import React from "react";
-import { Card as CardType } from "../crazy-eights/deck";
+import type { Card as CardType } from "../crazy-eights/deck";
 
 type Props = {
     card: CardType;

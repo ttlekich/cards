@@ -1,7 +1,7 @@
 import React from "react";
 import { LoginPage } from "./pages/login-page";
 import { LobbyPage } from "./pages/lobby-page";
-// import { GamePage } from "../old/pages/game-page";
+import { GamePage } from "./pages/game-page";
 import { BrowserRouter as Router, Switch } from "react-router-dom";
 import { PrivateRoute } from "./components/private-route";
 import { Redirect, Route } from "react-router";
@@ -37,9 +37,9 @@ export const App = () => {
                             <PrivateRoute path="/lobby">
                                 <LobbyPage></LobbyPage>
                             </PrivateRoute>
-                            {/* <PrivateRoute path="/game/:id">
+                            <PrivateRoute path="/game/:id">
                                 <GamePage></GamePage>
-                            </PrivateRoute> */}
+                            </PrivateRoute>
                             <PrivateRoute path="/">
                                 <LobbyPage></LobbyPage>
                             </PrivateRoute>
