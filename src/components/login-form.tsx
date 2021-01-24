@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { useOvermind } from "../overmind";
 import { LoadingSpinner } from "./loading-spinner";
 
-import { useMutation } from "react-query";
-import { auth } from "../overmind/effects";
 import { FormWrapper } from "./form-wrapper";
+import { useRegisterUser, useSession, useLoginUser } from "../hooks/useAuth";
 
 type Inputs = {
     email: string;
@@ -16,50 +14,19 @@ type Inputs = {
 export const LoginForm = () => {
     const [isRegister, setIsRegister] = useState(false);
     const { register, handleSubmit, reset, watch, errors } = useForm<Inputs>();
-    const { actions } = useOvermind();
+
+    const registerUser = useRegisterUser();
+    const loginUser = useLoginUser();
 
     const password = useRef({});
     password.current = watch("password", "");
-
-    const login = useMutation(async ({ email, password }: Inputs) => {
-        try {
-            const token = await auth.signInWithEmailAndPassword(
-                email,
-                password
-            );
-            return token;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    });
-
-    const registerUser = useMutation(async ({ email, password }: Inputs) => {
-        try {
-            const token = await auth.createUserWithEmailAndPassword(
-                email,
-                password
-            );
-            return token;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    });
-
-    useEffect(() => {
-        if (login.isSuccess && login.data) {
-            actions.setUser(login.data);
-        }
-        if (registerUser.isSuccess && registerUser.data) {
-            actions.setUser(registerUser.data);
-        }
-    }, [login, actions, registerUser]);
 
     const onSubmit = (data: Inputs) => {
         reset();
         if (isRegister) {
             registerUser.mutate(data);
         } else {
-            login.mutate(data);
+            loginUser.mutate(data);
         }
     };
 
@@ -68,7 +35,7 @@ export const LoginForm = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col mb-4">
                     <span className="text-sm text-red-400 text-center">
-                        {login.isError ? `${login.error}` : ""}
+                        {loginUser.isError ? `${loginUser.error}` : ""}
                         {registerUser.isError ? `${registerUser.error}` : ""}
                     </span>
                     <label
@@ -111,7 +78,7 @@ export const LoginForm = () => {
                     <span className="text-sm text-red-400 text-center">
                         {errors.password && <p>{errors.password.message}</p>}
                     </span>
-                    {login.isLoading || registerUser.isLoading ? (
+                    {loginUser.isLoading || registerUser.isLoading ? (
                         <LoadingSpinner></LoadingSpinner>
                     ) : (
                         <>

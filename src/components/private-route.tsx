@@ -1,6 +1,6 @@
 import React from "react";
 import { Redirect, Route } from "react-router";
-import { useOvermind } from "../overmind";
+import { useSession } from "../hooks/useAuth";
 
 type Props = {
     children: JSX.Element;
@@ -8,12 +8,13 @@ type Props = {
 };
 
 export const PrivateRoute = ({ children, ...rest }: Props) => {
-    const { state } = useOvermind();
+    const user = useSession();
+
     return (
         <Route
             {...rest}
             render={({ location }) =>
-                state.user ? (
+                user ? (
                     children
                 ) : (
                     <Redirect

@@ -1,21 +1,20 @@
 import React from "react";
 import { useHistory } from "react-router";
-import { useOvermind } from "../overmind";
+import { useSession } from "../hooks/useAuth";
 
 export const Navigation: React.FC = () => {
+    const user = useSession();
     const history = useHistory();
-    const { state, actions } = useOvermind();
 
     const handleLeaveGame = (event: React.SyntheticEvent) => {
         event.preventDefault();
-        // TODO
-        actions.leaveGame();
+        // actions.leaveGame();
         history.push("/lobby");
     };
 
     const handleSignOut = async (event: React.SyntheticEvent) => {
         event.preventDefault();
-        await actions.logoutUser();
+        // await actions.logoutUser();
     };
 
     return (
@@ -32,15 +31,15 @@ export const Navigation: React.FC = () => {
                         </h1>
                     </div>
                     <div className="flex items-baseline gap-3">
-                        {state.game && (
+                        {/* {game && (
                             <button
                                 className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
                                 onClick={handleLeaveGame}
                             >
                                 Leave Game
                             </button>
-                        )}
-                        {state.user && (
+                        )} */}
+                        {user && (
                             <button
                                 className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
                                 onClick={handleSignOut}
