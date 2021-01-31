@@ -62,14 +62,14 @@ export const PlayerHUD = (props: Props) => {
         // actions.drawCard(nCards);
     };
 
-    const canStart = Boolean(
-        game && game.mode === NOT_PLAYING && userGame.playerNumber === 1
-    );
+    // const canStart = Boolean(
+    //     game && game.mode === NOT_PLAYING && userGame.playerNumber === 1
+    // );
 
-    const handleStartGame = (event: React.SyntheticEvent) => {
-        event.preventDefault();
-        // actions.startGame();
-    };
+    // const handleStartGame = (event: React.SyntheticEvent) => {
+    //     event.preventDefault();
+    //     // actions.startGame();
+    // };
 
     const isTurn =
         game?.mode === PLAYING &&
@@ -120,14 +120,14 @@ export const PlayerHUD = (props: Props) => {
                     />
                 )}
             </div>
-            {canStart ? (
+            {/* {canStart ? (
                 <button
                     onClick={handleStartGame}
                     className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-md"
                 >
                     Start Game
                 </button>
-            ) : null}
+            ) : null} */}
         </div>
     );
 };
