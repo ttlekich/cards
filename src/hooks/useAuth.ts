@@ -1,6 +1,9 @@
 import React, { useState, useContext, useReducer, useEffect } from "react";
 import firebase from "../config/firebase";
 import { useMutation } from "react-query";
+import { User } from "../entities/user";
+import Cookies from "js-cookie";
+import * as E from "fp-ts/lib/Either";
 
 interface State {
     user: firebase.User | null;
@@ -38,9 +41,13 @@ export const useLoginUser = () => {
     const registerUser = useMutation(
         async ({ email, password }: { email: string; password: string }) => {
             try {
-                const token = await firebase
+                const token: firebase.auth.UserCredential = await firebase
                     .auth()
                     .signInWithEmailAndPassword(email, password);
+                const user = User.decode(token.user);
+                if (!E.isLeft(user)) {
+                    Cookies.set("CARD_USR", JSON.stringify(user.right));
+                }
                 return token;
             } catch (error) {
                 throw new Error(error.message);
@@ -69,41 +76,18 @@ export const useSession = () => {
     return user;
 };
 
-const initialState: State = {
-    user: null,
-};
-
-const reducer = (state: State, action: Action) => {
-    switch (action.type) {
-        case USER_SET:
-            return action.payload;
-        default:
-            return state;
-    }
-};
-
 export const useAuth = () => {
-    const [state, dispatch] = useReducer(reducer, initialState);
+    const [user, setUser] = useState(firebase.auth().currentUser);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const user = firebase.auth().currentUser;
-        dispatch({
-            type: USER_SET,
-            payload: { user },
-        });
-    }, []);
-
-    const onAuthChange = (user: firebase.User | null) => {
-        dispatch({
-            type: USER_SET,
-            payload: { user },
-        });
-    };
-
-    useEffect(() => {
-        const unsubscribe = firebase.auth().onAuthStateChanged(onAuthChange);
+        const unsubscribe = firebase
+            .auth()
+            .onAuthStateChanged((user) => setUser(user));
+        console.log("here");
+        setIsLoading(false);
         return () => unsubscribe();
     }, []);
 
-    return state.user;
+    return { user, isLoading };
 };

@@ -1,9 +1,12 @@
 import React from "react";
-import { useGameSelector } from "../hooks/useGame";
+import { useGameSelector, useSetIsReady } from "../hooks/useGame";
 import { values } from "ramda";
+import { useSession } from "../hooks/useAuth";
 
 export const GameSetup = () => {
+    const user = useSession();
     const game = useGameSelector();
+    const setIsReady = useSetIsReady();
 
     const usernames = game
         ? values(game.userGameRecord).map((userGame) => userGame.email)
@@ -32,7 +35,9 @@ export const GameSetup = () => {
                     Start Game
                 </button>
                 <button
-                    // onClick={handleStartGame}
+                    onClick={() =>
+                        user && game && setIsReady.mutate({ user, game })
+                    }
                     className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-md"
                 >
                     Ready

@@ -9,6 +9,7 @@ import { Redirect, Route } from "react-router";
 import { useAuth, UserContext } from "./hooks/useAuth";
 
 import { QueryClient, QueryClientProvider } from "react-query";
+import { LoadingSpinner } from "./components/loading-spinner";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -19,34 +20,39 @@ const queryClient = new QueryClient({
 });
 
 export const App = () => {
-    const user = useAuth();
+    const { user, isLoading } = useAuth();
+    console.log(isLoading);
 
     return (
         <div className="flex flex-col bg-gray-50 w-full h-full">
-            <UserContext.Provider value={{ user }}>
-                <QueryClientProvider client={queryClient}>
-                    <Router>
-                        <Switch>
-                            <Route path="/login">
-                                {user ? (
-                                    <Redirect to="/lobby"></Redirect>
-                                ) : (
-                                    <LoginPage></LoginPage>
-                                )}
-                            </Route>
-                            <PrivateRoute path="/lobby">
-                                <LobbyPage></LobbyPage>
-                            </PrivateRoute>
-                            <PrivateRoute path="/game/:id">
-                                <GamePage></GamePage>
-                            </PrivateRoute>
-                            <PrivateRoute path="/">
-                                <LobbyPage></LobbyPage>
-                            </PrivateRoute>
-                        </Switch>
-                    </Router>
-                </QueryClientProvider>
-            </UserContext.Provider>
+            <QueryClientProvider client={queryClient}>
+                {user ? (
+                    <UserContext.Provider value={{ user }}>
+                        <Router>
+                            <Switch>
+                                <PrivateRoute path="/lobby">
+                                    <LobbyPage></LobbyPage>
+                                </PrivateRoute>
+                                <PrivateRoute path="/game/:id">
+                                    <GamePage></GamePage>
+                                </PrivateRoute>
+                                <PrivateRoute path="/">
+                                    <LobbyPage></LobbyPage>
+                                </PrivateRoute>
+                            </Switch>
+                        </Router>
+                    </UserContext.Provider>
+                ) : (
+                    <LoginPage></LoginPage>
+                )}
+            </QueryClientProvider>
         </div>
     );
 };
+
+//     {!isLoading ? (
+//     ) : (
+//         <LoadingSpinner></LoadingSpinner>
+//     )}
+//             </QueryClientProvider></QueryClientProvider>
+// </div>
