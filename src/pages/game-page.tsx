@@ -3,7 +3,7 @@ import { useHistory, useRouteMatch } from "react-router";
 import { Navigation } from "../components/navigation";
 import { PLAYING } from "../entities/game-mode";
 import { GameContext, useJoinGame } from "../hooks/useGame";
-import { useSession } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import { LoadingSpinner } from "../components/loading-spinner";
 import { GamePlaying } from "../components/game-playing";
 import { GameSetup } from "../components/game-setup";
@@ -18,7 +18,7 @@ export const GamePage = () => {
         history.push("/lobby");
         return <></>;
     }
-    const user = useSession();
+    const { user } = useAuth();
     if (!user) {
         history.push("/");
         return <></>;

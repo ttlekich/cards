@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { NOT_PLAYING, PLAYING } from "../../src/entities/game-mode";
 import { Hand } from "../../src/components/hand";
-import { useSession } from "../hooks/useAuth";
 import { useGameSelector } from "../hooks/useGame";
 import type { Card, Suit } from "../crazy-eights/deck";
 import type { UserGame } from "../entities/user-game";
 import { TurnControls } from "./turn-controls";
+import { useAuth } from "../hooks/useAuth";
 
 type Props = {
     player: UserGame;
@@ -19,7 +19,7 @@ export const PlayerHUD = (props: Props) => {
 
     const { player } = props;
     const userGame = props.player;
-    const user = useSession();
+    const { user } = useAuth();
     const game = useGameSelector();
 
     const isPlayer = user?.email === player.email;

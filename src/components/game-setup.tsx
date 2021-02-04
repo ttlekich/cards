@@ -1,10 +1,10 @@
 import React from "react";
 import { useGameSelector, useSetIsReady } from "../hooks/useGame";
 import { values } from "ramda";
-import { useSession } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 export const GameSetup = () => {
-    const user = useSession();
+    const { user } = useAuth();
     const game = useGameSelector();
     const setIsReady = useSetIsReady();
 

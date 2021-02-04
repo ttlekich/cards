@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { LoadingSpinner } from "./loading-spinner";
 
 import { FormWrapper } from "./form-wrapper";
-import { useRegisterUser, useSession, useLoginUser } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 type Inputs = {
     email: string;
@@ -15,8 +15,7 @@ export const LoginForm = () => {
     const [isRegister, setIsRegister] = useState(false);
     const { register, handleSubmit, reset, watch, errors } = useForm<Inputs>();
 
-    const registerUser = useRegisterUser();
-    const loginUser = useLoginUser();
+    const { isLoading, error: authError, signIn, signUp } = useAuth();
 
     const password = useRef({});
     password.current = watch("password", "");
@@ -24,9 +23,9 @@ export const LoginForm = () => {
     const onSubmit = (data: Inputs) => {
         reset();
         if (isRegister) {
-            registerUser.mutate(data);
+            signUp(data.email, data.password);
         } else {
-            loginUser.mutate(data);
+            signIn(data.email, data.password);
         }
     };
 
@@ -35,8 +34,7 @@ export const LoginForm = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col mb-4">
                     <span className="text-sm text-red-400 text-center">
-                        {loginUser.isError ? `${loginUser.error}` : ""}
-                        {registerUser.isError ? `${registerUser.error}` : ""}
+                        {authError ? `${authError}` : ""}
                     </span>
                     <label
                         className="mb-1 uppercase font-bold text-sm text-gray-600"
@@ -78,7 +76,7 @@ export const LoginForm = () => {
                     <span className="text-sm text-red-400 text-center">
                         {errors.password && <p>{errors.password.message}</p>}
                     </span>
-                    {loginUser.isLoading || registerUser.isLoading ? (
+                    {isLoading ? (
                         <LoadingSpinner></LoadingSpinner>
                     ) : (
                         <>

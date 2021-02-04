@@ -1,6 +1,6 @@
 import React from "react";
 import { PLAYING } from "../entities/game-mode";
-import { useSession } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import { useGameSelector } from "../hooks/useGame";
 import { userGamePositions } from "../util/player-management";
 import { DrawPile } from "./draw-pile";
@@ -8,7 +8,7 @@ import { PlayerHUD } from "./player-hud";
 
 export const GamePlaying = () => {
     const game = useGameSelector();
-    const user = useSession();
+    const { user } = useAuth();
 
     const userGame = game && user ? game?.userGameRecord[user.uid] : undefined;
 

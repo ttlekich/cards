@@ -1,11 +1,10 @@
 import React from "react";
 import { useHistory } from "react-router";
-import { useLogoutUser, useSession } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 export const Navigation: React.FC = () => {
-    const user = useSession();
+    const { user, signOut } = useAuth();
     const history = useHistory();
-    const logoutUser = useLogoutUser();
 
     const handleLeaveGame = (event: React.SyntheticEvent) => {
         event.preventDefault();
@@ -14,7 +13,7 @@ export const Navigation: React.FC = () => {
 
     const handleSignOut = async (event: React.SyntheticEvent) => {
         event.preventDefault();
-        logoutUser.mutate();
+        signOut();
     };
 
     return (
