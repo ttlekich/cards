@@ -8,11 +8,11 @@ import { GamePage } from "./pages/game-page";
 export const AuthenticatedApp = () => {
     return (
         <Router>
-            <Route path="/">
-                <LobbyPage></LobbyPage>
-            </Route>
             <Route path="/game/:id">
                 <GamePage></GamePage>
+            </Route>
+            <Route exact path="/">
+                <LobbyPage></LobbyPage>
             </Route>
         </Router>
     );

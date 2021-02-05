@@ -2,10 +2,10 @@ import React from "react";
 import { Card } from "./card";
 import { FINISHED, NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import * as R from "ramda";
-import { useGameSelector } from "../hooks/useGame";
+import { useGame } from "../hooks/useGame";
 
 export const DrawPile = () => {
-    const game = useGameSelector();
+    const { game } = useGame();
     if (!game) return <></>;
     switch (game.mode) {
         case PLAYING:

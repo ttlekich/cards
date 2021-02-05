@@ -9,8 +9,8 @@ import {
 import { PLAYING } from "../entities/game-mode";
 import * as R from "ramda";
 import { SuitChooser } from "./suit-chooser";
-import { useGameSelector } from "../hooks/useGame";
 import type { Suit } from "../crazy-eights/deck";
+import { useGame } from "../hooks/useGame";
 
 type Props = {
     handlePlayCard: (event: React.SyntheticEvent) => void;
@@ -27,7 +27,7 @@ export const TurnControls: React.FC<Props> = ({
     handleSkip,
     isTurn,
 }) => {
-    const game = useGameSelector();
+    const { game } = useGame();
 
     const turnOptions = game?.mode === PLAYING ? game.turnOptions : [];
 

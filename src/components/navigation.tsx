@@ -1,19 +1,23 @@
 import React from "react";
 import { useHistory } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import { useGame } from "../hooks/useGame";
 
 export const Navigation: React.FC = () => {
     const { user, signOut } = useAuth();
+    const { game, leaveGame, isLoading } = useGame();
     const history = useHistory();
 
     const handleLeaveGame = (event: React.SyntheticEvent) => {
         event.preventDefault();
-        history.push("/lobby");
+        leaveGame();
+        history.push("/");
     };
 
     const handleSignOut = async (event: React.SyntheticEvent) => {
         event.preventDefault();
         signOut();
+        history.push("/");
     };
 
     return (
@@ -30,14 +34,14 @@ export const Navigation: React.FC = () => {
                         </h1>
                     </div>
                     <div className="flex items-baseline gap-3">
-                        {/* {game && (
+                        {game && (
                             <button
                                 className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
                                 onClick={handleLeaveGame}
                             >
                                 Leave Game
                             </button>
-                        )} */}
+                        )}
                         {user && (
                             <button
                                 className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
