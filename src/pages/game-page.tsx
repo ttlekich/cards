@@ -32,17 +32,15 @@ export const GamePage = () => {
 };
 
 const Game = () => {
-    const { game, isLoading } = useGame();
+    const { game } = useGame();
 
     return (
         <div className="flex flex-col items-center h-full">
             <Navigation></Navigation>
-            {isLoading ? (
+            {game && game.mode === PLAYING ? (
                 <div className="flex items-center justify-center h-full">
-                    <LoadingSpinner></LoadingSpinner>
+                    <GamePlaying></GamePlaying>
                 </div>
-            ) : game && game.mode === PLAYING ? (
-                <GamePlaying></GamePlaying>
             ) : (
                 <GameSetup></GameSetup>
             )}

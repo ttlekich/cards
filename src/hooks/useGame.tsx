@@ -10,10 +10,22 @@ import React, {
 import * as E from "fp-ts/Either";
 
 import firebase, { db } from "../config/firebase";
-import { Game, GameNotPlaying } from "../entities/game";
+import {
+    DRAW_CARD,
+    Game,
+    GameFinished,
+    GameNotPlaying,
+    GamePlaying,
+    Move,
+    PLAY_CARD,
+    SET_SUIT,
+    SKIP_TURN,
+} from "../entities/game";
 import { NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import { nextPlayerNumber } from "../util/player-management";
+import * as Crazy8s from "../crazy-eights/game";
 import type { UserGameNotPlaying } from "../entities/user-game";
+import type { Card, Suit } from "../crazy-eights/deck";
 
 interface GameContext {
     game: Game | null;
@@ -26,6 +38,11 @@ const defaultGameContext = {
     setIsReady: () => Promise.resolve(),
     updateGame: () => Promise.resolve(),
     leaveGame: () => Promise.resolve(),
+    startGame: () => Promise.resolve(),
+    chooseSuit: () => Promise.resolve(),
+    skipTurn: () => Promise.resolve(),
+    playCard: () => Promise.resolve(),
+    drawCard: () => Promise.resolve(),
 };
 
 export const GameContext = createContext<ReturnType<typeof useGameProvider>>(
@@ -148,6 +165,73 @@ export const useGameProvider = (user: firebase.User, gameId: string) => {
         }
     }, []);
 
+    const startGame = () => {
+        if (game && game.mode === NOT_PLAYING) {
+            const updatedGame: GamePlaying | GameFinished = Crazy8s.update(
+                Crazy8s.initialize(8)(game)
+            );
+            updateGame(updatedGame);
+        }
+    };
+
+    const chooseSuit = (suit: Suit) => {
+        if (game && game.mode === PLAYING && user) {
+            const move: Move = {
+                type: SET_SUIT,
+                payload: suit,
+            };
+            const updatedGame: GamePlaying | GameFinished = Crazy8s.update(
+                Crazy8s.move(game, move)
+            );
+            updateGame(updatedGame);
+        }
+    };
+
+    const skipTurn = () => {
+        if (game && game.mode === PLAYING && user) {
+            const move: Move = {
+                type: SKIP_TURN,
+            };
+            const updatedGame: GamePlaying | GameFinished = Crazy8s.update(
+                Crazy8s.move(game, move)
+            );
+            updateGame(updatedGame);
+        }
+    };
+
+    const playCard = (card: Card) => {
+        if (
+            game &&
+            game.mode === PLAYING &&
+            user &&
+            Crazy8s.isCardPlayable(game, card)
+        ) {
+            const move: Move = {
+                type: PLAY_CARD,
+                player: { uid: user.uid, email: user.email || "" },
+                payload: card,
+            };
+            const updatedGame: GamePlaying | GameFinished = Crazy8s.update(
+                Crazy8s.move(game, move)
+            );
+            updateGame(updatedGame);
+        }
+    };
+
+    const drawCard = (nCards: number) => {
+        if (game && game.mode === PLAYING && user) {
+            const move: Move = {
+                type: DRAW_CARD,
+                payload: nCards,
+                player: { uid: user.uid, email: user.email || "" },
+            };
+            const updatedGame: GamePlaying | GameFinished = Crazy8s.update(
+                Crazy8s.move(game, move)
+            );
+            updateGame(updatedGame);
+        }
+    };
+
     const leaveGame = useCallback(() => {
         gameRef.current.off();
     }, [gameRef]);
@@ -156,7 +240,19 @@ export const useGameProvider = (user: firebase.User, gameId: string) => {
         joinGame(id.current);
     }, [joinGame, id]);
 
-    return { game, isLoading, joinGame, setIsReady, updateGame, leaveGame };
+    return {
+        game,
+        isLoading,
+        joinGame,
+        setIsReady,
+        updateGame,
+        leaveGame,
+        startGame,
+        chooseSuit,
+        skipTurn,
+        playCard,
+        drawCard,
+    };
 };
 
 type GameProviderProps = {

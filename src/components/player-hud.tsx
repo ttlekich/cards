@@ -9,7 +9,7 @@ import { useAuth } from "../hooks/useAuth";
 
 type Props = {
     player: UserGame;
-    position?: "TOP" | "LEFT" | "RIGHT";
+    position: "TOP" | "RIGHT" | "BOTTOM" | "LEFT";
 };
 
 export const PlayerHUD = (props: Props) => {
@@ -20,7 +20,7 @@ export const PlayerHUD = (props: Props) => {
     const { player } = props;
     const userGame = props.player;
     const { user } = useAuth();
-    const { game } = useGame();
+    const { game, drawCard, playCard, skipTurn, chooseSuit } = useGame();
 
     const isPlayer = user?.email === player.email;
     const ref = useRef<HTMLDivElement>(null);
@@ -38,19 +38,18 @@ export const PlayerHUD = (props: Props) => {
 
     const handleSkip = (event: React.SyntheticEvent) => {
         event.preventDefault();
-        // actions.skipTurn();
+        skipTurn();
     };
 
     const handleChooseSuit = (suit: Suit) => (event: React.SyntheticEvent) => {
         event.preventDefault();
-        // actions.chooseSuit(suit);
+        chooseSuit(suit);
     };
 
     const handlePlayCard = (event: React.SyntheticEvent) => {
         event.preventDefault();
-        console.log(selectedCard);
         if (selectedCard) {
-            // actions.playCard(selectedCard);
+            playCard(selectedCard);
             setSelectedCard(null);
         }
     };
@@ -59,29 +58,12 @@ export const PlayerHUD = (props: Props) => {
         event: React.SyntheticEvent
     ) => {
         event.preventDefault();
-        // actions.drawCard(nCards);
+        drawCard(nCards);
     };
-
-    // const canStart = Boolean(
-    //     game && game.mode === NOT_PLAYING && userGame.playerNumber === 1
-    // );
-
-    // const handleStartGame = (event: React.SyntheticEvent) => {
-    //     event.preventDefault();
-    //     // actions.startGame();
-    // };
 
     const isTurn =
         game?.mode === PLAYING &&
         player.playerNumber === game.currentPlayerNumber;
-
-    const direction = props.position
-        ? props.position === "RIGHT" || props.position === "LEFT"
-            ? "VERTICAL"
-            : "HORIZONTAL"
-        : "HORIZONTAL";
-
-    const hw = direction === "VERTICAL" ? "w-28 h-80" : "w-96 h-36";
 
     return (
         <div className="flex flex-col p-5 items-center">
@@ -93,22 +75,17 @@ export const PlayerHUD = (props: Props) => {
                     <b>Score: </b> {userGame.score}
                 </div>
             </div>
-            <div
-                className={`flex flex-row justify-center gap-2 p-2 ${hw}`}
-                ref={ref}
-            >
-                {props.player.mode === PLAYING ? (
-                    <Hand
-                        isFace={!Boolean(props.position)}
-                        hand={props.player.hand}
-                        selectedCard={selectedCard}
-                        selectCard={selectCard}
-                        parentWidth={width}
-                        parentHeight={height}
-                        direction={direction}
-                    ></Hand>
-                ) : null}
-            </div>
+            {props.player.mode === PLAYING ? (
+                <Hand
+                    isFace={props.position === "BOTTOM"} // TODO
+                    hand={props.player.hand}
+                    selectedCard={selectedCard}
+                    selectCard={selectCard}
+                    parentWidth={width}
+                    parentHeight={height}
+                    position={props.position}
+                ></Hand>
+            ) : null}
             <div className="flex justify-center gap-2 p-2">
                 {isPlayer && isTurn && (
                     <TurnControls
@@ -120,14 +97,6 @@ export const PlayerHUD = (props: Props) => {
                     />
                 )}
             </div>
-            {/* {canStart ? (
-                <button
-                    onClick={handleStartGame}
-                    className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-md"
-                >
-                    Start Game
-                </button>
-            ) : null} */}
         </div>
     );
 };

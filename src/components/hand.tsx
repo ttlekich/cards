@@ -1,6 +1,93 @@
 import React from "react";
 import type { Card as CardType, Hand as HandType } from "../crazy-eights/deck";
 import { Card } from "./card";
+import styled from "styled-components";
+
+const SPACING = 64;
+
+type CardContainerProps = {
+    index: number;
+    middle: number;
+    position: "TOP" | "RIGHT" | "BOTTOM" | "LEFT";
+};
+
+type HandContainerProps = {
+    position: "TOP" | "RIGHT" | "BOTTOM" | "LEFT";
+};
+
+const HandContainer = styled.ul<HandContainerProps>`
+    position: relative;
+    height: ${({ position }) => {
+        switch (position) {
+            case "LEFT":
+            case "RIGHT":
+                return "0rem";
+            case "TOP":
+            case "BOTTOM":
+                return "10rem";
+        }
+    }};
+    width: ${({ position }) => {
+        switch (position) {
+            case "LEFT":
+            case "RIGHT":
+                return "10rem";
+            case "TOP":
+            case "BOTTOM":
+                return "0rem";
+        }
+    }};
+`;
+
+const CardContainer = styled.li<CardContainerProps>`
+    position: absolute;
+    left: ${({ index, middle, position }) => {
+        if (position === "TOP" || position === "BOTTOM") {
+            if (index === middle) {
+                return "0px";
+            }
+            if (index > middle) {
+                return `${
+                    (index - middle) *
+                    Math.min(SPACING, (SPACING / (middle + 1)) * 4)
+                }px`;
+            }
+            if (index < middle) {
+                return `-${
+                    (middle - index) *
+                    Math.min(SPACING, (SPACING / (middle + 1)) * 4)
+                }px`;
+            }
+        } else if (position === "LEFT") {
+            return "0";
+        } else {
+            return null;
+        }
+    }};
+    top: ${({ index, middle, position }) => {
+        if (position === "LEFT" || position === "RIGHT") {
+            if (index === middle) {
+                return "0px";
+            }
+            if (index > middle) {
+                return `${(index - middle) * SPACING}px`;
+            }
+            if (index < middle) {
+                return `-${(middle - index) * SPACING}px`;
+            }
+        } else if (position === "TOP") {
+            return "0";
+        } else {
+            return null;
+        }
+    }};
+    bottom: ${({ position }) => (position === "BOTTOM" ? "0" : null)};
+    right: ${({ position }) => (position === "RIGHT" ? "0" : null)};
+    transform: ${({ position }) =>
+        position === "TOP" || position === "BOTTOM"
+            ? "translate(-50%)"
+            : "translate(0, 50%)"};
+`;
 
 type Props = {
     hand: HandType;
@@ -9,7 +96,7 @@ type Props = {
     selectCard: (card: CardType) => () => void;
     parentWidth: number;
     parentHeight: number;
-    direction: "VERTICAL" | "HORIZONTAL";
+    position: "TOP" | "RIGHT" | "BOTTOM" | "LEFT";
 };
 
 export const Hand: React.FC<Props> = ({
@@ -17,36 +104,22 @@ export const Hand: React.FC<Props> = ({
     isFace,
     selectCard,
     selectedCard,
-    parentWidth,
-    parentHeight,
-    direction,
+    position,
 }) => {
     const areCardsEqual = (card1: CardType) => (card2: CardType) => {
         return card1.suit === card2.suit && card1.rank === card2.rank;
     };
 
     const nCards = hand.length;
+    const middle = nCards / 2 - 0.5;
 
-    const spacing =
-        direction === "HORIZONTAL"
-            ? (parentWidth - 24) / nCards
-            : (parentHeight - 24) / nCards;
+    const cardDirection =
+        position === "TOP" || position === "BOTTOM" ? "VERTICAL" : "HORIZONTAL";
 
     return (
-        <div className="relative -left-1/2">
+        <HandContainer position={position}>
             {hand.map((card, i) => (
-                <div
-                    key={card.rank + card.suit}
-                    className="absolute"
-                    style={{
-                        zIndex: 1000 + i,
-                        left:
-                            direction === "HORIZONTAL"
-                                ? `${i * spacing}px`
-                                : "",
-                        top: direction === "VERTICAL" ? `${i * spacing}px` : "",
-                    }}
-                >
+                <CardContainer index={i} middle={middle} position={position}>
                     <Card
                         face={isFace ? "FRONT" : "BACK"}
                         card={card}
@@ -56,12 +129,10 @@ export const Hand: React.FC<Props> = ({
                                 : false
                         }
                         onClick={selectCard(card)}
-                        direction={
-                            direction === "VERTICAL" ? "HORIZONTAL" : "VERTICAL"
-                        }
+                        direction={cardDirection}
                     ></Card>
-                </div>
+                </CardContainer>
             ))}
-        </div>
+        </HandContainer>
     );
 };

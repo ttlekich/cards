@@ -45,8 +45,8 @@ export const Card = (props: Props) => {
                         transform 
                         ${
                             props.isSelected
-                                ? "-translate-y-2"
-                                : "hover:-translate-y-2"
+                                ? "-translate-y-6 -translate-x-2"
+                                : "hover:-translate-y-6 hover:-translate-x-2"
                         }
                    `}
                     onClick={props.onClick}

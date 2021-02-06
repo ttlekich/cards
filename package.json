@@ -18,6 +18,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-router": "^5.1.11",
     "@types/react-router-dom": "^5.1.7",
+    "@types/styled-components": "^5.1.7",
     "cssnano": "^4.1.10",
     "postcss": "^8.2.4",
     "postcss-cli": "^8.3.1",
@@ -30,7 +31,9 @@
     "@snowpack/plugin-run-script": "^2.3.0",
     "autoprefixer": "^10.2.3",
     "fp-ts": "^2.9.3",
+    "i": "^0.3.6",
     "io-ts": "^2.2.13",
+    "npm": "^7.5.2",
     "ramda": "^0.27.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -38,6 +41,7 @@
     "react-query": "^3.6.0",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
+    "styled-components": "^5.2.1",
     "tailwindcss": "^2.0.2",
     "tailwindcss-classnames": "^2.0.0"
   }
