@@ -1,5 +1,5 @@
 import React from "react";
-import { Suit } from "../crazy-eights/deck";
+import type { Suit } from "../crazy-eights/deck";
 
 type Props = {
     suit: Suit;
@@ -17,11 +17,11 @@ export const SuitButton: React.FC<Props> = ({ suit, onClick }) => {
     return (
         <button
             className={`
-                bg-gray-200 
-                hover:bg-gray-400 
-                px-2 py-1 
-                rounded 
-                text-lg 
+                bg-gray-200
+                hover:bg-gray-400
+                px-2 py-1
+                rounded
+                text-lg
                 ${suitInfo.color === "black" ? "text-gray-900" : "text-red-500"}
                 `}
             onClick={onClick}

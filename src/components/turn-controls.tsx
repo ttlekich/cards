@@ -7,10 +7,10 @@ import {
     SKIP_TURN,
 } from "../entities/game";
 import { PLAYING } from "../entities/game-mode";
-import { useOvermind } from "../overmind";
 import * as R from "ramda";
-import { Suit } from "../crazy-eights/deck";
 import { SuitChooser } from "./suit-chooser";
+import type { Suit } from "../crazy-eights/deck";
+import { useGame } from "../hooks/useGame";
 
 type Props = {
     handlePlayCard: (event: React.SyntheticEvent) => void;
@@ -27,8 +27,7 @@ export const TurnControls: React.FC<Props> = ({
     handleSkip,
     isTurn,
 }) => {
-    const { state } = useOvermind();
-    const { game } = state;
+    const { game } = useGame();
 
     const turnOptions = game?.mode === PLAYING ? game.turnOptions : [];
 

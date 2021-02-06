@@ -27,14 +27,14 @@ import { Card, Deck, Hand, newDeck, WILD_CARD } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
 import { FINISHED, PLAYING } from "../entities/game-mode";
-import {
+import type {
     UserGamePlaying,
     UserGameRecord,
     UserGameRecordFinished,
     UserGameRecordNotPlaying,
     UserGameRecordPlaying,
 } from "../entities/user-game";
-import { User } from "../entities/user";
+import type { User } from "../entities/user";
 
 export const initialize = (round: number) => (game: Game): GamePlaying => {
     const initialDeck = newDeck();

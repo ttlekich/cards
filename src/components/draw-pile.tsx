@@ -1,18 +1,18 @@
 import React from "react";
-import { useOvermind } from "../overmind";
 import { Card } from "./card";
 import { FINISHED, NOT_PLAYING, PLAYING } from "../entities/game-mode";
 import * as R from "ramda";
+import { useGame } from "../hooks/useGame";
 
 export const DrawPile = () => {
-    const { state } = useOvermind();
-    if (!state.game) return <></>;
-    switch (state.game.mode) {
+    const { game } = useGame();
+    if (!game) return <></>;
+    switch (game.mode) {
         case PLAYING:
-            const lastPlayed = R.last(state.game.discard);
+            const lastPlayed = R.last(game.discard);
             return (
                 <>
-                    {state.game && (
+                    {game && (
                         <div className="flex justify-center items-center gap-4">
                             <Card
                                 card={{ suit: "S", rank: "A" }}

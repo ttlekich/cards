@@ -1,26 +1,28 @@
 import React from "react";
 import { useHistory } from "react-router";
-import { useOvermind } from "../overmind";
+import { useAuth } from "../hooks/useAuth";
+import { useGame } from "../hooks/useGame";
 
 export const Navigation: React.FC = () => {
+    const { user, signOut } = useAuth();
+    const { game, leaveGame, isLoading } = useGame();
     const history = useHistory();
-    const { state, actions } = useOvermind();
 
     const handleLeaveGame = (event: React.SyntheticEvent) => {
         event.preventDefault();
-        // TODO
-        actions.leaveGame();
-        history.push("/lobby");
+        leaveGame();
+        history.push("/");
     };
 
     const handleSignOut = async (event: React.SyntheticEvent) => {
         event.preventDefault();
-        await actions.logoutUser();
+        signOut();
+        history.push("/");
     };
 
     return (
         <>
-            <nav className="w-full">
+            <nav className="absolute w-full">
                 <div className="flex flex-wrap justify-between p-2 shadow-sm">
                     <div>
                         <h1 className="flex-auto text-xl text-gray-900 font-semibold tracking-widest">
@@ -32,7 +34,7 @@ export const Navigation: React.FC = () => {
                         </h1>
                     </div>
                     <div className="flex items-baseline gap-3">
-                        {state.game && (
+                        {game && (
                             <button
                                 className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
                                 onClick={handleLeaveGame}
@@ -40,7 +42,7 @@ export const Navigation: React.FC = () => {
                                 Leave Game
                             </button>
                         )}
-                        {state.user && (
+                        {user && (
                             <button
                                 className="bg-gray-200 hover:bg-gray-400 px-2 py-1 rounded text-sm"
                                 onClick={handleSignOut}

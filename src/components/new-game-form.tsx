@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useOvermind } from "../overmind";
+import { useHistory } from "react-router";
 import { FormWrapper } from "./form-wrapper";
 import { LoadingSpinner } from "./loading-spinner";
 
@@ -13,14 +13,10 @@ type Props = {
 };
 
 export const NewGameForm = (props: Props) => {
-    const [isLoading, setIsLoading] = useState(false);
-    const { actions } = useOvermind();
     const { register, handleSubmit, reset } = useForm<Inputs>();
+
     const onSubmit = async (formData: Inputs) => {
-        setIsLoading(true);
-        await actions.joinGame(formData.gameName);
         reset();
-        setIsLoading(false);
         props.onSubmit(formData.gameName);
     };
 
@@ -42,16 +38,12 @@ export const NewGameForm = (props: Props) => {
                         type="text"
                         ref={register({})}
                     ></input>
-                    {isLoading ? (
-                        <LoadingSpinner></LoadingSpinner>
-                    ) : (
-                        <button
-                            className="rounded py-1 px-2 bg-gray-900 hover:bg-gray-700 text-white"
-                            type="submit"
-                        >
-                            Join
-                        </button>
-                    )}
+                    <button
+                        className="rounded py-1 px-2 bg-gray-900 hover:bg-gray-700 text-white"
+                        type="submit"
+                    >
+                        Join
+                    </button>
                 </div>
             </form>
         </FormWrapper>

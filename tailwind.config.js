@@ -1,15 +1,9 @@
 module.exports = {
-    theme: {
-        extend: {
-            transitionProperty: {
-                height: "height",
-                spacing: "margin, padding",
-            },
-        },
-    },
+    purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
+    darkMode: false, // or 'media' or 'class'
+    theme: {},
     variants: {
-        overflow: ["last"],
-        translate: ["first"],
-        transform: ["first"],
+        extend: {},
     },
+    plugins: [],
 };

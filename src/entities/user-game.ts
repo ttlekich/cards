@@ -19,6 +19,7 @@ export const UserGameNotPlaying = t.type({
     email: t.string,
     playerNumber: t.number,
     score: t.number,
+    ready: t.boolean,
 });
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type UserGameNotPlaying = t.TypeOf<typeof UserGameNotPlaying>;

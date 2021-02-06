@@ -5,9 +5,9 @@ import { Navigation } from "../components/navigation";
 
 export const LoginPage = withRouter(() => {
     return (
-        <div className="flex flex-col items-center h-full w-full">
+        <div className="h-full w-full">
             <Navigation></Navigation>
-            <div className="container">
+            <div className="flex items-center justify-center h-full">
                 <LoginForm></LoginForm>
             </div>
         </div>
