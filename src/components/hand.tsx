@@ -31,7 +31,7 @@ const HandContainer = styled.ul<HandContainerProps>`
         switch (position) {
             case "LEFT":
             case "RIGHT":
-                return "10rem";
+                return "8rem";
             case "TOP":
             case "BOTTOM":
                 return "0rem";
@@ -70,10 +70,16 @@ const CardContainer = styled.li<CardContainerProps>`
                 return "0px";
             }
             if (index > middle) {
-                return `${(index - middle) * SPACING}px`;
+                return `${
+                    (index - middle) *
+                    Math.min(SPACING, (SPACING / (middle + 1)) * 4)
+                }px`;
             }
             if (index < middle) {
-                return `-${(middle - index) * SPACING}px`;
+                return `-${
+                    (middle - index) *
+                    Math.min(SPACING, (SPACING / (middle + 1)) * 4)
+                }px`;
             }
         } else if (position === "TOP") {
             return "0";
@@ -86,7 +92,7 @@ const CardContainer = styled.li<CardContainerProps>`
     transform: ${({ position }) =>
         position === "TOP" || position === "BOTTOM"
             ? "translate(-50%)"
-            : "translate(0, 50%)"};
+            : "translate(-50%, -50%)"};
 `;
 
 type Props = {
@@ -119,7 +125,12 @@ export const Hand: React.FC<Props> = ({
     return (
         <HandContainer position={position}>
             {hand.map((card, i) => (
-                <CardContainer index={i} middle={middle} position={position}>
+                <CardContainer
+                    index={i}
+                    middle={middle}
+                    position={position}
+                    key={`${card.rank}-${card.suit}`}
+                >
                     <Card
                         face={isFace ? "FRONT" : "BACK"}
                         card={card}

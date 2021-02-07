@@ -6,6 +6,78 @@ import type { Card, Suit } from "../crazy-eights/deck";
 import type { UserGame } from "../entities/user-game";
 import { TurnControls } from "./turn-controls";
 import { useAuth } from "../hooks/useAuth";
+import styled from "styled-components";
+
+type PlayerHUDContainerProps = {
+    position: "TOP" | "RIGHT" | "BOTTOM" | "LEFT";
+};
+
+const PlayerHUDContainer = styled.div<PlayerHUDContainerProps>`
+    display: flex;
+    justify-content: space-space-between;
+    align-items: center;
+    padding: ${({ position }) => {
+        switch (position) {
+            case "LEFT":
+            case "RIGHT":
+                return "4rem";
+            case "TOP":
+            case "BOTTOM":
+                return "2rem";
+        }
+    }};
+    flex-direction: ${({ position }) => {
+        switch (position) {
+            case "LEFT":
+                return "row-reverse";
+            case "RIGHT":
+                return "row";
+            case "TOP":
+                return "column-reverse";
+            case "BOTTOM":
+                return "column";
+        }
+    }};
+    max-width: ${({ position }) => {
+        switch (position) {
+            case "LEFT":
+            case "RIGHT":
+                return null;
+            case "TOP":
+            case "BOTTOM":
+                return "20rem";
+        }
+    }};
+    max-height: ${({ position }) => {
+        switch (position) {
+            case "LEFT":
+            case "RIGHT":
+                return "20rem";
+            case "TOP":
+            case "BOTTOM":
+                return null;
+        }
+    }};
+`;
+
+type PlayerOrientationProps = {
+    position: "TOP" | "RIGHT" | "BOTTOM" | "LEFT";
+};
+
+const PlayerInformation = styled.div<PlayerOrientationProps>`
+    writing-mode: ${({ position }) => {
+        switch (position) {
+            case "LEFT":
+            case "RIGHT":
+                return "vertical-rl";
+            case "TOP":
+            case "BOTTOM":
+                return null;
+        }
+    }};
+    display: flex;
+    gap: 2rem;
+`;
 
 type Props = {
     player: UserGame;
@@ -66,15 +138,15 @@ export const PlayerHUD = (props: Props) => {
         player.playerNumber === game.currentPlayerNumber;
 
     return (
-        <div className="flex flex-col p-5 items-center">
-            <div className="flex flex-row justify-center gap-2 p-2">
+        <PlayerHUDContainer position={props.position}>
+            <PlayerInformation position={props.position}>
                 <div>
                     <b>Player: </b> {userGame.email}
                 </div>
                 <div>
                     <b>Score: </b> {userGame.score}
                 </div>
-            </div>
+            </PlayerInformation>
             {props.player.mode === PLAYING ? (
                 <Hand
                     isFace={props.position === "BOTTOM"} // TODO
@@ -97,6 +169,6 @@ export const PlayerHUD = (props: Props) => {
                     />
                 )}
             </div>
-        </div>
+        </PlayerHUDContainer>
     );
 };

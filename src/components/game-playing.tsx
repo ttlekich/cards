@@ -10,12 +10,6 @@ import styled from "styled-components";
 const GameContainer = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-    gap: 0px 0px;
-    grid-template-areas:
-        ". . ."
-        ". . ."
-        ". . .";
 `;
 
 export const GamePlaying = () => {
@@ -31,18 +25,27 @@ export const GamePlaying = () => {
 
     return (
         <GameContainer>
-            <div className="col-span-3">
-                <div className="flex justify-center">
-                    {userGameTop && (
+            <div className="flex flex-col justify-end col-span-3">
+                <div
+                    className={`flex justify-center ${
+                        !userGameTop && "invisible"
+                    }`}
+                >
+                    {userGameTop ? (
                         <PlayerHUD
                             player={userGameTop}
                             position={"TOP"}
                         ></PlayerHUD>
-                    )}
+                    ) : userGame ? (
+                        <PlayerHUD
+                            player={userGame}
+                            position={"TOP"}
+                        ></PlayerHUD>
+                    ) : null}
                 </div>
             </div>
             <div>
-                <div className="flex justify-center">
+                <div className="flex">
                     {userGameLeft && (
                         <PlayerHUD
                             player={userGameLeft}
@@ -55,16 +58,25 @@ export const GamePlaying = () => {
                 <DrawPile></DrawPile>
             </div>
             <div>
-                <div className="flex justify-center">
-                    {userGameRight && (
+                <div
+                    className={`flex justify-center ${
+                        !userGameRight && "invisible"
+                    }`}
+                >
+                    {userGameRight ? (
                         <PlayerHUD
                             player={userGameRight}
                             position={"RIGHT"}
                         ></PlayerHUD>
-                    )}
+                    ) : userGameLeft ? (
+                        <PlayerHUD
+                            player={userGameLeft}
+                            position={"RIGHT"}
+                        ></PlayerHUD>
+                    ) : null}
                 </div>
             </div>
-            <div className="col-span-3">
+            <div className="flex flex-col justify-start col-span-3">
                 {userGame && (
                     <div className="flex justify-center">
                         <PlayerHUD
