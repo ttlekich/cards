@@ -53,10 +53,11 @@ export const Card = t.type({
 export type Card = t.TypeOf<typeof Card>;
 
 export const WILD_CARD = "WILD_CARD";
+export const NONE = "NONE";
 
 export const WildCard = t.type({
-    suit: t.union([Suit, t.literal(WILD_CARD)]),
-    rank: t.union([Rank, t.literal(WILD_CARD)]),
+    suit: t.union([Suit, t.literal(WILD_CARD), t.literal(NONE)]),
+    rank: t.union([Rank, t.literal(WILD_CARD), t.literal(NONE)]),
 });
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type WildCard = t.TypeOf<typeof WildCard>;

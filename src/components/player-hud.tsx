@@ -149,7 +149,7 @@ export const PlayerHUD = (props: Props) => {
             </PlayerInformation>
             {props.player.mode === PLAYING ? (
                 <Hand
-                    isFace={props.position === "BOTTOM"} // TODO
+                    isFace={props.position === "BOTTOM"}
                     hand={props.player.hand}
                     selectedCard={selectedCard}
                     selectCard={selectCard}
@@ -158,16 +158,18 @@ export const PlayerHUD = (props: Props) => {
                     position={props.position}
                 ></Hand>
             ) : null}
-            <div className="flex justify-center gap-2 p-2">
-                {isPlayer && isTurn && (
-                    <TurnControls
-                        handleDrawCard={handleDrawCard}
-                        handlePlayCard={handlePlayCard}
-                        handleChooseSuit={handleChooseSuit}
-                        handleSkip={handleSkip}
-                        isTurn={isTurn}
-                    />
-                )}
+            <div
+                className={`"flex justify-center p-2 space-x-2
+                        ${isPlayer && isTurn ? "visible" : "invisible"}
+            `}
+            >
+                <TurnControls
+                    handleDrawCard={handleDrawCard}
+                    handlePlayCard={handlePlayCard}
+                    handleChooseSuit={handleChooseSuit}
+                    handleSkip={handleSkip}
+                    isTurn={isTurn}
+                />
             </div>
         </PlayerHUDContainer>
     );

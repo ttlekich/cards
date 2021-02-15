@@ -3,7 +3,6 @@ import { useHistory, useRouteMatch } from "react-router";
 import { Navigation } from "../components/navigation";
 import { PLAYING } from "../entities/game-mode";
 import { GameProvider, useGame } from "../hooks/useGame";
-import { LoadingSpinner } from "../components/loading-spinner";
 import { GamePlaying } from "../components/game-playing";
 import { GameSetup } from "../components/game-setup";
 import { useAuth } from "../hooks/useAuth";

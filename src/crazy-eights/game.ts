@@ -23,7 +23,7 @@ import {
     TurnOption,
     TurnOptions,
 } from "../entities/game";
-import { Card, Deck, Hand, newDeck, WILD_CARD } from "./deck";
+import { Card, Deck, Hand, newDeck, NONE, WILD_CARD } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
 import { FINISHED, PLAYING } from "../entities/game-mode";
@@ -333,7 +333,7 @@ export const getTurnOptions = (
                             type: PLAY_CARD,
                             payload: {
                                 rank: "2",
-                                suit: payload.suit,
+                                suit: NONE,
                             },
                         },
                         {
@@ -348,6 +348,20 @@ export const getTurnOptions = (
                             type: PLAY_CARD,
                             payload: {
                                 rank: "4",
+                                suit: NONE,
+                            },
+                        },
+                        {
+                            type: SKIP_TURN,
+                        },
+                    ];
+                }
+                if (payload.rank === "7") {
+                    return [
+                        {
+                            type: PLAY_CARD,
+                            payload: {
+                                rank: "7",
                                 suit: payload.suit,
                             },
                         },
@@ -599,6 +613,7 @@ export const processMove = (
                 {
                     ...game,
                     playDirection,
+                    turnOptions: getTurnOptions(game.stack, game.history),
                     currentPlayerNumber: getNextPlayerNumber(
                         game.currentPlayerNumber,
                         playDirection,
@@ -704,9 +719,27 @@ export const isCardPlayable = (game: GamePlaying, card: Card) => {
         return (
             payload.rank === card.rank ||
             payload.suit === card.suit ||
-            card.rank === "8" ||
+            (payload.suit !== NONE && card.rank === "8") ||
             (payload.rank === WILD_CARD && payload.suit === WILD_CARD)
         );
     }
     return false;
+};
+
+export const getCurrentSuit = (game: GamePlaying) => {
+    const playCardOrChangeSuit = R.head(
+        game.history.filter(
+            (item) => item.type === SET_SUIT || item.type === PLAY_CARD
+        )
+    );
+    if (!playCardOrChangeSuit) {
+        return undefined;
+    }
+    switch (playCardOrChangeSuit.type) {
+        case SET_SUIT:
+            return playCardOrChangeSuit.payload;
+        case PLAY_CARD:
+            return playCardOrChangeSuit.payload.suit;
+            return undefined;
+    }
 };
