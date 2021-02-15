@@ -11,6 +11,7 @@
 -   [ ] Remove animations on draw pile
 -   [ ] Play testing current suit
 -   [ ] Better play UX (double click, dragging, clicking draw pile)
+-   [ ] Better setup UX (placeholder for user loading)
 -   [ ] Usernames
 -   [ ] Better information when joining an existing game
 

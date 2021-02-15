@@ -160,7 +160,11 @@ export const PlayerHUD = (props: Props) => {
             ) : null}
             <div
                 className={`"flex justify-center p-2 space-x-2
-                        ${isPlayer && isTurn ? "visible" : "invisible"}
+                        ${
+                            isPlayer && isTurn && props.position === "BOTTOM"
+                                ? "visible"
+                                : "invisible"
+                        }
             `}
             >
                 <TurnControls
