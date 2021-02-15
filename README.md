@@ -5,6 +5,7 @@
 -   [ ] Ending a round on 2, 4, 7, or 8
 -   [ ] Endgame screen
 -   [ ] Game loading states
+-   [ ] Refreshing on game screen when deployed
 
 #### High
 
