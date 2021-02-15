@@ -11,11 +11,13 @@
 -   [ ] Endgame screen
 -   [ ] Game loading states
 -   [ ] Refreshing on game screen when deployed
+-   [ ] Order hand
 
 #### High
 
 -   [ ] Remove animations on draw pile
 -   [ ] Play testing current suit (on 8 especially)
+-   [ ] Full dimension current suit placeholder
 -   [ ] Better setup UX
     -   [ ] Fully loaded table with loading placeholders
     -   [ ] Error notification when trying to start without all players ready.
