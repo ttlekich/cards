@@ -1,3 +1,7 @@
+# Crazy8s
+
+[Current Deployment](https://dazzling-kare-871fa3.netlify.app/)
+
 ### TODO
 
 #### Critical (Unplayable)
