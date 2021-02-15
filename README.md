@@ -7,6 +7,7 @@
 #### Critical (Unplayable)
 
 -   [ ] Ending a round on 2, 4, 7, or 8
+-   [ ] Starting a round with an 8
 -   [ ] Endgame screen
 -   [ ] Game loading states
 -   [ ] Refreshing on game screen when deployed
@@ -14,11 +15,18 @@
 #### High
 
 -   [ ] Remove animations on draw pile
--   [ ] Play testing current suit
--   [ ] Better play UX (double click, dragging, clicking draw pile)
--   [ ] Better setup UX (placeholder for user loading)
+-   [ ] Play testing current suit (on 8 especially)
+-   [ ] Better setup UX
+    -   [ ] Fully loaded table with loading placeholders
+    -   [ ] Error notification when trying to start without all players ready.
+-   [ ] Better play UX
+    -   [ ] Playing a card (drag, double click)
+    -   [ ] Drawing a card (click draw pile)
 -   [ ] Usernames
--   [ ] Better information when joining an existing game
+-   [ ] Better error UX
+    -   [ ] When joining an existing game
+    -   [ ] When joining a full game
+-   [ ] Cloud function to remove stale/completed games
 
 #### Medium
 
