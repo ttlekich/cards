@@ -60,7 +60,6 @@ export const useGameProvider = (user: firebase.User, gameId: string) => {
 
     const updateGame = useCallback(
         async (game: Game) => {
-            console.log(game);
             setIsLoading(true);
             await gameRef.current.update(game);
             setIsLoading(false);
