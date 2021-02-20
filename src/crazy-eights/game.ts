@@ -727,19 +727,21 @@ export const isCardPlayable = (game: GamePlaying, card: Card) => {
 };
 
 export const getCurrentSuit = (game: GamePlaying) => {
-    const playCardOrChangeSuit = R.head(
-        game.history.filter(
-            (item) => item.type === SET_SUIT || item.type === PLAY_CARD
-        )
+    const playCardOrChangeSuits = game.history.filter(
+        (item) =>
+            item.type === SET_SUIT ||
+            (item.type === PLAY_CARD && item.payload.rank !== "8") ||
+            item.type === REVEALED_CARD
     );
+    const playCardOrChangeSuit = R.head(playCardOrChangeSuits);
     if (!playCardOrChangeSuit) {
         return undefined;
     }
     switch (playCardOrChangeSuit.type) {
         case SET_SUIT:
             return playCardOrChangeSuit.payload;
+        case REVEALED_CARD:
         case PLAY_CARD:
             return playCardOrChangeSuit.payload.suit;
-            return undefined;
     }
 };

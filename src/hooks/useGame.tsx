@@ -60,6 +60,7 @@ export const useGameProvider = (user: firebase.User, gameId: string) => {
 
     const updateGame = useCallback(
         async (game: Game) => {
+            console.log(game);
             setIsLoading(true);
             await gameRef.current.update(game);
             setIsLoading(false);
@@ -203,8 +204,8 @@ export const useGameProvider = (user: firebase.User, gameId: string) => {
         if (
             game &&
             game.mode === PLAYING &&
-            user &&
-            Crazy8s.isCardPlayable(game, card)
+            user
+            // Crazy8s.isCardPlayable(game, card)
         ) {
             const move: Move = {
                 type: PLAY_CARD,
