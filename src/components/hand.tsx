@@ -2,6 +2,7 @@ import React from "react";
 import type { Card as CardType, Hand as HandType } from "../crazy-eights/deck";
 import { Card } from "./card";
 import styled from "styled-components";
+import * as Crazy8s from "../crazy-eights/game";
 
 const SPACING = 64;
 
@@ -121,6 +122,11 @@ export const Hand: React.FC<Props> = ({
 
     const cardDirection =
         position === "TOP" || position === "BOTTOM" ? "VERTICAL" : "HORIZONTAL";
+
+    const hearts = hand.filter((card) => card.suit === "H");
+    const spades = hand.filter((card) => card.suit === "S");
+    const clubs = hand.filter((card) => card.suit === "C");
+    const diamonds = hand.filter((card) => card.suit === "D");
 
     return (
         <HandContainer position={position}>

@@ -745,3 +745,7 @@ export const getCurrentSuit = (game: GamePlaying) => {
             return playCardOrChangeSuit.payload.suit;
     }
 };
+
+export const sortByRank = (c1: Card, c2: Card) => {
+    // TODO
+};
