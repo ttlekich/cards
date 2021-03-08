@@ -4,35 +4,35 @@
 
 ### TODO
 
-#### Critical (Unplayable)
-
--   [x] Ending a round on 2, 4, 7, or 8 without errors
--   [x] current suit is correct when playing an 8 or on round start
--   [x] Starting a round with an 8
--   [x] Endgame screen
--   [x] Order hand
--   [ ] Refreshing on game screen when deployed
-
-#### High
-
 -   [ ] Ending a round on 2 or 4 allows players to play another card
--   [x] Remove animations on draw pile
--   [x] Play testing current suit (on 8 especially)
--   [x] Full dimension current suit placeholder
+-   [ ] Saying "last card" or draw 5
+-   [ ] Usernames
+-   [ ] Cloud function to remove stale/completed games
 -   [ ] Better setup UX
     -   [ ] Fully loaded table with loading placeholders
     -   [ ] Error notification when trying to start without all players ready.
 -   [ ] Better play UX
     -   [ ] Playing a card (drag, double click)
     -   [ ] Drawing a card (click draw pile)
--   [ ] Usernames
+    -   [ ] Order hand (drag, order options)
+-   [ ] Better finish UX
+    -   [ ] Polished game over screen
 -   [ ] Better error UX
     -   [ ] When joining an existing game
     -   [ ] When joining a full game
--   [ ] Cloud function to remove stale/completed games
--   [ ] Starting a round with an 8 UX
-
-#### Medium
-
+    -   [ ] Do not allow single player
 -   [ ] Previous game list/rejoin
 -   [ ] Stats/Scores
+
+### DONE
+
+-   [x] Ending a round on 2, 4, 7, or 8 without errors
+-   [x] current suit is correct when playing an 8 or on round start
+-   [x] Starting a round with an 8
+-   [x] Endgame screen
+-   [x] Order hand
+-   [x] Refreshing on game screen when deployed
+-   [x] Starting a round with an 8 UX
+-   [x] Remove animations on draw pile
+-   [x] Play testing current suit (on 8 especially)
+-   [x] Full dimension current suit placeholder
