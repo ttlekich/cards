@@ -23,7 +23,8 @@ import {
     TurnOption,
     TurnOptions,
 } from "../entities/game";
-import { Card, Deck, Hand, newDeck, NONE, WILD_CARD } from "./deck";
+import { Card, Deck, Hand, Ranks, newDeck, NONE, WILD_CARD } from "./deck";
+import type { Rank } from "./deck";
 import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
 import { FINISHED, PLAYING } from "../entities/game-mode";
@@ -747,5 +748,10 @@ export const getCurrentSuit = (game: GamePlaying) => {
 };
 
 export const sortByRank = (c1: Card, c2: Card) => {
-    // TODO
+    const c1RankIndex = Ranks.findIndex((rank) => rank === c1.rank);
+    const c2RankIndex = Ranks.findIndex((rank) => rank === c2.rank);
+
+    if (c1RankIndex > c2RankIndex) return 1;
+    else if (c1RankIndex < c2RankIndex) return -1;
+    else return 0;
 };

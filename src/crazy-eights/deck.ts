@@ -29,8 +29,7 @@ export const Rank = t.union([
 ]);
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type Rank = t.TypeOf<typeof Rank>;
-const Ranks: Rank[] = [
-    "A",
+export const Ranks: Rank[] = [
     "2",
     "3",
     "4",
@@ -43,6 +42,7 @@ const Ranks: Rank[] = [
     "J",
     "Q",
     "K",
+    "A",
 ];
 
 export const Card = t.type({

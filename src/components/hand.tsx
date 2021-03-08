@@ -124,13 +124,24 @@ export const Hand: React.FC<Props> = ({
         position === "TOP" || position === "BOTTOM" ? "VERTICAL" : "HORIZONTAL";
 
     const hearts = hand.filter((card) => card.suit === "H");
+    const sortedHearts = hearts.sort(Crazy8s.sortByRank);
     const spades = hand.filter((card) => card.suit === "S");
+    const sortedSpades = spades.sort(Crazy8s.sortByRank);
     const clubs = hand.filter((card) => card.suit === "C");
+    const sortedClubs = clubs.sort(Crazy8s.sortByRank);
     const diamonds = hand.filter((card) => card.suit === "D");
+    const sortedDiamonds = diamonds.sort(Crazy8s.sortByRank);
+
+    const sortedHand = [
+        ...sortedHearts,
+        ...sortedSpades,
+        ...sortedDiamonds,
+        ...sortedClubs,
+    ];
 
     return (
         <HandContainer position={position}>
-            {hand.map((card, i) => (
+            {sortedHand.map((card, i) => (
                 <CardContainer
                     index={i}
                     middle={middle}

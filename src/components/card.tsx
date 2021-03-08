@@ -48,6 +48,7 @@ export const Card = (props: Props) => {
                                 ? "-translate-y-2 -translate-x-2"
                                 : "hover:-translate-y-2 hover:-translate-x-2"
                         }
+                        duration-200
                    `}
                     onClick={props.onClick}
                 >
