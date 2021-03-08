@@ -29,6 +29,7 @@ import * as R from "ramda";
 import { shuffle } from "../util/shuffle";
 import { FINISHED, PLAYING } from "../entities/game-mode";
 import type {
+    UserGame,
     UserGamePlaying,
     UserGameRecord,
     UserGameRecordFinished,
@@ -754,4 +755,9 @@ export const sortByRank = (c1: Card, c2: Card) => {
     if (c1RankIndex > c2RankIndex) return 1;
     else if (c1RankIndex < c2RankIndex) return -1;
     else return 0;
+};
+
+export const sortByScore = (userGameRecord: UserGameRecord) => {
+    const sortedByScore = R.sortBy(R.prop("score"), R.values(userGameRecord));
+    return sortedByScore;
 };

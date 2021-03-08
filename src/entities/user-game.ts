@@ -59,6 +59,7 @@ export type UserGameRecordFinished = t.TypeOf<typeof UserGameRecordFinished>;
 export const UserGameRecord = t.union([
     UserGameRecordNotPlaying,
     UserGameRecordPlaying,
+    UserGameRecordFinished,
 ]);
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- intentionally naming the variable the same as the type
 export type UserGameRecord = t.TypeOf<typeof UserGameRecord>;

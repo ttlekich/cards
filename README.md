@@ -9,17 +9,17 @@
 -   [x] Ending a round on 2, 4, 7, or 8 without errors
 -   [x] current suit is correct when playing an 8 or on round start
 -   [x] Starting a round with an 8
--   [ ] Endgame screen
+-   [x] Endgame screen
 -   [ ] Game loading states
 -   [ ] Refreshing on game screen when deployed
--   [ ] Order hand
+-   [x] Order hand
 
 #### High
 
 -   [ ] Ending a round on 2 or 4 allows players to play another card
--   [ ] Remove animations on draw pile
--   [ ] Play testing current suit (on 8 especially)
--   [ ] Full dimension current suit placeholder
+-   [x] Remove animations on draw pile
+-   [x] Play testing current suit (on 8 especially)
+-   [x] Full dimension current suit placeholder
 -   [ ] Better setup UX
     -   [ ] Fully loaded table with loading placeholders
     -   [ ] Error notification when trying to start without all players ready.
