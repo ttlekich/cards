@@ -10,9 +10,8 @@
 -   [x] current suit is correct when playing an 8 or on round start
 -   [x] Starting a round with an 8
 -   [x] Endgame screen
--   [ ] Game loading states
--   [ ] Refreshing on game screen when deployed
 -   [x] Order hand
+-   [ ] Refreshing on game screen when deployed
 
 #### High
 

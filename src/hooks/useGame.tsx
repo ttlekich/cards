@@ -203,8 +203,8 @@ export const useGameProvider = (user: firebase.User, gameId: string) => {
         if (
             game &&
             game.mode === PLAYING &&
-            user
-            // Crazy8s.isCardPlayable(game, card)
+            user &&
+            Crazy8s.isCardPlayable(game, card)
         ) {
             const move: Move = {
                 type: PLAY_CARD,
