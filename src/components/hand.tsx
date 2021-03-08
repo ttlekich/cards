@@ -149,6 +149,7 @@ export const Hand: React.FC<Props> = ({
                     key={`${card.rank}-${card.suit}`}
                 >
                     <Card
+                        animate={true}
                         face={isFace ? "FRONT" : "BACK"}
                         card={card}
                         isSelected={

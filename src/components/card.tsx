@@ -7,6 +7,7 @@ type Props = {
     isSelected: boolean;
     onClick?: () => void;
     direction: "VERTICAL" | "HORIZONTAL";
+    animate: boolean;
 };
 
 export const Card = (props: Props) => {
@@ -40,11 +41,11 @@ export const Card = (props: Props) => {
                         shadow-md
                         border
                         rounded
-                        cursor-pointer
                         leading-tight
-                        transform 
+                        ${props.animate ? "cursor-pointer" : ""}
+                        ${props.animate ? "transform" : ""}
                         ${
-                            props.isSelected
+                            props.isSelected && props.animate
                                 ? "-translate-y-2 -translate-x-2"
                                 : "hover:-translate-y-2 hover:-translate-x-2"
                         }

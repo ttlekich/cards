@@ -41,6 +41,7 @@ export const DrawPile = () => {
                             </span>
                             <div className="flex justify-center items-center gap-4">
                                 <Card
+                                    animate={false}
                                     card={{ suit: "S", rank: "A" }}
                                     face={"BACK"}
                                     isSelected={false}
@@ -48,6 +49,7 @@ export const DrawPile = () => {
                                 ></Card>
                                 {lastPlayed && (
                                     <Card
+                                        animate={false}
                                         card={lastPlayed}
                                         face={"FRONT"}
                                         isSelected={false}
